@@ -2,8 +2,14 @@ import animate from 'tailwindcss-animate';
 import type { Config } from 'tailwindcss';
 import defaultTheme from 'tailwindcss/defaultTheme';
 
-const config: Config = {
-  content: [],
+function generateColors(name: string) {
+  return Object.fromEntries(Array.from(
+    { length: 12 },
+    (_, index) => [index + 1, `hsl(var(--${name}-${index + 1}))`],
+  ));
+}
+
+const config: Omit<Config, 'content'> = {
   darkMode: 'class',
   safelist: ['dark'],
   theme: {
@@ -17,16 +23,21 @@ const config: Config = {
     extend: {
       colors: {
         border: 'hsl(var(--border))',
+        'border-component': 'hsl(var(--border-component))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        lime: generateColors('lime'),
+        grass: generateColors('grass'),
+        olive: generateColors('olive'),
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
+          hover: 'hsl(var(--secondary-hover))',
           foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {
@@ -50,6 +61,9 @@ const config: Config = {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
+      aria: {
+        invalid: 'invalid="true"',
+      },
       borderRadius: {
         xl: 'calc(var(--radius) + 4px)',
         lg: 'var(--radius)',
@@ -58,6 +72,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
+        serif: ['Merriweather', ...defaultTheme.fontFamily.serif],
       },
       keyframes: {
         'accordion-down': {

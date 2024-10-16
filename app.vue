@@ -1,5 +1,6 @@
 <template>
-  <div>
-    <UiButton>halo</UiButton>
-  </div>
+  <NuxtLayout>
+    <UiToaster />
+    <NuxtPage />
+  </NuxtLayout>
 </template>
