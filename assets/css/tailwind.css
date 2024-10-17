@@ -1,3 +1,5 @@
+@import "./fonts.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -110,6 +112,10 @@
 
   .link-text {
     color: hsl(var(--grass-11));
+  }
+
+  h1, h2, h3, h4 {
+    font-family: theme('fontFamily.serif');
   }
 }
 
