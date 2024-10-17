@@ -1,8 +1,8 @@
 <template>
-  <div class="h-screen flex">
-    <div class="bg-grass-12 w-full max-w-xl" />
-    <div class="flex-1 flex items-center justify-center">
-      <div class="max-w-lg w-full px-4">
+  <div class="flex h-screen">
+    <div class="w-full max-w-xl bg-grass-12" />
+    <div class="flex flex-1 items-center justify-center">
+      <div class="w-full max-w-lg px-4">
         <slot />
       </div>
     </div>

@@ -3,10 +3,12 @@ import type { Config } from 'tailwindcss';
 import defaultTheme from 'tailwindcss/defaultTheme';
 
 function generateColors(name: string) {
-  return Object.fromEntries(Array.from(
-    { length: 12 },
-    (_, index) => [index + 1, `hsl(var(--${name}-${index + 1}))`],
-  ));
+  return Object.fromEntries(
+    Array.from({ length: 12 }, (_, index) => [
+      index + 1,
+      `hsl(var(--${name}-${index + 1}))`,
+    ]),
+  );
 }
 
 const config: Omit<Config, 'content'> = {

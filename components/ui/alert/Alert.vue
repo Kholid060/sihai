@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue'
-import { cn } from '@/lib/utils'
-import { type AlertVariants, alertVariants } from '.'
+import type { HTMLAttributes } from 'vue';
 import { AlertTriangleIcon, InfoIcon, CheckIcon } from 'lucide-vue-next';
+import { type AlertVariants, alertVariants } from '.';
+import { cn } from '@/lib/utils';
 
 const props = defineProps<{
-  class?: HTMLAttributes['class']
-  variant?: AlertVariants['variant']
-}>()
+  class?: HTMLAttributes['class'];
+  variant?: AlertVariants['variant'];
+}>();
 
 const iconComponent = computed(() => {
   switch (props.variant) {
@@ -24,9 +24,14 @@ const iconComponent = computed(() => {
 
 <template>
   <div :class="cn(alertVariants({ variant }), props.class)" role="alert">
-    <div class="rounded-full shadow-inner bg-white border-2 border-white p-2 inline-block">
+    <div
+      class="inline-block rounded-full border-2 border-white bg-white p-2 shadow-inner"
+    >
       <slot name="icon">
-        <component :is="iconComponent.icon" :class="'size-5 ' + iconComponent.class" />
+        <component
+          :is="iconComponent.icon"
+          :class="'size-5 ' + iconComponent.class"
+        />
       </slot>
     </div>
     <div class="mt-0.5">

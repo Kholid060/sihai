@@ -22,18 +22,21 @@ const props = withDefaults(defineProps<Props>(), {
     :as="as"
     :as-child="asChild"
     :disabled="isLoading || $attrs.disabled"
-    :class="cn(buttonVariants({ variant, size }), props.class, isLoading && 'relative')"
+    :class="
+      cn(
+        buttonVariants({ variant, size }),
+        props.class,
+        isLoading && 'relative',
+      )
+    "
   >
     <slot />
     <div
       v-if="isLoading"
       style="background-color: inherit; border-radius: inherit"
-      class="absolute top-0 left-0 z-50 w-full h-full flex items-center justify-center"
+      class="absolute left-0 top-0 z-50 flex size-full items-center justify-center"
     >
-      <LoaderCircleIcon
-        style="color: inherit"
-        class="animate-spin"
-      />
+      <LoaderCircleIcon style="color: inherit" class="animate-spin" />
     </div>
   </Primitive>
 </template>

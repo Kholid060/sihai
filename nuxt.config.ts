@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxtjs/supabase',
     '@nuxtjs/google-fonts',
+    '@pinia/nuxt',
   ],
   devtools: { enabled: true },
   runtimeConfig: {
@@ -29,7 +30,7 @@ export default defineNuxtConfig({
   supabase: {
     redirectOptions: {
       login: '/auth/login',
-      include: ['/dashboard/*'],
+      include: ['/dashboard(/*)?'],
       callback: '/auth/redirect',
     },
   },

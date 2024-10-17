@@ -1,11 +1,11 @@
-import { cva, type VariantProps } from 'class-variance-authority'
+import { cva, type VariantProps } from 'class-variance-authority';
 
-export { default as Alert } from './Alert.vue'
-export { default as AlertDescription } from './AlertDescription.vue'
-export { default as AlertTitle } from './AlertTitle.vue'
+export { default as Alert } from './Alert.vue';
+export { default as AlertDescription } from './AlertDescription.vue';
+export { default as AlertTitle } from './AlertTitle.vue';
 
 export const alertVariants = cva(
-  'relative bg-gradient-to-br to-background to-60% w-full rounded-lg shadow-sm border-2 border-white p-4 flex items-start gap-2.5',
+  'relative flex w-full items-start gap-2.5 rounded-lg border-2 border-white bg-gradient-to-br to-background to-60% p-4 shadow-sm',
   {
     variants: {
       variant: {
@@ -18,6 +18,6 @@ export const alertVariants = cva(
       variant: 'default',
     },
   },
-)
+);
 
-export type AlertVariants = VariantProps<typeof alertVariants>
+export type AlertVariants = VariantProps<typeof alertVariants>;
