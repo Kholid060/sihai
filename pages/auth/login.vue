@@ -66,6 +66,7 @@
     <span class="relative z-10 bg-background px-4">OR</span>
   </div>
   <UiButton
+    size="lg"
     class="w-full gap-2"
     variant="secondary"
     :disabled="isLoading"

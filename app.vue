@@ -3,7 +3,6 @@
     <UiToaster />
     <NuxtPage />
   </NuxtLayout>
-  <button @click="supabase.auth.signOut()">logout</button>
 </template>
 <script setup lang="ts">
 const supabase = useSupabaseClient();

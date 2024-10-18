@@ -1,6 +1,8 @@
 import animate from 'tailwindcss-animate';
 import type { Config } from 'tailwindcss';
 import defaultTheme from 'tailwindcss/defaultTheme';
+// @ts-expect-error no type...
+import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette';
 
 function generateColors(name: string) {
   return Object.fromEntries(
@@ -11,7 +13,8 @@ function generateColors(name: string) {
   );
 }
 
-const config: Omit<Config, 'content'> = {
+const config: Config = {
+  content: [],
   darkMode: 'class',
   safelist: ['dark'],
   theme: {
@@ -102,7 +105,22 @@ const config: Omit<Config, 'content'> = {
       },
     },
   },
-  plugins: [animate],
+  plugins: [
+    animate,
+    {
+      handler: function ({ matchUtilities, theme }) {
+        matchUtilities(
+          {
+            highlight: (value) => ({ boxShadow: `inset 0 1px 0 0 ${value}` }),
+          },
+          {
+            values: flattenColorPalette(theme('backgroundColor')),
+            type: 'color',
+          },
+        );
+      },
+    },
+  ],
 };
 
 export default config;

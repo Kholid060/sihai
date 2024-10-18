@@ -58,8 +58,8 @@
     --secondary-foreground: 24 9.8% 10%;
     --muted: 60 4.8% 95.9%;
     --muted-foreground: var(--olive-11);
-    --accent: 60 4.8% 95.9%;
-    --accent-foreground: 24 9.8% 10%;
+    --accent: var(--olive-3);
+    --accent-foreground: var(--olive-12);
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
     --border: var(--olive-6);
@@ -128,4 +128,8 @@
   position: absolute;
   transform: translate(-50%, -50%);
   background-color: theme('colors.border');
+}
+
+.dropdown-trigger-width {
+  width: var(--radix-popper-anchor-width);
 }
