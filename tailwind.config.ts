@@ -28,6 +28,7 @@ const config: Config = {
     extend: {
       colors: {
         border: 'hsl(var(--border))',
+        'border-hover': 'hsl(var(--border-hover))',
         'border-component': 'hsl(var(--border-component))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -77,6 +78,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
+        mono: ['DM Mono', ...defaultTheme.fontFamily.mono],
         serif: ['Merriweather', ...defaultTheme.fontFamily.serif],
       },
       keyframes: {

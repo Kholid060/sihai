@@ -18,12 +18,6 @@ export default defineNuxtConfig({
       exclude: ['vee-validate'],
     },
   },
-  googleFonts: {
-    families: {
-      Merriweather: [400, 700],
-    },
-    download: true,
-  },
   shadcn: {
     prefix: 'Ui',
   },

@@ -1,6 +1,6 @@
 <template>
   <DashboardSidebar />
-  <main class="pl-64">
+  <main class="py-9 pl-64">
     <div class="container">
       <NuxtPage />
     </div>

@@ -9,3 +9,7 @@ export const DB_USER_PASSWORD_LENGTH = {
 };
 
 export const DB_PLANS_ID_MAX_LENGTH = 16;
+
+export const DB_LINK_DESCRIPTION_MAX_LEN = 512;
+
+export const DB_LINK_TITLE_MAX_LEN = 128;

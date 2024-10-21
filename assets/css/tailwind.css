@@ -63,6 +63,7 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
     --border: var(--olive-6);
+    --border-hover: var(--olive-8);
     --input: var(--olive-7);
     --ring: 20 14.3% 4.1%;
     --radius: 0.75rem;

@@ -110,7 +110,7 @@
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import { EyeIcon, EyeOffIcon, XIcon } from 'lucide-vue-next';
-import { newUserValidation } from '~/server/validation/auth/auth-email.validation';
+import { newUserValidation } from '~/server/validation/auth-email.validation';
 
 definePageMeta({
   layout: 'auth',

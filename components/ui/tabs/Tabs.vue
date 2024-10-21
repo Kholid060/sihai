@@ -5,17 +5,17 @@ import { TABS_INJECTION_KEY } from './injectionKey';
 import type { UiTabVariant } from '.';
 
 interface Props extends TabsRootProps {
-  type?: UiTabVariant;
+  variant?: UiTabVariant;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  type: 'default',
+  variant: 'default',
 });
 const emits = defineEmits<TabsRootEmits>();
 
 const forwarded = useForwardPropsEmits(props, emits);
 
-provide(TABS_INJECTION_KEY, props.type);
+provide(TABS_INJECTION_KEY, props.variant);
 </script>
 
 <template>

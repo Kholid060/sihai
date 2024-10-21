@@ -1,0 +1,60 @@
+import { z } from 'zod';
+import {
+  DB_LINK_DESCRIPTION_MAX_LEN,
+  DB_LINK_TITLE_MAX_LEN,
+} from '../const/db.const';
+
+export const zHex = z.string().regex(/^#[0-9a-f]{3,6}$/i, 'Invalid HEX color');
+
+export const linkQROptionsValidation = z.object({
+  logo: z.boolean().default(true),
+  color: zHex.optional().default('#000'),
+  bgColor: zHex.optional().default('#fff'),
+});
+export type LinkQROptionsValidation = z.infer<typeof linkQROptionsValidation>;
+
+const MAX_UTM_LEN = 512;
+export const linkUTMOptionsValidation = z.object({
+  ref: z.string().max(MAX_UTM_LEN).optional(),
+  term: z.string().max(MAX_UTM_LEN).optional(),
+  source: z.string().max(MAX_UTM_LEN).optional(),
+  medium: z.string().max(MAX_UTM_LEN).optional(),
+  content: z.string().max(MAX_UTM_LEN).optional(),
+  campaign: z.string().max(MAX_UTM_LEN).optional(),
+});
+export type LinkUTMOptionsValidation = z.infer<typeof linkUTMOptionsValidation>;
+
+export const linkRuleConditionValidation = z.object({
+  left: z.string().min(1),
+  right: z.string().min(1),
+  operator: z.string().min(1),
+});
+export type LinkRuleConditionValidation = z.infer<
+  typeof linkRuleConditionValidation
+>;
+
+export const linkRuleValidation = z.object({
+  target: z.string().url(),
+  conditions: linkRuleConditionValidation.array(),
+});
+export type LinkRuleValidation = z.infer<typeof linkRuleValidation>;
+
+export const newLinkValidation = z.object({
+  key: z
+    .string()
+    .regex(
+      /^[A-Za-z0-9-._~:/?#[\]@!$&'()*+,;%=]+/,
+      `Allowed characters -._~:/?#[]@!$&'()*+,;%=`,
+    )
+    .min(3)
+    .max(128)
+    .optional()
+    .or(z.literal('')),
+  qrOptions: linkQROptionsValidation,
+  utmOptions: linkUTMOptionsValidation,
+  target: z.string().url().max(1024),
+  rules: linkRuleValidation.array().default([]),
+  title: z.string().max(DB_LINK_TITLE_MAX_LEN).optional(),
+  description: z.string().max(DB_LINK_DESCRIPTION_MAX_LEN).optional(),
+});
+export type NewLinkValidation = z.infer<typeof newLinkValidation>;

@@ -1,7 +1,6 @@
 import { serverSupabaseUser } from '#supabase/server';
-import type { ServerGuard } from '~/interface/server.interface';
 
-export const authGuard: ServerGuard = async (event) => {
+export const authGuard = defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   if (!user) {
     throw createError({
@@ -11,4 +10,4 @@ export const authGuard: ServerGuard = async (event) => {
   }
 
   event.context.user = user;
-};
+});

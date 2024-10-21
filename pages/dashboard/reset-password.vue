@@ -93,7 +93,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import { z } from 'zod';
 import { XIcon, EyeOffIcon, EyeIcon } from 'lucide-vue-next';
-import { newUserValidation } from '~/server/validation/auth/auth-email.validation';
+import { newUserValidation } from '~/server/validation/auth-email.validation';
 
 const supabase = useSupabaseClient();
 
