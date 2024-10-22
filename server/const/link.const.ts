@@ -17,3 +17,33 @@ export const LINK_UTM_QUERY_MAP: Record<
   content: 'utm_content',
   campaign: 'utm_campaign',
 } as const;
+
+export const LINK_RULE_CONDITION_TYPE = [
+  'ip',
+  'os',
+  'day',
+  'date',
+  'time',
+  'is-qr',
+  'browser',
+  'country',
+  'language',
+  'user-agent',
+  'url-query',
+  'device',
+] as const;
+export type LinkRuleConditionType = (typeof LINK_RULE_CONDITION_TYPE)[number];
+
+export const LINK_RULE_CONDITION_OPERATOR = {
+  e: 'Equal',
+  lt: 'Less than',
+  lte: 'Less than equal',
+  gt: 'Greater than',
+  gte: 'Greater than equal',
+  iao: 'Is any of',
+  con: 'Contains',
+  it: 'Is true',
+  if: 'Is false',
+} as const;
+export type LinkRuleConditionOperator =
+  keyof typeof LINK_RULE_CONDITION_OPERATOR;

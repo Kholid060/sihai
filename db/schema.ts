@@ -67,28 +67,19 @@ export const userUsagesTable = pgTable(
   }),
 );
 
-export const plansTable = pgTable(
-  'plans',
-  {
-    id: varchar('id', { length: DB_PLANS_ID_MAX_LENGTH }).primaryKey(),
-    name: varchar('name', { length: 32 }),
-    maxUrl: integer('max_url').notNull(),
-    userId: uuid('user_id')
-      .references(() => users.id, { onDelete: 'cascade' })
-      .notNull(),
-    maxRedirect: integer('max_redirect').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow()
-      .$onUpdateFn(() => new Date()),
-  },
-  (table) => ({
-    userIdIdx: index('p_user_id_fk').on(table.userId),
-  }),
-);
+export const plansTable = pgTable('plans', {
+  id: varchar('id', { length: DB_PLANS_ID_MAX_LENGTH }).primaryKey(),
+  name: varchar('name', { length: 32 }),
+  maxUrl: integer('max_url').notNull(),
+  maxRedirect: integer('max_redirect').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
 export type NewPlan = typeof plansTable.$inferInsert;
 export type SelectPlan = typeof plansTable.$inferSelect;
 

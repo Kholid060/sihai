@@ -3,6 +3,11 @@ import {
   DB_LINK_DESCRIPTION_MAX_LEN,
   DB_LINK_TITLE_MAX_LEN,
 } from '../const/db.const';
+import type { LinkRuleConditionOperator } from '../const/link.const';
+import {
+  LINK_RULE_CONDITION_OPERATOR,
+  LINK_RULE_CONDITION_TYPE,
+} from '../const/link.const';
 
 export const zHex = z.string().regex(/^#[0-9a-f]{3,6}$/i, 'Invalid HEX color');
 
@@ -25,9 +30,16 @@ export const linkUTMOptionsValidation = z.object({
 export type LinkUTMOptionsValidation = z.infer<typeof linkUTMOptionsValidation>;
 
 export const linkRuleConditionValidation = z.object({
-  left: z.string().min(1),
-  right: z.string().min(1),
-  operator: z.string().min(1),
+  id: z.string().min(1).max(4),
+  left: z.enum(LINK_RULE_CONDITION_TYPE),
+  isNot: z.boolean().optional(),
+  operator: z.enum(
+    Object.keys(LINK_RULE_CONDITION_OPERATOR) as [
+      LinkRuleConditionOperator,
+      ...LinkRuleConditionOperator[],
+    ],
+  ),
+  right: z.union([z.string(), z.string().array()]),
 });
 export type LinkRuleConditionValidation = z.infer<
   typeof linkRuleConditionValidation
@@ -35,7 +47,9 @@ export type LinkRuleConditionValidation = z.infer<
 
 export const linkRuleValidation = z.object({
   target: z.string().url(),
-  conditions: linkRuleConditionValidation.array(),
+  id: z.string().max(8).min(1),
+  conditions: linkRuleConditionValidation.array().array(),
+  name: z.string().max(128).default('Unnamed rule').optional(),
 });
 export type LinkRuleValidation = z.infer<typeof linkRuleValidation>;
 
