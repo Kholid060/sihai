@@ -1,4 +1,5 @@
 @import "./fonts.css";
+@import "./multiselect.css";
 
 @tailwind base;
 @tailwind components;

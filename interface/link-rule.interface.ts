@@ -11,5 +11,5 @@ export type LinkRuleConditionBase<T extends string> = {
   group: string;
   label: string;
   type: LinkRuleConditionDataType;
-  possibleValues?: (string | { label: string; value: string | number })[];
+  possibleValues?: (string | { label: string; value: string })[];
 };

@@ -15,6 +15,7 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@internationalized/date": "^3.5.6",
     "@neondatabase/serverless": "^0.10.1",
     "@nuxt/eslint": "^0.6.0",
     "@nuxtjs/google-fonts": "^3.2.0",
@@ -22,6 +23,7 @@
     "@pinia/nuxt": "^0.5.5",
     "@supabase/auth-js": "^2.65.1",
     "@vee-validate/zod": "^4.13.2",
+    "@vueform/multiselect": "^2.6.10",
     "@vueuse/core": "^11.1.0",
     "bcrypt": "^5.1.1",
     "bowser": "^2.11.0",
@@ -42,6 +44,7 @@
     "ulidx": "^2.4.1",
     "vee-validate": "^4.13.2",
     "vue": "latest",
+    "vue-multiselect": "^3.1.0",
     "vue-router": "latest",
     "zod": "^3.23.8"
   },

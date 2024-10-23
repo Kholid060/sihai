@@ -43,9 +43,17 @@
       />
       <UiInput placeholder="Search..." type="search" class="w-64 pl-9" />
     </div>
-    <DashboardNewLinkModal>
-      <UiButton class="ml-4">Create link</UiButton>
-    </DashboardNewLinkModal>
+    <UiDialog modal>
+      <UiDialogTrigger>
+        <UiButton class="ml-4">Create link</UiButton>
+      </UiDialogTrigger>
+      <UiDialogContent blur class="w-auto max-w-none p-0">
+        <UiDialogHeader class="px-6 pt-6">
+          <UiDialogTitle class="font-bold">Create new link</UiDialogTitle>
+        </UiDialogHeader>
+        <DashboardNewLink />
+      </UiDialogContent>
+    </UiDialog>
   </div>
   <UiCard class="mt-6">
     <UiCardHeader>halo</UiCardHeader>

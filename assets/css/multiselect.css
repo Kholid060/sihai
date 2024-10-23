@@ -1,0 +1,46 @@
+.multiselect.ui {
+  color: inherit;
+  min-height: theme('height.10');
+  font-size: theme('fontSize.sm');
+
+  &.condition-section {
+    border: 0px;
+    background-color: transparent;
+  }
+
+  .multiselect-dropdown {
+    border-radius: theme('borderRadius.md');
+  }
+
+  input {
+    background-color: inherit;
+    font-size: theme('fontSize.sm');
+  }
+
+  .multiselect__option {
+    font-size: theme('fontSize.sm');
+  }
+
+  border-color: theme('colors.border');
+  border-radius: theme('borderRadius.md');
+  background-color: theme('colors.background');
+  
+  .multiselect-tags {
+    padding-left: theme('padding.3');
+  }
+
+  .multiselect-tag {
+    font-weight: normal;
+    margin-right: theme('margin.1');
+    font-size: theme('fontSize.sm');
+    margin-bottom: theme('margin.1');
+    color: theme('colors.foreground');
+    border-radius: theme('borderRadius.sm');
+    border: 1px solid theme('colors.border');
+    background-color: theme('colors.secondary.DEFAULT');
+  }
+
+  .multiselect-option {
+    font-size: theme('fontSize.sm');
+  }
+}

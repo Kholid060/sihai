@@ -17,6 +17,16 @@ const LINK_RULE_GROUP = {
   location: 'Location',
 };
 
+const dayOfWeekOptions = [
+  { label: 'Sunday', value: '0' },
+  { label: 'Monday', value: '1' },
+  { label: 'Tuesday', value: '2' },
+  { label: 'Wednesday', value: '3' },
+  { label: 'Thursday', value: '4' },
+  { label: 'Friday', value: '5' },
+  { label: 'Saturday', value: '6' },
+];
+
 export const linkRuleItems: {
   [T in LinkRuleConditionType]: LinkRuleConditionBase<T>;
 } = {
@@ -33,8 +43,8 @@ export const linkRuleItems: {
     group: LINK_RULE_GROUP.url,
   },
   country: {
+    type: 'list',
     id: 'country',
-    type: 'string',
     label: 'Country',
     group: LINK_RULE_GROUP.location,
     possibleValues: Object.entries(countryData).map(([value, label]) => ({
@@ -60,26 +70,43 @@ export const linkRuleItems: {
     label: 'Language',
     group: LINK_RULE_GROUP.location,
   },
+  time: {
+    id: 'time',
+    type: 'time',
+    label: 'Time (UTC timezone)',
+    group: LINK_RULE_GROUP.time,
+  },
   date: {
     id: 'date',
     type: 'date',
-    label: 'Date',
+    label: 'Date (UTC timezone)',
     group: LINK_RULE_GROUP.time,
   },
   day: {
     id: 'day',
     type: 'list',
-    label: 'Day of week',
+    label: 'Day of week (UTC timezone)',
     group: LINK_RULE_GROUP.time,
-    possibleValues: [
-      { label: 'Sunday', value: 0 },
-      { label: 'Monday', value: 1 },
-      { label: 'Tuesday', value: 2 },
-      { label: 'Wednesday', value: 3 },
-      { label: 'Thursday', value: 4 },
-      { label: 'Friday', value: 5 },
-      { label: 'Saturday', value: 6 },
-    ],
+    possibleValues: dayOfWeekOptions,
+  },
+  'time-user': {
+    id: 'time-user',
+    type: 'time',
+    label: 'Time (User timezone)',
+    group: LINK_RULE_GROUP.time,
+  },
+  'date-user': {
+    id: 'date-user',
+    type: 'date',
+    label: 'Date (User timezone)',
+    group: LINK_RULE_GROUP.time,
+  },
+  'day-user': {
+    id: 'day-user',
+    type: 'list',
+    label: 'Day of week (User timezone)',
+    group: LINK_RULE_GROUP.time,
+    possibleValues: dayOfWeekOptions,
   },
   ip: {
     id: 'ip',
@@ -99,12 +126,6 @@ export const linkRuleItems: {
     label: 'Operating System',
     group: LINK_RULE_GROUP.device,
   },
-  time: {
-    id: 'time',
-    type: 'time',
-    label: 'Time',
-    group: LINK_RULE_GROUP.time,
-  },
   'user-agent': {
     id: 'user-agent',
     type: 'string',
@@ -120,7 +141,7 @@ export const linkRuleConditionOperatorsByType: Record<
   list: ['e', 'iao'],
   boolean: ['it', 'if'],
   string: ['e', 'con', 'iao'],
-  time: ['e', 'gt', 'gte', 'iao'],
-  date: ['e', 'gt', 'gte', 'iao', 'lt', 'lte'],
-  number: ['e', 'gt', 'gte', 'iao', 'lt', 'lte'],
+  time: ['e', 'iao', 'gt', 'gte', 'lt', 'lte'],
+  date: ['e', 'iao', 'gt', 'gte', 'lt', 'lte'],
+  number: ['e', 'iao', 'gt', 'gte', 'lt', 'lte'],
 };

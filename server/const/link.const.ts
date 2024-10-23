@@ -31,15 +31,18 @@ export const LINK_RULE_CONDITION_TYPE = [
   'user-agent',
   'url-query',
   'device',
+  'day-user',
+  'date-user',
+  'time-user',
 ] as const;
 export type LinkRuleConditionType = (typeof LINK_RULE_CONDITION_TYPE)[number];
 
 export const LINK_RULE_CONDITION_OPERATOR = {
   e: 'Equal',
   lt: 'Less than',
-  lte: 'Less than equal',
+  lte: 'Less than or equal',
   gt: 'Greater than',
-  gte: 'Greater than equal',
+  gte: 'Greater than or equal',
   iao: 'Is any of',
   con: 'Contains',
   it: 'Is true',
