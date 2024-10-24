@@ -75,7 +75,7 @@
                 </UiSelectContent>
               </UiSelect>
               <UiLabel class="ml-4 inline-flex items-center gap-2">
-                <UiSwitch v-model="condition.isNot" />
+                <UiSwitch v-model:checked="condition.isNot" />
                 NOT operator
               </UiLabel>
               <UiTooltip>

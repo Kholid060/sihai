@@ -3,6 +3,11 @@
   min-height: theme('height.10');
   font-size: theme('fontSize.sm');
 
+  &.is-open {
+    @apply ring-2 ring-ring;
+    borde-radius: inherit;
+  }
+
   &.condition-section {
     border: 0px;
     background-color: transparent;

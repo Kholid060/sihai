@@ -58,13 +58,17 @@
             </div>
           </UiTabsContent>
           <UiTabsContent tabindex="-1" class="mt-0" value="rules">
-            <UiFormField v-slot="{ value }" name="rules">
+            <UiFormField v-slot="{ value, errorMessage }" name="rules">
               <ClientOnly>
                 <LinkRule
                   :model-value="value"
                   @update:model-value="setFieldValue('rules', $event)"
                 />
               </ClientOnly>
+              <UiAlert v-if="errorMessage" variant="destructive" class="mt-4">
+                <UiAlertTitle>Error on one of the rules</UiAlertTitle>
+                <UiAlertDescription>{{ errorMessage }}</UiAlertDescription>
+              </UiAlert>
             </UiFormField>
           </UiTabsContent>
           <UiTabsContent tabindex="-1" class="mt-0" value="utm">
@@ -114,7 +118,7 @@
               />
             </div>
           </UiTabsContent>
-          <UiDialogFooter class="mt-10">
+          <div class="mt-10 flex items-center">
             <UiTabsList>
               <UiTabsTrigger value="detail">
                 <FileTextIcon class="inline size-4 align-sub" />
@@ -130,8 +134,10 @@
               </UiTabsTrigger>
             </UiTabsList>
             <div class="grow"></div>
-            <UiButton type="submit">Create link</UiButton>
-          </UiDialogFooter>
+            <UiButton type="submit" :is-loading="isLoading">
+              Create link
+            </UiButton>
+          </div>
         </form>
       </div>
     </div>
@@ -148,6 +154,12 @@ import {
 import { LINK_UTM_QUERY_MAP } from '~/server/const/link.const';
 import { nanoid } from 'nanoid';
 import { useResizeObserver, watchDebounced } from '@vueuse/core';
+import { useToast } from '../ui/toast';
+import type { LinkDetail } from '~/interface/link.interface';
+
+const emit = defineEmits<{
+  'new-link': [link: LinkDetail];
+}>();
 
 const utmForms: {
   label: string;
@@ -164,6 +176,7 @@ const utmForms: {
 
 let targetObjUrl: URL | null = null;
 
+const toast = useToast();
 const { handleSubmit, values, isFieldValid, setFieldValue } = useForm({
   validationSchema: toTypedSchema(newLinkValidation),
   initialValues: {
@@ -173,6 +186,7 @@ const { handleSubmit, values, isFieldValid, setFieldValue } = useForm({
   keepValuesOnUnmount: true,
 });
 
+const isLoading = shallowRef(false);
 const contentContainerRef = ref<HTMLElement>();
 
 const linkTarget = shallowReactive<{ valid: boolean; utmUrl: string }>({
@@ -180,11 +194,22 @@ const linkTarget = shallowReactive<{ valid: boolean; utmUrl: string }>({
   valid: false,
 });
 
-const onSubmit = handleSubmit((values) => {
-  $fetch('/api/links', {
-    method: 'POST',
-    body: JSON.stringify(values),
-  });
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    isLoading.value = true;
+    const result = await $fetch('/api/links', {
+      method: 'POST',
+      body: JSON.stringify(values),
+    });
+    emit('new-link', result.data);
+  } catch (error) {
+    toast.toast({
+      ...getFetchError(error),
+      variant: 'destructive',
+    });
+  } finally {
+    isLoading.value = false;
+  }
 });
 
 function onUTMChanged(key: keyof LinkUTMOptionsValidation, value: string) {

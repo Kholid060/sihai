@@ -7,30 +7,31 @@
     label="label"
     track-by="value"
     searchable
+    :strict="false"
+    :search-filter="searchFilter"
     placeholder="Select value"
     :close-on-select="false"
     :clear-on-select="false"
     class="ui condition-section"
-  >
-  </multiselect>
-  <select
+  />
+  <multiselect
     v-else
     v-model="rightValue"
-    class="h-10 w-full rounded-b-md bg-transparent px-2 text-sm"
-  >
-    <option value="" selected disabled>Select value</option>
-    <option
-      v-for="item in autocomplete"
-      :key="item.value"
-      :value="item.value.toString()"
-    >
-      {{ item.label }}
-    </option>
-  </select>
+    :options="autocomplete"
+    :strict="false"
+    :search-filter="searchFilter"
+    mode="single"
+    label="label"
+    track-by="value"
+    searchable
+    placeholder="Select value"
+    class="ui condition-section"
+  />
 </template>
 <script setup lang="ts">
 import type { LinkRuleConditionValidation } from '~/server/validation/link.validation';
 import Multiselect from '@vueform/multiselect';
+import type { LinkRuleConditionOptionItem } from '~/interface/link-rule.interface';
 
 const model = defineModel<LinkRuleConditionValidation>({ default: {} });
 
@@ -46,13 +47,12 @@ const rightValue = computed({
     model.value.right = value;
   },
 });
-const autocomplete = computed(() => {
-  const items = linkRuleItems[model.value.left].possibleValues;
-  if (!items) return [];
+const autocomplete = computed(
+  () => linkRuleItems[model.value.left].possibleValues ?? [],
+);
 
-  return items.map((item) =>
-    typeof item === 'string' ? { label: item, value: item } : item,
-  );
-});
+const searchFilter = (option: LinkRuleConditionOptionItem, query: string) => {
+  return option.label.toLowerCase().includes(query.toLowerCase());
+};
 </script>
 <style src="@vueform/multiselect/themes/default.css"></style>

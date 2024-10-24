@@ -4,6 +4,7 @@ import type {
 } from '~/interface/link-rule.interface';
 import Bowser from 'bowser';
 import countryData from '~/data/country.json';
+import languageData from '~/data/language.json';
 import type {
   LinkRuleConditionOperator,
   LinkRuleConditionType,
@@ -69,6 +70,10 @@ export const linkRuleItems: {
     type: 'list',
     label: 'Language',
     group: LINK_RULE_GROUP.location,
+    possibleValues: Object.entries(languageData).map(([value, label]) => ({
+      label,
+      value,
+    })),
   },
   time: {
     id: 'time',

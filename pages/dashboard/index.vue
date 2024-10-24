@@ -43,7 +43,7 @@
       />
       <UiInput placeholder="Search..." type="search" class="w-64 pl-9" />
     </div>
-    <UiDialog modal>
+    <UiDialog v-model:open="showNewLinkModal" modal>
       <UiDialogTrigger>
         <UiButton class="ml-4">Create link</UiButton>
       </UiDialogTrigger>
@@ -51,7 +51,7 @@
         <UiDialogHeader class="px-6 pt-6">
           <UiDialogTitle class="font-bold">Create new link</UiDialogTitle>
         </UiDialogHeader>
-        <DashboardNewLink />
+        <DashboardNewLink @new-link="onNewLinkCreated" />
       </UiDialogContent>
     </UiDialog>
   </div>
@@ -67,6 +67,7 @@ import {
   ArrowUpAzIcon,
   ListFilterIcon,
 } from 'lucide-vue-next';
+import type { LinkDetail } from '~/interface/link.interface';
 import { LINKS_SORT_BY, type LinksSortBy } from '~/server/const/link.const';
 
 const sortKeys: { key: LinksSortBy; label: string }[] = [
@@ -78,4 +79,10 @@ const sortBy = shallowReactive<{ key: LinksSortBy; asc: boolean }>({
   asc: false,
   key: LINKS_SORT_BY.createdAt,
 });
+const showNewLinkModal = shallowRef(false);
+
+function onNewLinkCreated(link: LinkDetail) {
+  showNewLinkModal.value = false;
+  navigateTo(`/links/${link.id}`);
+}
 </script>

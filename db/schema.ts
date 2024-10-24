@@ -37,13 +37,13 @@ export const profilesTable = pgTable('profiles', {
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   email: varchar('email', { length: 64 }).notNull().unique(),
-  createdAt: timestamp('created_at', { withTimezone: true })
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
     .notNull()
     .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
     .notNull()
     .defaultNow()
-    .$onUpdateFn(() => new Date()),
+    .$onUpdateFn(() => new Date().toString()),
   name: varchar('name', { length: DB_USER_NAME_LENGTH.max }).notNull(),
   planId: varchar('plan_id', { length: DB_PLANS_ID_MAX_LENGTH })
     .default(APP_PLAN_ID.free)
@@ -59,26 +59,37 @@ export const userUsagesTable = pgTable(
     userId: uuid('user_id')
       .references(() => profilesTable.id, { onDelete: 'cascade' })
       .notNull(),
-    periodEnd: timestamp('period_end', { withTimezone: true }).notNull(),
-    periodStart: timestamp('period_start', { withTimezone: true }).notNull(),
+    urlCounts: integer('urls').notNull().default(0),
+    redirectCounts: integer('redirects').notNull().default(0),
+    periodEnd: timestamp('period_end', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    periodStart: timestamp('period_start', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
   },
   (table) => ({
     userIdIdx: index('uu_user_id_fk').onOnly(table.userId),
   }),
 );
+export type NewUserUsage = typeof userUsagesTable.$inferInsert;
+export type SelectUserUsage = typeof userUsagesTable.$inferSelect;
 
 export const plansTable = pgTable('plans', {
   id: varchar('id', { length: DB_PLANS_ID_MAX_LENGTH }).primaryKey(),
   name: varchar('name', { length: 32 }),
-  maxUrl: integer('max_url').notNull(),
-  maxRedirect: integer('max_redirect').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true })
+  maxUrl: integer('max_url').notNull().default(0),
+  maxRules: integer('max_rules').notNull().default(0),
+  maxRedirect: integer('max_redirect').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
     .notNull()
     .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
     .notNull()
     .defaultNow()
-    .$onUpdateFn(() => new Date()),
+    .$onUpdateFn(() => new Date().toString()),
 });
 export type NewPlan = typeof plansTable.$inferInsert;
 export type SelectPlan = typeof plansTable.$inferSelect;
@@ -94,13 +105,13 @@ export const linksTable = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: DB_LINK_TITLE_MAX_LEN }).default(''),
-    createdAt: timestamp('created_at', { withTimezone: true })
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .notNull()
       .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
       .notNull()
       .defaultNow()
-      .$onUpdateFn(() => new Date()),
+      .$onUpdateFn(() => new Date().toString()),
     clicks: integer('clicks').default(0),
     archived: boolean('archived').default(false),
     description: varchar('description', {

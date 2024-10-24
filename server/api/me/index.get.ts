@@ -1,28 +1,17 @@
-import { eq } from 'drizzle-orm';
-import { profilesTable } from '~/db/schema';
 import { authGuard } from '~/server/guards/auth.guard';
-import { drizzle } from '~/server/lib/drizzle';
+import { getUserProfile } from '~/server/services/user.service';
+import { createAPIResponse } from '~/server/utils/server-utils';
 
 export default defineEventHandler({
   onRequest: [authGuard],
   async handler(event) {
+    const user = await getUserProfile(event.context.user.id);
     const { id, user_metadata } = event.context.user;
-    const [user] = await drizzle
-      .select({ name: profilesTable.name, email: profilesTable.email })
-      .from(profilesTable)
-      .where(eq(profilesTable.id, id))
-      .limit(1);
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized',
-      });
-    }
 
-    return {
+    return createAPIResponse({
       ...user,
       id,
-      avatarUrl: user_metadata.avatar_url ?? null,
-    };
+      avatarUrl: user_metadata.avatar_url,
+    });
   },
 });

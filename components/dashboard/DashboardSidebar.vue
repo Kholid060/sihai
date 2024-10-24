@@ -24,11 +24,12 @@
     </NuxtLink>
     <div class="grow"></div>
     <div class="px-4">
-      <UiDropdownMenu>
-        <UiDropdownMenuTrigger as-child>
-          <UiButton
-            variant="secondary"
-            class="h-12 w-full overflow-hidden px-2 text-left"
+      <div
+        class="min-h-12 w-full rounded-md border bg-secondary text-foreground shadow"
+      >
+        <UiDropdownMenu>
+          <UiDropdownMenuTrigger
+            class="flex h-12 w-full items-center overflow-hidden rounded-md px-2 text-left transition-colors hover:bg-secondary-hover"
           >
             <UiAvatar class="size-8 bg-secondary-hover">
               <UiAvatarImage :src="userStore.profile.avatarUrl ?? ''" />
@@ -43,22 +44,22 @@
               </p>
             </div>
             <ChevronDownIcon class="absolute right-6 size-5 shrink-0" />
-          </UiButton>
-        </UiDropdownMenuTrigger>
-        <UiDropdownMenuContent
-          class="dropdown-trigger-width text-sm"
-          side="top"
-          :side-offset="10"
-        >
-          <UiDropdownMenuItem
-            class="text-destructive focus:text-destructive"
-            @click="signOut"
+          </UiDropdownMenuTrigger>
+          <UiDropdownMenuContent
+            class="dropdown-trigger-width text-sm"
+            side="top"
+            :side-offset="10"
           >
-            <LogOutIcon class="mr-2 size-4" />
-            Sign out
-          </UiDropdownMenuItem>
-        </UiDropdownMenuContent>
-      </UiDropdownMenu>
+            <UiDropdownMenuItem
+              class="text-destructive focus:text-destructive"
+              @click="signOut"
+            >
+              <LogOutIcon class="mr-2 size-4" />
+              Sign out
+            </UiDropdownMenuItem>
+          </UiDropdownMenuContent>
+        </UiDropdownMenu>
+      </div>
     </div>
   </aside>
 </template>
