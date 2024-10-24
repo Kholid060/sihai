@@ -144,6 +144,7 @@
   </UiTabs>
 </template>
 <script lang="ts" setup>
+import { FetchError } from 'ofetch';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import { FileTextIcon, MilestoneIcon, WorkflowIcon } from 'lucide-vue-next';
@@ -177,14 +178,15 @@ const utmForms: {
 let targetObjUrl: URL | null = null;
 
 const toast = useToast();
-const { handleSubmit, values, isFieldValid, setFieldValue } = useForm({
-  validationSchema: toTypedSchema(newLinkValidation),
-  initialValues: {
-    utmOptions: {},
-    key: nanoid(6),
-  },
-  keepValuesOnUnmount: true,
-});
+const { handleSubmit, values, isFieldValid, setFieldValue, setFieldError } =
+  useForm({
+    validationSchema: toTypedSchema(newLinkValidation),
+    initialValues: {
+      utmOptions: {},
+      key: nanoid(6),
+    },
+    keepValuesOnUnmount: true,
+  });
 
 const isLoading = shallowRef(false);
 const contentContainerRef = ref<HTMLElement>();
@@ -203,6 +205,14 @@ const onSubmit = handleSubmit(async (values) => {
     });
     emit('new-link', result.data);
   } catch (error) {
+    if (
+      error instanceof FetchError &&
+      error.data.data?.code === 'duplicate-key'
+    ) {
+      setFieldError('key', 'This short link already exists');
+      return;
+    }
+
     toast.toast({
       ...getFetchError(error),
       variant: 'destructive',

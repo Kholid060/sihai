@@ -72,3 +72,10 @@ export const newLinkValidation = z.object({
   description: z.string().max(DB_LINK_DESCRIPTION_MAX_LEN).optional(),
 });
 export type NewLinkValidation = z.infer<typeof newLinkValidation>;
+
+export const linkQueryValidation = z.object({
+  q: z.string().min(3).optional(),
+  sortAsc: z.coerce.boolean().default(false),
+  sortBy: z.enum(['create-date', 'clicks']).default('create-date'),
+});
+export type LinkQueryValidation = z.infer<typeof linkQueryValidation>;

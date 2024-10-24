@@ -13,7 +13,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import {
   DB_LINK_DESCRIPTION_MAX_LEN,
-  DB_LINK_TITLE_MAX_LEN,
   DB_PLANS_ID_MAX_LENGTH,
   DB_USER_NAME_LENGTH,
 } from '../server/const/db.const';
@@ -24,6 +23,7 @@ import type {
   LinkRuleValidation,
   LinkUTMOptionsValidation,
 } from '~/server/validation/link.validation';
+import { sql } from 'drizzle-orm';
 
 const authSchema = pgSchema('auth');
 
@@ -104,7 +104,7 @@ export const linksTable = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    title: varchar('title', { length: DB_LINK_TITLE_MAX_LEN }).default(''),
+    title: text('title').default(''),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .notNull()
       .defaultNow(),
@@ -125,6 +125,10 @@ export const linksTable = pgTable(
   (table) => ({
     userIdIdx: index('l_user_id').on(table.userId),
     createdAtIdx: index('l_created_at').on(table.createdAt),
+    titleSearchIndex: index('l_title_search').using(
+      'gin',
+      sql`to_tsvector('english', ${table.title})`,
+    ),
   }),
 );
 export type NewLink = typeof linksTable.$inferInsert;
