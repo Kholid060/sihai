@@ -116,6 +116,7 @@
         <UiButton
           size="sm"
           variant="secondary"
+          :disabled="disableAddCondition"
           @click="addRuleCondition('and', index)"
         >
           <PlusIcon class="-ml-1 mr-1 size-5 text-muted-foreground" />
@@ -146,6 +147,7 @@
         <UiButton
           size="sm"
           variant="secondary"
+          :disabled="disableAddCondition"
           @click="addRuleCondition('and', model.conditions.length - 1)"
         >
           <PlusIcon class="-ml-1 mr-1 size-5 text-muted-foreground" />
@@ -155,6 +157,7 @@
           variant="secondary"
           size="sm"
           class="ml-2"
+          :disabled="disableAddCondition"
           @click="addRuleCondition('or')"
         >
           <PlusIcon class="-ml-1 mr-1 size-5 text-muted-foreground" />
@@ -173,7 +176,10 @@ import type {
   LinkRuleConditionDataType,
 } from '~/interface/link-rule.interface';
 import type { LinkRuleConditionType } from '~/server/const/link.const';
-import { LINK_RULE_CONDITION_OPERATOR } from '~/server/const/link.const';
+import {
+  LINK_MAX_CONDITIONS,
+  LINK_RULE_CONDITION_OPERATOR,
+} from '~/server/const/link.const';
 import type { LinkRuleValidation } from '~/server/validation/link.validation';
 
 const model = defineModel<LinkRuleValidation>({ default: {} });
@@ -207,8 +213,15 @@ const groupedLinkRuleItems = Object.values(linkRuleItems).reduce<
   return acc;
 }, {});
 
+const disableAddCondition = computed(() => {
+  return (
+    model.value.conditions.reduce((acc, curr) => acc + curr.length, 0) >=
+    LINK_MAX_CONDITIONS
+  );
+});
+
 function addRuleCondition(type: 'or' | 'and', index?: number) {
-  if (!model.value) return;
+  if (!model.value || disableAddCondition.value) return;
 
   if (type === 'or') {
     model.value.conditions.push([

@@ -35,7 +35,7 @@
     "nanoid": "^5.0.7",
     "nuxt": "^3.13.0",
     "postgres": "^3.4.4",
-    "qrcode": "^1.5.4",
+    "qr-code-styling": "^1.8.4",
     "radix-vue": "^1.9.7",
     "shadcn-nuxt": "^0.10.4",
     "tailwind-merge": "^2.5.4",
@@ -50,6 +50,7 @@
   "devDependencies": {
     "@nuxt/eslint-config": "^0.6.0",
     "@nuxtjs/tailwindcss": "^6.12.1",
+    "@types/qrcode": "^1.5.5",
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.25.0",
     "eslint": "^9.12.0",

@@ -44,6 +44,7 @@ const config: Config = {
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           hover: 'hsl(var(--secondary-hover))',
+          active: 'hsl(var(--secondary-active))',
           foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {

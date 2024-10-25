@@ -50,3 +50,5 @@ export const LINK_RULE_CONDITION_OPERATOR = {
 } as const;
 export type LinkRuleConditionOperator =
   keyof typeof LINK_RULE_CONDITION_OPERATOR;
+
+export const LINK_MAX_CONDITIONS = 8;

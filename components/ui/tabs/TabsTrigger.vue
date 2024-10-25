@@ -24,8 +24,6 @@ const forwardedProps = useForwardProps(delegatedProps);
     v-bind="forwardedProps"
     :class="uiTabTriggerVariants({ class: props.class, variant: tabVariant })"
   >
-    <span class="truncate">
-      <slot />
-    </span>
+    <slot />
   </TabsTrigger>
 </template>

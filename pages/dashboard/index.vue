@@ -47,12 +47,13 @@
       <UiDialogTrigger>
         <UiButton class="ml-4">Create link</UiButton>
       </UiDialogTrigger>
-      <UiDialogContent blur class="w-auto max-w-none p-0">
-        <UiDialogHeader class="px-6 pt-6">
-          <UiDialogTitle class="font-bold">Create new link</UiDialogTitle>
-        </UiDialogHeader>
-        <DashboardNewLink @new-link="onNewLinkCreated" />
-      </UiDialogContent>
+      <UiDialogScrollContent
+        blur
+        hide-close-btn
+        class="flex !w-auto max-w-none p-2"
+      >
+        <LazyDashboardNewLink @new-link="onNewLinkCreated" />
+      </UiDialogScrollContent>
     </UiDialog>
   </div>
   <UiCard class="mt-6">

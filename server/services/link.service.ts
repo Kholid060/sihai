@@ -82,7 +82,7 @@ export async function findLinksByUser(
     .orderBy(filter.sortAsc ? asc(orderByTable) : desc(orderByTable))
     .$dynamic();
   if (filter.q) {
-    query = query.where(ilike(linksTable.title, `%${filter.q}%`));
+    query = query.where(ilike(linksTable.title, `%${filter.q}%`)).limit(10);
   }
 
   return await query.execute();

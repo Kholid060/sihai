@@ -1,5 +1,5 @@
 <template>
-  <ul class="space-y-2">
+  <ul class="space-y-3">
     <li
       v-for="(rule, index) in model"
       :key="rule.id"
@@ -26,7 +26,7 @@
       </UiButton>
     </li>
   </ul>
-  <UiButton variant="secondary" class="mt-4" @click="addRule">
+  <UiButton variant="secondary" class="mt-6" @click="addRule">
     <PlusIcon class="-ml-1 mr-1 size-5" />
     Add rule
   </UiButton>

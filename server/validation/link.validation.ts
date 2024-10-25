@@ -57,8 +57,8 @@ export const newLinkValidation = z.object({
   key: z
     .string()
     .regex(
-      /^[A-Za-z0-9-._~:/?#[\]@!$&'()*+,;%=]+/,
-      `Allowed characters -._~:/?#[]@!$&'()*+,;%=`,
+      /^[A-Za-z0-9-._~:/#[\]@!$'()*+,;%=]*$/,
+      `Allowed characters -._~:/#[\\]@!$'()*+,;%=`,
     )
     .min(3)
     .max(128)

@@ -15,3 +15,5 @@ export const APP_FREE_PLAN: SetRequired<
   name: 'Free plan',
   id: APP_PLAN_ID.free,
 } as const;
+
+export const APP_DOMAIN = 'example.com';
