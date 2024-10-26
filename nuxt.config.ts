@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@nuxtjs/google-fonts',
     '@pinia/nuxt',
+    'nuxt-security',
   ],
   devtools: { enabled: true },
   runtimeConfig: {

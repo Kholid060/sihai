@@ -7,10 +7,15 @@ import type {
 } from '../validation/link.validation';
 import { getUserProfile } from './user.service';
 import { nanoid } from 'nanoid';
-import { incrementDBColumn } from '~/db/db-utils';
-import type { LinkDetail, LinkListItem } from '~/interface/link.interface';
-import { asc, desc, eq, ilike } from 'drizzle-orm';
+import { compareColumn, incrementDBColumn } from '~/db/db-utils';
+import type {
+  LinkDetail,
+  LinkListItem,
+  LinkListResult,
+} from '~/interface/link.interface';
+import { and, asc, desc, eq, ilike, or } from 'drizzle-orm';
 import postgres from 'postgres';
+import { LINK_QUERY_LIMIT } from '../const/link.const';
 
 export async function createNewLink(
   userId: string,
@@ -65,7 +70,7 @@ export async function createNewLink(
 export async function findLinksByUser(
   userId: string,
   filter: LinkQueryValidation = { sortAsc: false, sortBy: 'create-date' },
-): Promise<LinkListItem[]> {
+): Promise<LinkListResult> {
   const orderByTable =
     filter.sortBy === 'create-date' ? linksTable.createdAt : linksTable.clicks;
 
@@ -80,10 +85,81 @@ export async function findLinksByUser(
     .from(linksTable)
     .where(eq(linksTable.userId, userId))
     .orderBy(filter.sortAsc ? asc(orderByTable) : desc(orderByTable))
+    .limit(LINK_QUERY_LIMIT)
     .$dynamic();
   if (filter.q) {
-    query = query.where(ilike(linksTable.title, `%${filter.q}%`)).limit(10);
+    query = query.where(ilike(linksTable.title, `%${filter.q}%`));
   }
 
-  return await query.execute();
+  const result: { items: LinkListItem[]; nextCursor: string | null } = {
+    items: [],
+    nextCursor: null,
+  };
+
+  switch (filter.sortBy) {
+    case 'clicks': {
+      query = query.orderBy(
+        filter.sortAsc ? asc(linksTable.clicks) : desc(linksTable.clicks),
+      );
+
+      if (!filter.nextCursor) break;
+
+      if (typeof filter.nextCursor.clicks !== 'number') {
+        throw createError({ statusCode: 400 });
+      }
+
+      query = query.where(
+        or(
+          compareColumn(
+            linksTable.clicks,
+            filter.nextCursor.clicks,
+            filter.sortAsc ?? false,
+          ),
+          and(
+            eq(linksTable.id, filter.nextCursor.id),
+            compareColumn(
+              linksTable.id,
+              filter.nextCursor.id,
+              filter.sortAsc ?? false,
+            ),
+          ),
+        ),
+      );
+
+      break;
+    }
+    case 'create-date': {
+      query = query.orderBy(
+        filter.sortAsc ? asc(linksTable.clicks) : desc(linksTable.clicks),
+      );
+
+      if (!filter.nextCursor) break;
+
+      query = query.where(
+        compareColumn(
+          linksTable.id,
+          filter.nextCursor.id,
+          filter.sortAsc ?? false,
+        ),
+      );
+      break;
+    }
+    default: {
+      throw createError({ statusCode: 400, message: 'Bad Reqquest' });
+    }
+  }
+
+  result.items = await query.execute();
+
+  const lastItem =
+    LINK_QUERY_LIMIT === result.items.length ? result.items.at(-1) : null;
+  if (lastItem) {
+    result.nextCursor = btoa(
+      filter.sortBy === 'clicks'
+        ? `${lastItem.id},${lastItem.clicks}`
+        : `${lastItem.id},`,
+    );
+  }
+
+  return result;
 }

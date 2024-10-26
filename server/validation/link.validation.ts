@@ -73,9 +73,33 @@ export const newLinkValidation = z.object({
 });
 export type NewLinkValidation = z.infer<typeof newLinkValidation>;
 
+const nextCursorQuery = z.tuple([
+  z.string(),
+  z.coerce.number().min(0).optional(),
+]);
 export const linkQueryValidation = z.object({
   q: z.string().min(3).optional(),
-  sortAsc: z.coerce.boolean().default(false),
+  sortAsc: z
+    .string()
+    .transform((str) => {
+      switch (str) {
+        case 'true':
+          return true;
+        case 'false':
+          return false;
+        default:
+          throw new Error("The string must be 'true' or 'false'");
+      }
+    })
+    .default('false')
+    .optional(),
   sortBy: z.enum(['create-date', 'clicks']).default('create-date'),
+  nextCursor: z
+    .string()
+    .transform((data) => {
+      const [id, clicks] = nextCursorQuery.parse(atob(data).split(','));
+      return { id, clicks };
+    })
+    .optional(),
 });
 export type LinkQueryValidation = z.infer<typeof linkQueryValidation>;

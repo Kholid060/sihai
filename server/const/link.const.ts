@@ -52,3 +52,5 @@ export type LinkRuleConditionOperator =
   keyof typeof LINK_RULE_CONDITION_OPERATOR;
 
 export const LINK_MAX_CONDITIONS = 8;
+
+export const LINK_QUERY_LIMIT = 1;

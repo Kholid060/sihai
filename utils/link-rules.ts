@@ -121,9 +121,12 @@ export const linkRuleItems: {
   },
   device: {
     id: 'device',
-    type: 'string',
+    type: 'list',
     label: 'Device type',
     group: LINK_RULE_GROUP.device,
+    possibleValues: Object.entries(Bowser.PLATFORMS_MAP).map(
+      ([value, label]) => ({ value, label }),
+    ),
   },
   os: {
     id: 'os',

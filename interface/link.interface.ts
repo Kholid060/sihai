@@ -6,3 +6,8 @@ export type LinkListItem = Pick<
   SelectLink,
   'id' | 'key' | 'createdAt' | 'title' | 'clicks'
 >;
+
+export interface LinkListResult {
+  items: LinkListItem[];
+  nextCursor: string | null;
+}

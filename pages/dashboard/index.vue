@@ -82,6 +82,8 @@ const sortBy = shallowReactive<{ key: LinksSortBy; asc: boolean }>({
 });
 const showNewLinkModal = shallowRef(false);
 
+const { refresh } = useAsyncData(() => $fetch('/api/links', {  }));
+
 function onNewLinkCreated(link: LinkDetail) {
   showNewLinkModal.value = false;
   navigateTo(`/links/${link.id}`);

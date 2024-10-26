@@ -1,5 +1,5 @@
 import type { AnyColumn, SQL } from 'drizzle-orm';
-import { getTableColumns, sql } from 'drizzle-orm';
+import { getTableColumns, gt, lt, sql } from 'drizzle-orm';
 import type { PgTable } from 'drizzle-orm/pg-core';
 
 export const buildConflictUpdateColumns = <
@@ -22,4 +22,8 @@ export const buildConflictUpdateColumns = <
 
 export function incrementDBColumn(column: AnyColumn, value = 1) {
   return sql`${column} + ${value}`;
+}
+
+export function compareColumn(left: AnyColumn, right: unknown, asc: boolean) {
+  return asc ? gt(left, right) : lt(left, right);
 }
