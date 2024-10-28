@@ -4,7 +4,7 @@ export type LinkDetail = Omit<SelectLink, 'userId'>;
 
 export type LinkListItem = Pick<
   SelectLink,
-  'id' | 'key' | 'createdAt' | 'title' | 'clicks'
+  'id' | 'key' | 'createdAt' | 'title' | 'clicks' | 'target'
 >;
 
 export interface LinkListResult {

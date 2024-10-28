@@ -78,7 +78,7 @@ const nextCursorQuery = z.tuple([
   z.coerce.number().min(0).optional(),
 ]);
 export const linkQueryValidation = z.object({
-  q: z.string().min(3).optional(),
+  q: z.string().optional(),
   sortAsc: z
     .string()
     .transform((str) => {

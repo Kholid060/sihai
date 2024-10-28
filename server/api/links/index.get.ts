@@ -14,6 +14,7 @@ export default defineEventHandler({
       'query',
       linkQueryValidation,
     );
+
     return createAPIResponse(
       await findLinksByUser(event.context.user.id, query),
     );

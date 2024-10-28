@@ -80,6 +80,7 @@ export async function findLinksByUser(
       key: linksTable.key,
       title: linksTable.title,
       clicks: linksTable.clicks,
+      target: linksTable.target,
       createdAt: linksTable.createdAt,
     })
     .from(linksTable)
@@ -87,8 +88,8 @@ export async function findLinksByUser(
     .orderBy(filter.sortAsc ? asc(orderByTable) : desc(orderByTable))
     .limit(LINK_QUERY_LIMIT)
     .$dynamic();
-  if (filter.q) {
-    query = query.where(ilike(linksTable.title, `%${filter.q}%`));
+  if (filter.q?.trim()) {
+    query = query.where(ilike(linksTable.title, `%${filter.q.trim()}%`));
   }
 
   const result: { items: LinkListItem[]; nextCursor: string | null } = {

@@ -9,6 +9,13 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'nuxt-security',
   ],
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'img-src': 'self data: *',
+      },
+    },
+  },
   devtools: { enabled: true },
   runtimeConfig: {
     dbURL: process.env.DATABASE_URL,

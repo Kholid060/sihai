@@ -262,7 +262,7 @@
             <UiDialogClose> Cancel </UiDialogClose>
           </UiButton>
           <UiButton type="submit" class="ml-4" :is-loading="state.isLoading">
-            Create link
+            {{ submitLabel }}
           </UiButton>
         </div>
       </form>
@@ -284,6 +284,7 @@ import {
 import {
   newLinkValidation,
   type LinkUTMOptionsValidation,
+  type NewLinkValidation,
 } from '~/server/validation/link.validation';
 import { LINK_UTM_QUERY_MAP } from '~/server/const/link.const';
 import { nanoid } from 'nanoid';
@@ -296,6 +297,12 @@ import UiTooltipSimple from '~/components/ui/tooltip/TooltipSimple.vue';
 import QRCodeStyling from 'qr-code-styling';
 import logoPng from '~/assets/images/logo.png';
 
+const props = withDefaults(
+  defineProps<{ defaultValue?: NewLinkValidation; submitLabel?: string }>(),
+  {
+    submitLabel: 'Create link',
+  },
+);
 const emit = defineEmits<{
   'new-link': [link: LinkDetail];
 }>();
@@ -320,7 +327,7 @@ const toast = useToast();
 const { handleSubmit, values, isFieldValid, setFieldValue, setFieldError } =
   useForm({
     validationSchema: toTypedSchema(newLinkValidation),
-    initialValues: {
+    initialValues: props.defaultValue ?? {
       utmOptions: {},
       key: nanoid(6),
     },
@@ -445,7 +452,7 @@ watchDebounced(
       linkTarget.utmUrl = targetObjUrl.href;
     }
   },
-  { debounce: 250 },
+  { debounce: 250, immediate: true },
 );
 watchDebounced(
   () => [values.key, values.qrOptions] as const,

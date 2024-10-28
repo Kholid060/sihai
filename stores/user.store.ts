@@ -10,7 +10,7 @@ export const useUserStore = defineStore('user', () => {
     email: '',
     avatarUrl: '',
     plan: APP_FREE_PLAN,
-    usage: { periodEnd: new Date(), redirectCounts: 0, urlCounts: 0 },
+    usage: { periodEnd: '', redirectCounts: 0, urlCounts: 0 },
   });
 
   async function fetch() {

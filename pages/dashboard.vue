@@ -1,7 +1,7 @@
 <template>
   <UiTooltipProvider>
-    <DashboardSidebar />
-    <main class="py-9 pl-64">
+    <DashboardSidebar class="hidden lg:flex" />
+    <main class="py-9 lg:pl-64">
       <div class="container">
         <NuxtPage />
       </div>

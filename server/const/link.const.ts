@@ -1,11 +1,5 @@
 import type { LinkUTMOptionsValidation } from '../validation/link.validation';
 
-export const LINKS_SORT_BY = {
-  createdAt: 'created-at',
-  clicksCount: 'clicks-count',
-} as const;
-export type LinksSortBy = (typeof LINKS_SORT_BY)[keyof typeof LINKS_SORT_BY];
-
 export const LINK_UTM_QUERY_MAP: Record<
   keyof LinkUTMOptionsValidation,
   string
@@ -53,4 +47,4 @@ export type LinkRuleConditionOperator =
 
 export const LINK_MAX_CONDITIONS = 8;
 
-export const LINK_QUERY_LIMIT = 1;
+export const LINK_QUERY_LIMIT = 10;
