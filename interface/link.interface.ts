@@ -1,6 +1,6 @@
 import type { SelectLink } from '~/db/schema';
 
-export type LinkDetail = Omit<SelectLink, 'userId'>;
+export type LinkDetail = Omit<SelectLink, 'userId' | 'updatedAt'>;
 
 export type LinkListItem = Pick<
   SelectLink,

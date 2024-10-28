@@ -4,6 +4,7 @@ import { createLimitExceedError } from '../utils/custom-errors';
 import type {
   LinkQueryValidation,
   NewLinkValidation,
+  UpdateLinkValidation,
 } from '../validation/link.validation';
 import { getUserProfile } from './user.service';
 import { nanoid } from 'nanoid';
@@ -67,100 +68,153 @@ export async function createNewLink(
   return newLink;
 }
 
-export async function findLinksByUser(
-  userId: string,
-  filter: LinkQueryValidation = { sortAsc: false, sortBy: 'create-date' },
-): Promise<LinkListResult> {
-  const orderByTable =
-    filter.sortBy === 'create-date' ? linksTable.createdAt : linksTable.clicks;
+export const findLinksByUser = defineCachedFunction(
+  async (
+    userId: string,
+    filter: LinkQueryValidation = { sortAsc: false, sortBy: 'create-date' },
+  ): Promise<LinkListResult> => {
+    const orderByTable =
+      filter.sortBy === 'create-date'
+        ? linksTable.createdAt
+        : linksTable.clicks;
 
-  let query = drizzle
-    .select({
-      id: linksTable.id,
-      key: linksTable.key,
-      title: linksTable.title,
-      clicks: linksTable.clicks,
-      target: linksTable.target,
-      createdAt: linksTable.createdAt,
-    })
-    .from(linksTable)
-    .where(eq(linksTable.userId, userId))
-    .orderBy(filter.sortAsc ? asc(orderByTable) : desc(orderByTable))
-    .limit(LINK_QUERY_LIMIT)
-    .$dynamic();
-  if (filter.q?.trim()) {
-    query = query.where(ilike(linksTable.title, `%${filter.q.trim()}%`));
-  }
+    let query = drizzle
+      .select({
+        id: linksTable.id,
+        key: linksTable.key,
+        title: linksTable.title,
+        clicks: linksTable.clicks,
+        target: linksTable.target,
+        createdAt: linksTable.createdAt,
+      })
+      .from(linksTable)
+      .where(eq(linksTable.userId, userId))
+      .orderBy(filter.sortAsc ? asc(orderByTable) : desc(orderByTable))
+      .limit(LINK_QUERY_LIMIT)
+      .$dynamic();
+    if (filter.q?.trim()) {
+      query = query.where(ilike(linksTable.title, `%${filter.q.trim()}%`));
+    }
 
-  const result: { items: LinkListItem[]; nextCursor: string | null } = {
-    items: [],
-    nextCursor: null,
-  };
+    const result: { items: LinkListItem[]; nextCursor: string | null } = {
+      items: [],
+      nextCursor: null,
+    };
 
-  switch (filter.sortBy) {
-    case 'clicks': {
-      query = query.orderBy(
-        filter.sortAsc ? asc(linksTable.clicks) : desc(linksTable.clicks),
-      );
+    switch (filter.sortBy) {
+      case 'clicks': {
+        query = query.orderBy(
+          filter.sortAsc ? asc(linksTable.clicks) : desc(linksTable.clicks),
+        );
 
-      if (!filter.nextCursor) break;
+        if (!filter.nextCursor) break;
 
-      if (typeof filter.nextCursor.clicks !== 'number') {
-        throw createError({ statusCode: 400 });
-      }
+        if (typeof filter.nextCursor.clicks !== 'number') {
+          throw createError({ statusCode: 400 });
+        }
 
-      query = query.where(
-        or(
-          compareColumn(
-            linksTable.clicks,
-            filter.nextCursor.clicks,
-            filter.sortAsc ?? false,
-          ),
-          and(
-            eq(linksTable.id, filter.nextCursor.id),
+        query = query.where(
+          or(
             compareColumn(
-              linksTable.id,
-              filter.nextCursor.id,
+              linksTable.clicks,
+              filter.nextCursor.clicks,
               filter.sortAsc ?? false,
             ),
+            and(
+              eq(linksTable.id, filter.nextCursor.id),
+              compareColumn(
+                linksTable.id,
+                filter.nextCursor.id,
+                filter.sortAsc ?? false,
+              ),
+            ),
           ),
-        ),
-      );
+        );
 
-      break;
-    }
-    case 'create-date': {
-      query = query.orderBy(
-        filter.sortAsc ? asc(linksTable.clicks) : desc(linksTable.clicks),
-      );
+        break;
+      }
+      case 'create-date': {
+        query = query.orderBy(
+          filter.sortAsc ? asc(linksTable.clicks) : desc(linksTable.clicks),
+        );
 
-      if (!filter.nextCursor) break;
+        if (!filter.nextCursor) break;
 
-      query = query.where(
-        compareColumn(
-          linksTable.id,
-          filter.nextCursor.id,
-          filter.sortAsc ?? false,
-        ),
+        query = query.where(
+          compareColumn(
+            linksTable.id,
+            filter.nextCursor.id,
+            filter.sortAsc ?? false,
+          ),
+        );
+        break;
+      }
+      default: {
+        throw createError({ statusCode: 400, message: 'Bad Reqquest' });
+      }
+    }
+
+    result.items = await query.execute();
+
+    const lastItem =
+      LINK_QUERY_LIMIT === result.items.length ? result.items.at(-1) : null;
+    if (lastItem) {
+      result.nextCursor = btoa(
+        filter.sortBy === 'clicks'
+          ? `${lastItem.id},${lastItem.clicks}`
+          : `${lastItem.id},`,
       );
-      break;
     }
-    default: {
-      throw createError({ statusCode: 400, message: 'Bad Reqquest' });
+
+    return result;
+  },
+  { maxAge: 5 },
+);
+
+export const findLinkById = defineCachedFunction(
+  async (userId: string, linkId: string): Promise<LinkDetail> => {
+    const [link] = await drizzle
+      .select({
+        id: linksTable.id,
+        key: linksTable.key,
+        title: linksTable.title,
+        rules: linksTable.rules,
+        clicks: linksTable.clicks,
+        target: linksTable.target,
+        archived: linksTable.archived,
+        qrOptions: linksTable.qrOptions,
+        createdAt: linksTable.createdAt,
+        utmOptions: linksTable.utmOptions,
+        description: linksTable.description,
+      })
+      .from(linksTable)
+      .where(and(eq(linksTable.id, linkId), eq(linksTable.userId, userId)))
+      .limit(1);
+    if (!link) {
+      throw createError({ statusCode: 404, statusMessage: 'Not Found' });
     }
+
+    return link;
+  },
+  { maxAge: 5 },
+);
+
+export async function updateLink(
+  userId: string,
+  linkId: string,
+  data: UpdateLinkValidation,
+) {
+  if (Object.keys(data).length === 0) return;
+
+  const result = await drizzle
+    .update(linksTable)
+    .set(data)
+    .where(and(eq(linksTable.id, linkId), eq(linksTable.userId, userId)))
+    .returning({ id: linksTable.id });
+  if (result.length === 0) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found',
+    });
   }
-
-  result.items = await query.execute();
-
-  const lastItem =
-    LINK_QUERY_LIMIT === result.items.length ? result.items.at(-1) : null;
-  if (lastItem) {
-    result.nextCursor = btoa(
-      filter.sortBy === 'clicks'
-        ? `${lastItem.id},${lastItem.clicks}`
-        : `${lastItem.id},`,
-    );
-  }
-
-  return result;
 }

@@ -43,7 +43,7 @@ export const profilesTable = pgTable('profiles', {
   updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
     .notNull()
     .defaultNow()
-    .$onUpdateFn(() => new Date().toString()),
+    .$onUpdateFn(() => new Date().toISOString()),
   name: varchar('name', { length: DB_USER_NAME_LENGTH.max }).notNull(),
   planId: varchar('plan_id', { length: DB_PLANS_ID_MAX_LENGTH })
     .default(APP_PLAN_ID.free)
@@ -89,7 +89,7 @@ export const plansTable = pgTable('plans', {
   updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
     .notNull()
     .defaultNow()
-    .$onUpdateFn(() => new Date().toString()),
+    .$onUpdateFn(() => new Date().toISOString()),
 });
 export type NewPlan = typeof plansTable.$inferInsert;
 export type SelectPlan = typeof plansTable.$inferSelect;
@@ -104,22 +104,24 @@ export const linksTable = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    title: text('title').default(''),
+    title: text('title').notNull().default(''),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .notNull()
       .defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
       .notNull()
       .defaultNow()
-      .$onUpdateFn(() => new Date().toString()),
+      .$onUpdateFn(() => new Date().toISOString()),
     clicks: integer('clicks').default(0),
     archived: boolean('archived').default(false),
     description: varchar('description', {
       length: DB_LINK_DESCRIPTION_MAX_LEN,
-    }).default(''),
-    rules: json('rules').$type<LinkRuleValidation[]>(),
-    qrOptions: json('qr_opts').$type<LinkQROptionsValidation>(),
-    utmOptions: json('utm_opts').$type<LinkUTMOptionsValidation>(),
+    })
+      .notNull()
+      .default(''),
+    rules: json('rules').notNull().$type<LinkRuleValidation[]>(),
+    qrOptions: json('qr_opts').notNull().$type<LinkQROptionsValidation>(),
+    utmOptions: json('utm_opts').notNull().$type<LinkUTMOptionsValidation>(),
     target: text().notNull(),
   },
   (table) => ({

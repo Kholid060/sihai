@@ -2,8 +2,8 @@
   <UiTabs default-value="detail">
     <div class="flex">
       <div class="w-64 px-3 py-4">
-        <VisuallyHidden>Create new link</VisuallyHidden>
-        <h2 class="text-lg font-bold">Create new link</h2>
+        <VisuallyHidden>{{ title }}</VisuallyHidden>
+        <h2 class="text-lg font-bold">{{ title }}</h2>
         <UiTabsList class="custom-tabs mt-4 space-y-2">
           <UiTabsTrigger value="detail">
             <FileTextIcon class="mr-2 size-5" />
@@ -111,7 +111,17 @@
             </UiFormField>
             <UiFormField v-slot="{ componentField }" name="key">
               <UiFormItem>
-                <UiFormLabel>Short Link (optional)</UiFormLabel>
+                <div class="flex items-center justify-between">
+                  <UiFormLabel>Short Link (optional)</UiFormLabel>
+                  <button
+                    v-if="state.lockKey && isEditing"
+                    class="mr-1 text-muted-foreground"
+                    type="button"
+                    @click="unlockKey"
+                  >
+                    <LockIcon class="size-4" />
+                  </button>
+                </div>
                 <div class="flex">
                   <p
                     class="inline-flex items-center rounded-l-md border bg-background px-2 text-sm"
@@ -121,6 +131,7 @@
                   <UiInput
                     v-bind="componentField"
                     placeholder="optional"
+                    :disabled="isEditing && state.lockKey"
                     class="grow rounded-l-none border-l-0 bg-card"
                   />
                 </div>
@@ -280,11 +291,13 @@ import {
   DownloadIcon,
   QrCodeIcon,
   CopyIcon,
+  LockIcon,
 } from 'lucide-vue-next';
 import {
   newLinkValidation,
   type LinkUTMOptionsValidation,
   type NewLinkValidation,
+  type UpdateLinkValidation,
 } from '~/server/validation/link.validation';
 import { LINK_UTM_QUERY_MAP } from '~/server/const/link.const';
 import { nanoid } from 'nanoid';
@@ -298,13 +311,21 @@ import QRCodeStyling from 'qr-code-styling';
 import logoPng from '~/assets/images/logo.png';
 
 const props = withDefaults(
-  defineProps<{ defaultValue?: NewLinkValidation; submitLabel?: string }>(),
+  defineProps<{
+    title?: string;
+    linkId?: string;
+    isEditing?: boolean;
+    submitLabel?: string;
+    defaultValue?: NewLinkValidation;
+  }>(),
   {
+    title: 'Create new link',
     submitLabel: 'Create link',
   },
 );
 const emit = defineEmits<{
   'new-link': [link: LinkDetail];
+  'link-updated': [payload: UpdateLinkValidation];
 }>();
 
 const utmForms: {
@@ -324,19 +345,26 @@ let targetObjUrl: URL | null = null;
 let qrCodeStyling: QRCodeStyling | null = null;
 
 const toast = useToast();
-const { handleSubmit, values, isFieldValid, setFieldValue, setFieldError } =
-  useForm({
-    validationSchema: toTypedSchema(newLinkValidation),
-    initialValues: props.defaultValue ?? {
-      utmOptions: {},
-      key: nanoid(6),
-    },
-    keepValuesOnUnmount: true,
-  });
+const {
+  handleSubmit,
+  values,
+  isFieldValid,
+  setFieldValue,
+  setFieldError,
+  isFieldDirty,
+} = useForm({
+  validationSchema: toTypedSchema(newLinkValidation),
+  initialValues: props.defaultValue ?? {
+    utmOptions: {},
+    key: nanoid(6),
+  },
+  keepValuesOnUnmount: true,
+});
 
 const qrCodeElRef = ref<HTMLCanvasElement>();
 
 const state = shallowReactive({
+  lockKey: true,
   isLoading: false,
   isQrValid: false,
 });
@@ -348,6 +376,33 @@ const linkTarget = shallowReactive<{ valid: boolean; utmUrl: string }>({
 const onSubmit = handleSubmit(async (values) => {
   try {
     state.isLoading = true;
+
+    if (props.isEditing) {
+      if (!props.linkId) return;
+
+      let isEmpty = true;
+      const updatePayload: UpdateLinkValidation = {};
+
+      for (const _key in values) {
+        const key = _key as keyof NewLinkValidation;
+        if (isFieldDirty(key)) {
+          isEmpty = false;
+          // @ts-expect-error correct value!
+          updatePayload[key] = values[key];
+        }
+      }
+      if (isEmpty) return;
+
+      await $fetch(`/api/links/${props.linkId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(values),
+      });
+
+      emit('link-updated', updatePayload);
+
+      return;
+    }
+
     const result = await $fetch('/api/links', {
       method: 'POST',
       body: JSON.stringify(values),
@@ -371,6 +426,14 @@ const onSubmit = handleSubmit(async (values) => {
   }
 });
 
+function unlockKey() {
+  const confirm = window.confirm(
+    'Editing the current short link will break the existing link. Continue?',
+  );
+  if (!confirm) return;
+
+  state.lockKey = false;
+}
 function onUTMChanged(key: keyof LinkUTMOptionsValidation, value: string) {
   if (!linkTarget.valid || !targetObjUrl) return;
 

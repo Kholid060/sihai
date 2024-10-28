@@ -164,6 +164,10 @@
         hide-close-btn
         class="flex !w-auto max-w-none p-2"
       >
+        <LazyDashboardUpdateLink
+          :link-id="editLinkId!"
+          @updated="editLinkId = null"
+        />
       </UiDialogScrollContent>
     </UiDialog>
   </UiCard>

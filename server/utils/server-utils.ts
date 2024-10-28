@@ -2,10 +2,13 @@ import type { ServerAPISuccessResonse } from '~/interface/server-api.interface';
 import type { H3Event, EventHandlerRequest } from 'h3';
 import type { z, ZodType } from 'zod';
 
-export function createAPIResponse<T>(data: T): ServerAPISuccessResonse<T> {
+export function createAPIResponse<T>(
+  data: T,
+  statusCode = 200,
+): ServerAPISuccessResonse<T> {
   return {
     data,
-    statusCode: 200,
+    statusCode,
   };
 }
 

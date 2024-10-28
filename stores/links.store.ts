@@ -1,5 +1,8 @@
 import type { LinkListItem } from '~/interface/link.interface';
-import type { LinkQueryValidation } from '~/server/validation/link.validation';
+import type {
+  LinkQueryValidation,
+  UpdateLinkValidation,
+} from '~/server/validation/link.validation';
 
 export const useLinksStore = defineStore('links', () => {
   let fetchLinkListCursor: string | null = '';
@@ -23,10 +26,20 @@ export const useLinksStore = defineStore('links', () => {
   function addLinkList(link: LinkListItem) {
     links.value?.push(link);
   }
+  function updateLinkList(linkId: string, data: UpdateLinkValidation) {
+    const index = links.value.findIndex((item) => item.id === linkId);
+    if (index === -1) return;
+
+    links.value[index] = {
+      ...links.value[index],
+      ...data,
+    };
+  }
 
   return {
     links,
     addLinkList,
     fetchLinkList,
+    updateLinkList,
   };
 });

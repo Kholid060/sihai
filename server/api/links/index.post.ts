@@ -12,6 +12,6 @@ export default defineEventHandler({
     const data = await getValidatedEventData(event, 'body', newLinkValidation);
     const result = await createNewLink(event.context.user.id, data);
 
-    return createAPIResponse(result);
+    return createAPIResponse(result, 201);
   },
 });

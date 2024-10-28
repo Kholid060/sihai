@@ -73,6 +73,9 @@ export const newLinkValidation = z.object({
 });
 export type NewLinkValidation = z.infer<typeof newLinkValidation>;
 
+export const updateLinkValidation = newLinkValidation.partial();
+export type UpdateLinkValidation = z.infer<typeof updateLinkValidation>;
+
 const nextCursorQuery = z.tuple([
   z.string(),
   z.coerce.number().min(0).optional(),
