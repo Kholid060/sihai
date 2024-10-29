@@ -223,3 +223,16 @@ export async function updateLink(
     });
   }
 }
+
+export async function deleteLink(userId: string, linkId: string) {
+  const result = await drizzle
+    .delete(linksTable)
+    .where(and(eq(linksTable.id, linkId), eq(linksTable.userId, userId)))
+    .returning({ id: linksTable.id });
+  if (result.length === 0) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found',
+    });
+  }
+}

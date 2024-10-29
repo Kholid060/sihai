@@ -197,13 +197,13 @@
                   <Share2Icon class="mr-2 size-4" />
                   <span>Share</span>
                 </UiDropdownMenuItem>
-                <UiDropdownMenuItem>
-                  <QrCodeIcon class="mr-2 size-4" />
-                  <span>View QR Code</span>
-                </UiDropdownMenuItem>
                 <UiDropdownMenuSeparator />
                 <UiDropdownMenuItem
                   class="text-destructive data-[highlighted]:bg-destructive/20 data-[highlighted]:text-destructive"
+                  @click="
+                    deleteLinkState.id = link.id;
+                    deleteLinkState.show = true;
+                  "
                 >
                   <TrashIcon class="mr-2 size-4" />
                   <span>Delete</span>
@@ -243,6 +243,29 @@
       </UiDialogScrollContent>
     </UiDialog>
   </UiCard>
+  <UiAlertDialog v-model:open="deleteLinkState.show">
+    <UiAlertDialogContent>
+      <UiAlertDialogHeader>
+        <UiAlertDialogTitle>Delete link?</UiAlertDialogTitle>
+        <UiAlertDialogDescription>
+          This action cannot be undone. This will permanently delete the link
+          and all the data associated with it.
+        </UiAlertDialogDescription>
+      </UiAlertDialogHeader>
+      <UiAlertDialogFooter>
+        <UiAlertDialogCancel :disabled="deleteLinkState.loading">
+          Cancel
+        </UiAlertDialogCancel>
+        <UiButton
+          variant="destructive"
+          :is-loading="deleteLinkState.loading"
+          @click="deleteLink"
+        >
+          Delete link
+        </UiButton>
+      </UiAlertDialogFooter>
+    </UiAlertDialogContent>
+  </UiAlertDialog>
 </template>
 <script setup lang="ts">
 import { refDebounced } from '@vueuse/core';
@@ -257,7 +280,6 @@ import {
   PencilIcon,
   Share2Icon,
   TrashIcon,
-  QrCodeIcon,
   MousePointerClickIcon,
 } from 'lucide-vue-next';
 import { APP_DOMAIN } from '~/server/const/app.const';
@@ -292,6 +314,16 @@ const sort = shallowReactive<{
 }>({
   asc: true,
   by: 'create-date',
+});
+
+const deleteLinkState = shallowReactive<{
+  id: string;
+  show: boolean;
+  loading: boolean;
+}>({
+  id: '',
+  show: false,
+  loading: false,
 });
 
 const showNewLinkModal = shallowRef(false);
@@ -344,6 +376,24 @@ async function copyShortLink(key: string) {
       variant: 'destructive',
       title: 'Error copying URL',
     });
+  }
+}
+async function deleteLink() {
+  try {
+    deleteLinkState.loading = true;
+    await $fetch(`/api/links/${deleteLinkState.id}`, { method: 'DELETE' });
+
+    deleteLinkState.id = '';
+    deleteLinkState.show = false;
+    query.refetch();
+  } catch (error) {
+    console.error(error);
+    toast.toast({
+      variant: 'destructive',
+      title: 'Error deleting link',
+    });
+  } finally {
+    deleteLinkState.loading = false;
   }
 }
 

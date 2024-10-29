@@ -81,9 +81,12 @@
             <UiProgress
               class="h-2 bg-secondary-active"
               :model-value="
-                (userStore.profile.usage.urlCounts /
-                  userStore.profile.plan.maxUrl) *
-                100
+                Math.min(
+                  (userStore.profile.usage.urlCounts /
+                    userStore.profile.plan.maxUrl) *
+                    100,
+                  100,
+                )
               "
             />
           </div>
@@ -99,9 +102,12 @@
             <UiProgress
               class="h-2 bg-secondary-active"
               :model-value="
-                (userStore.profile.usage.redirectCounts /
-                  userStore.profile.plan.maxRedirect) *
-                100
+                Math.min(
+                  (userStore.profile.usage.redirectCounts /
+                    userStore.profile.plan.maxRedirect) *
+                    100,
+                  100,
+                )
               "
             />
           </div>
