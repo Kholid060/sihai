@@ -4,7 +4,7 @@ import { APP_FREE_PLAN } from '~/server/const/app.const';
 export const useUserStore = defineStore('user', () => {
   let isFetched = false;
 
-  const profile = shallowReactive<UserProfile>({
+  const profile = reactive<UserProfile>({
     id: '',
     name: '',
     email: '',
@@ -23,6 +23,9 @@ export const useUserStore = defineStore('user', () => {
     isFetched = true;
     Object.assign(profile, result.data);
   }
+  function incrementUsage(key: 'redirectCounts' | 'urlCounts', by = 1) {
+    profile.usage[key] += by;
+  }
 
-  return { profile, fetch };
+  return { profile, fetch, incrementUsage };
 });

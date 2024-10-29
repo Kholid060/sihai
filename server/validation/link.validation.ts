@@ -83,8 +83,12 @@ const nextCursorQuery = z.tuple([
 export const linkQueryValidation = z.object({
   q: z.string().optional(),
   sortAsc: z
-    .string()
+    .unknown()
+    .transform(() => undefined)
+    .optional()
     .transform((str) => {
+      if (typeof str === 'undefined') return false;
+
       switch (str) {
         case 'true':
           return true;
@@ -93,9 +97,7 @@ export const linkQueryValidation = z.object({
         default:
           throw new Error("The string must be 'true' or 'false'");
       }
-    })
-    .default('false')
-    .optional(),
+    }),
   sortBy: z.enum(['create-date', 'clicks']).default('create-date'),
   nextCursor: z
     .string()

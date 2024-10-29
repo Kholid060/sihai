@@ -47,4 +47,4 @@ export type LinkRuleConditionOperator =
 
 export const LINK_MAX_CONDITIONS = 8;
 
-export const LINK_QUERY_LIMIT = 10;
+export const LINK_QUERY_LIMIT = 15;

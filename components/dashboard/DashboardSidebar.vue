@@ -50,6 +50,15 @@
             side="top"
             :side-offset="10"
           >
+            <UiDropdownMenuItem>
+              <UserRoundIcon class="mr-2 size-4" />
+              Account
+            </UiDropdownMenuItem>
+            <UiDropdownMenuItem>
+              <GaugeIcon class="mr-2 size-4" />
+              Usage
+            </UiDropdownMenuItem>
+            <UiDropdownMenuSeparator />
             <UiDropdownMenuItem
               class="text-destructive focus:text-destructive"
               @click="signOut"
@@ -59,24 +68,79 @@
             </UiDropdownMenuItem>
           </UiDropdownMenuContent>
         </UiDropdownMenu>
+        <div class="border-t p-2 text-sm text-muted-foreground">
+          <div class="text-xs">
+            <div class="flex justify-between">
+              <p>Links</p>
+              <p>
+                {{ userStore.profile.usage.urlCounts }}/{{
+                  userStore.profile.plan.maxUrl
+                }}
+              </p>
+            </div>
+            <UiProgress
+              class="h-2 bg-secondary-active"
+              :model-value="
+                (userStore.profile.usage.urlCounts /
+                  userStore.profile.plan.maxUrl) *
+                100
+              "
+            />
+          </div>
+          <div class="mt-2 text-xs">
+            <div class="flex justify-between">
+              <p>Redirects</p>
+              <p>
+                {{ userStore.profile.usage.redirectCounts }}/{{
+                  userStore.profile.plan.maxRedirect
+                }}
+              </p>
+            </div>
+            <UiProgress
+              class="h-2 bg-secondary-active"
+              :model-value="
+                (userStore.profile.usage.redirectCounts /
+                  userStore.profile.plan.maxRedirect) *
+                100
+              "
+            />
+          </div>
+          <NuxtLink
+            to="/dashboard/settings/billing"
+            class="mt-3 inline-block text-xs hover:underline"
+          >
+            Usage will reset in
+            {{
+              df.custom(new Date(userStore.profile.usage.periodEnd), {
+                dateStyle: 'medium',
+              })
+            }}
+            <ChevronRightIcon class="inline size-4 align-sub" />
+          </NuxtLink>
+        </div>
       </div>
     </div>
   </aside>
 </template>
 <script setup lang="ts">
 import {
-  UserRoundIcon,
   LogOutIcon,
   ChevronDownIcon,
   LinkIcon,
   ChartColumnIcon,
   SettingsIcon,
+  ChevronRightIcon,
+  GaugeIcon,
+  UserRoundIcon,
 } from 'lucide-vue-next';
 import { useToast } from '../ui/toast';
+import { useDateFormatter } from 'radix-vue';
 
 const toast = useToast();
 const userStore = useUserStore();
+const locale = useDefaultLocale();
 const supabase = useSupabaseClient();
+const df = useDateFormatter(locale.value);
 
 const sidebarLinks = [
   { to: '/dashboard', icon: LinkIcon, label: 'Links' },

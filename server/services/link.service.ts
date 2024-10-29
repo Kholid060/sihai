@@ -26,7 +26,7 @@ export async function createNewLink(
   if (profile.usage.urlCounts >= profile.plan.maxUrl) {
     throw createLimitExceedError('URL');
   }
-  if (urlData.rules.length > profile.plan.maxRules) {
+  if (urlData.rules.length >= profile.plan.maxRules) {
     throw createLimitExceedError('Link rule');
   }
 
@@ -68,52 +68,48 @@ export async function createNewLink(
   return newLink;
 }
 
-export const findLinksByUser = defineCachedFunction(
-  async (
-    userId: string,
-    filter: LinkQueryValidation = { sortAsc: false, sortBy: 'create-date' },
-  ): Promise<LinkListResult> => {
-    const orderByTable =
-      filter.sortBy === 'create-date'
-        ? linksTable.createdAt
-        : linksTable.clicks;
+export async function findLinksByUser(
+  userId: string,
+  filter: LinkQueryValidation,
+): Promise<LinkListResult> {
+  let query = drizzle
+    .select({
+      id: linksTable.id,
+      key: linksTable.key,
+      title: linksTable.title,
+      clicks: linksTable.clicks,
+      target: linksTable.target,
+      createdAt: linksTable.createdAt,
+    })
+    .from(linksTable)
+    .where(eq(linksTable.userId, userId))
+    .limit(LINK_QUERY_LIMIT)
+    .$dynamic();
+  if (filter.q?.trim()) {
+    query = query.where(ilike(linksTable.title, `%${filter.q.trim()}%`));
+  }
 
-    let query = drizzle
-      .select({
-        id: linksTable.id,
-        key: linksTable.key,
-        title: linksTable.title,
-        clicks: linksTable.clicks,
-        target: linksTable.target,
-        createdAt: linksTable.createdAt,
-      })
-      .from(linksTable)
-      .where(eq(linksTable.userId, userId))
-      .orderBy(filter.sortAsc ? asc(orderByTable) : desc(orderByTable))
-      .limit(LINK_QUERY_LIMIT)
-      .$dynamic();
-    if (filter.q?.trim()) {
-      query = query.where(ilike(linksTable.title, `%${filter.q.trim()}%`));
-    }
+  const result: { items: LinkListItem[]; nextCursor: string | null } = {
+    items: [],
+    nextCursor: null,
+  };
 
-    const result: { items: LinkListItem[]; nextCursor: string | null } = {
-      items: [],
-      nextCursor: null,
-    };
+  switch (filter.sortBy) {
+    case 'clicks': {
+      const sortByClicks = filter.sortAsc
+        ? asc(linksTable.clicks)
+        : desc(linksTable.clicks);
+      if (!filter.nextCursor) {
+        query = query.orderBy(sortByClicks);
+        break;
+      }
 
-    switch (filter.sortBy) {
-      case 'clicks': {
-        query = query.orderBy(
-          filter.sortAsc ? asc(linksTable.clicks) : desc(linksTable.clicks),
-        );
+      if (typeof filter.nextCursor.clicks !== 'number') {
+        throw createError({ statusCode: 400 });
+      }
 
-        if (!filter.nextCursor) break;
-
-        if (typeof filter.nextCursor.clicks !== 'number') {
-          throw createError({ statusCode: 400 });
-        }
-
-        query = query.where(
+      query = query
+        .where(
           or(
             compareColumn(
               linksTable.clicks,
@@ -129,47 +125,49 @@ export const findLinksByUser = defineCachedFunction(
               ),
             ),
           ),
+        )
+        .orderBy(
+          filter.sortAsc ? asc(linksTable.id) : desc(linksTable.id),
+          sortByClicks,
         );
 
-        break;
-      }
-      case 'create-date': {
-        query = query.orderBy(
-          filter.sortAsc ? asc(linksTable.clicks) : desc(linksTable.clicks),
-        );
-
-        if (!filter.nextCursor) break;
-
-        query = query.where(
-          compareColumn(
-            linksTable.id,
-            filter.nextCursor.id,
-            filter.sortAsc ?? false,
-          ),
-        );
-        break;
-      }
-      default: {
-        throw createError({ statusCode: 400, message: 'Bad Reqquest' });
-      }
+      break;
     }
-
-    result.items = await query.execute();
-
-    const lastItem =
-      LINK_QUERY_LIMIT === result.items.length ? result.items.at(-1) : null;
-    if (lastItem) {
-      result.nextCursor = btoa(
-        filter.sortBy === 'clicks'
-          ? `${lastItem.id},${lastItem.clicks}`
-          : `${lastItem.id},`,
+    case 'create-date': {
+      query = query.orderBy(
+        filter.sortAsc ? asc(linksTable.id) : desc(linksTable.id),
       );
-    }
 
-    return result;
-  },
-  { maxAge: 5 },
-);
+      if (!filter.nextCursor) break;
+
+      query = query.where(
+        compareColumn(
+          linksTable.id,
+          filter.nextCursor.id,
+          filter.sortAsc ?? false,
+        ),
+      );
+      break;
+    }
+    default: {
+      throw createError({ statusCode: 400, message: 'Bad Reqquest' });
+    }
+  }
+
+  result.items = await query.execute();
+
+  const lastItem =
+    LINK_QUERY_LIMIT === result.items.length ? result.items.at(-1) : null;
+  if (lastItem) {
+    result.nextCursor = btoa(
+      filter.sortBy === 'clicks'
+        ? `${lastItem.id},${lastItem.clicks}`
+        : `${lastItem.id},`,
+    );
+  }
+
+  return result;
+}
 
 export const findLinkById = defineCachedFunction(
   async (userId: string, linkId: string): Promise<LinkDetail> => {
@@ -205,6 +203,13 @@ export async function updateLink(
   data: UpdateLinkValidation,
 ) {
   if (Object.keys(data).length === 0) return;
+
+  if (data.rules) {
+    const profile = await getUserProfile(userId);
+    if (data.rules.length > profile.plan.maxRules) {
+      throw createLimitExceedError('Link rule');
+    }
+  }
 
   const result = await drizzle
     .update(linksTable)
