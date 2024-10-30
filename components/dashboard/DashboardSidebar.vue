@@ -73,8 +73,8 @@
             <div class="flex justify-between">
               <p>Links</p>
               <p>
-                {{ userStore.profile.usage.urlCounts }}/{{
-                  userStore.profile.plan.maxUrl
+                {{ userStore.profile.plan.linksUsage }}/{{
+                  userStore.profile.plan.linksLimit
                 }}
               </p>
             </div>
@@ -82,20 +82,20 @@
               class="h-2 bg-secondary-active"
               :model-value="
                 Math.min(
-                  (userStore.profile.usage.urlCounts /
-                    userStore.profile.plan.maxUrl) *
+                  (userStore.profile.plan.linksUsage /
+                    userStore.profile.plan.linksLimit) *
                     100,
                   100,
                 )
               "
             />
           </div>
-          <div class="mt-2 text-xs">
+          <div class="mt-2.5 text-xs">
             <div class="flex justify-between">
               <p>Redirects</p>
               <p>
-                {{ userStore.profile.usage.redirectCounts }}/{{
-                  userStore.profile.plan.maxRedirect
+                {{ userStore.profile.plan.redirectsUsage }}/{{
+                  userStore.profile.plan.redirectsLimit
                 }}
               </p>
             </div>
@@ -103,8 +103,8 @@
               class="h-2 bg-secondary-active"
               :model-value="
                 Math.min(
-                  (userStore.profile.usage.redirectCounts /
-                    userStore.profile.plan.maxRedirect) *
+                  (userStore.profile.plan.redirectsUsage /
+                    userStore.profile.plan.redirectsLimit) *
                     100,
                   100,
                 )
@@ -117,7 +117,7 @@
           >
             Usage will reset in
             {{
-              df.custom(new Date(userStore.profile.usage.periodEnd), {
+              df.custom(new Date(userStore.profile.plan.periodEnd), {
                 dateStyle: 'medium',
               })
             }}

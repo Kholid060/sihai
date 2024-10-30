@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils';
 import {
   AlertDialogDescription,
   type AlertDialogDescriptionProps,
-} from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+} from 'radix-vue';
+import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<AlertDialogDescriptionProps & { class?: HTMLAttributes['class'] }>()
+const props = defineProps<
+  AlertDialogDescriptionProps & { class?: HTMLAttributes['class'] }
+>();
 
 const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const { class: _, ...delegated } = props;
 
-  return delegated
-})
+  return delegated;
+});
 </script>
 
 <template>

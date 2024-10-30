@@ -1,4 +1,4 @@
-import { plansTable, profilesTable, userUsagesTable } from '~/db/schema';
+import { profilesTable, userPlansTable } from '~/db/schema';
 import { drizzle } from '../lib/drizzle';
 import { eq } from 'drizzle-orm';
 import type { UserProfile } from '~/interface/user.interface';
@@ -11,40 +11,41 @@ export const getUserProfile = defineCachedFunction(
         name: profilesTable.name,
         email: profilesTable.email,
         plan: {
-          name: plansTable.name,
-          maxUrl: plansTable.maxUrl,
-          maxRules: plansTable.maxRules,
-          maxRedirect: plansTable.maxRedirect,
-        },
-        usage: {
-          periodEnd: userUsagesTable.periodEnd,
-          urlCounts: userUsagesTable.urlCounts,
-          redirectCounts: userUsagesTable.redirectCounts,
+          name: userPlansTable.name,
+          periodEnd: userPlansTable.periodEnd,
+          rulesLimit: userPlansTable.rulesLimit,
+          linksLimit: userPlansTable.linksLimit,
+          linksUsage: userPlansTable.linksUsage,
+          redirectsUsage: userPlansTable.redirectsUsage,
+          redirectsLimit: userPlansTable.redirectsLimit,
         },
       })
       .from(profilesTable)
       .where(eq(profilesTable.id, userId))
-      .leftJoin(userUsagesTable, eq(userUsagesTable.userId, userId))
-      .leftJoin(plansTable, eq(plansTable.id, profilesTable.planId))
+      .leftJoin(userPlansTable, eq(userPlansTable.userId, userId))
       .limit(1);
 
-    if (!profile.usage) {
+    if (!profile.plan) {
       const periodStart = new Date();
       const periodEnd = new Date(periodStart);
       periodEnd.setDate(periodEnd.getDate() + 30);
 
       const [result] = await drizzle
-        .insert(userUsagesTable)
+        .insert(userPlansTable)
         .values({
           userId,
           periodEnd: periodEnd.toISOString(),
           periodStart: periodStart.toISOString(),
         })
         .returning();
-      profile.usage = {
+      profile.plan = {
+        name: result.name,
         periodEnd: result.periodEnd,
-        urlCounts: result.urlCounts,
-        redirectCounts: result.redirectCounts,
+        linksLimit: result.linksLimit,
+        linksUsage: result.linksUsage,
+        rulesLimit: result.rulesLimit,
+        redirectsLimit: result.redirectsLimit,
+        redirectsUsage: result.redirectsUsage,
       };
     }
 

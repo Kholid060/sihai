@@ -94,25 +94,25 @@ export const linkRuleItems: {
     group: LINK_RULE_GROUP.time,
     possibleValues: dayOfWeekOptions,
   },
-  'time-user': {
-    id: 'time-user',
-    type: 'time',
-    label: 'Time (User timezone)',
-    group: LINK_RULE_GROUP.time,
-  },
-  'date-user': {
-    id: 'date-user',
-    type: 'date',
-    label: 'Date (User timezone)',
-    group: LINK_RULE_GROUP.time,
-  },
-  'day-user': {
-    id: 'day-user',
-    type: 'list',
-    label: 'Day of week (User timezone)',
-    group: LINK_RULE_GROUP.time,
-    possibleValues: dayOfWeekOptions,
-  },
+  // 'time-user': {
+  //   id: 'time-user',
+  //   type: 'time',
+  //   label: 'Time (User timezone)',
+  //   group: LINK_RULE_GROUP.time,
+  // },
+  // 'date-user': {
+  //   id: 'date-user',
+  //   type: 'date',
+  //   label: 'Date (User timezone)',
+  //   group: LINK_RULE_GROUP.time,
+  // },
+  // 'day-user': {
+  //   id: 'day-user',
+  //   type: 'list',
+  //   label: 'Day of week (User timezone)',
+  //   group: LINK_RULE_GROUP.time,
+  //   possibleValues: dayOfWeekOptions,
+  // },
   ip: {
     id: 'ip',
     type: 'string',
@@ -130,9 +130,13 @@ export const linkRuleItems: {
   },
   os: {
     id: 'os',
-    type: 'string',
+    type: 'list',
     label: 'Operating System',
     group: LINK_RULE_GROUP.device,
+    possibleValues: Object.entries(Bowser.OS_MAP).map(([value, label]) => ({
+      value,
+      label,
+    })),
   },
   'user-agent': {
     id: 'user-agent',

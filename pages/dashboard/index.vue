@@ -45,7 +45,8 @@
       <UiDialogTrigger as-child>
         <UiButton
           :disabled="
-            userStore.profile.usage.urlCounts >= userStore.profile.plan.maxUrl
+            userStore.profile.plan.linksUsage >=
+            userStore.profile.plan.linksLimit
           "
         >
           Create link
@@ -55,6 +56,7 @@
         blur
         hide-close-btn
         class="flex !w-auto max-w-none p-2"
+        @interact-outside="$event.preventDefault()"
       >
         <LazyDashboardNewLink @new-link="onNewLinkCreated" />
       </UiDialogScrollContent>
@@ -66,11 +68,7 @@
         v-if="query.status.value === 'pending'"
         class="divide-y divide-border/50"
       >
-        <li
-          v-for="i in 5"
-          :key="i"
-          class="flex min-h-14 items-center px-4 py-3"
-        >
+        <li v-for="i in 5" :key="i" class="flex min-h-14 items-center p-4">
           <UiSkeleton class="hidden size-6 rounded-full md:block" />
           <div class="grow md:pl-4">
             <UiSkeleton class="h-4 w-32 rounded-full" />
@@ -98,7 +96,7 @@
         </UiButton>
       </UiStateError>
       <ul
-        v-else-if="query.status.value === 'success' && query.data"
+        v-else-if="query.status.value === 'success' && query.data.value"
         class="divide-y divide-border/50"
       >
         <template
@@ -108,7 +106,7 @@
           <li
             v-for="link in page.data.items"
             :key="link.id"
-            class="flex min-h-14 items-center px-4 py-3 transition-colors hover:bg-grass-1"
+            class="flex min-h-14 items-center p-4 transition-colors hover:bg-grass-1"
           >
             <UiAvatar class="hidden size-6 md:block">
               <UiAvatarImage
@@ -193,10 +191,6 @@
                   <PencilIcon class="mr-2 size-4" />
                   <span>Edit</span>
                 </UiDropdownMenuItem>
-                <UiDropdownMenuItem>
-                  <Share2Icon class="mr-2 size-4" />
-                  <span>Share</span>
-                </UiDropdownMenuItem>
                 <UiDropdownMenuSeparator />
                 <UiDropdownMenuItem
                   class="text-destructive data-[highlighted]:bg-destructive/20 data-[highlighted]:text-destructive"
@@ -221,6 +215,24 @@
             Load more
           </UiButton>
         </li>
+        <div
+          v-if="query.data.value.pages[0]?.data.items.length === 0"
+          class="flex min-h-80 flex-col items-center justify-center px-6"
+        >
+          <span class="rounded-full bg-background p-4">
+            <LinkIcon class="size-5" />
+          </span>
+          <h3 class="mt-4 text-xl font-bold">
+            {{ search ? 'Links not found' : 'No links yet' }}
+          </h3>
+          <p class="mt-1 text-muted-foreground">
+            {{
+              search
+                ? 'The link you looking for does not exist'
+                : 'Create a new link by clicking the "Create link" button'
+            }}
+          </p>
+        </div>
       </ul>
     </UiCardContent>
     <UiDialog
@@ -232,6 +244,7 @@
         blur
         hide-close-btn
         class="flex !w-auto max-w-none p-2"
+        @interact-outside="$event.preventDefault()"
       >
         <LazyDashboardUpdateLink
           :link-id="editLinkId!"
@@ -278,9 +291,9 @@ import {
   MoveRightIcon,
   EllipsisVerticalIcon,
   PencilIcon,
-  Share2Icon,
   TrashIcon,
   MousePointerClickIcon,
+  LinkIcon,
 } from 'lucide-vue-next';
 import { APP_DOMAIN } from '~/server/const/app.const';
 import type { LinkQueryValidation } from '~/server/validation/link.validation';
@@ -352,8 +365,8 @@ function onNewLinkCreated() {
   showNewLinkModal.value = false;
   setTimeout(() => {
     query.refetch();
-  }, 5000);
-  userStore.incrementUsage('urlCounts');
+  }, 1000);
+  userStore.incrementUsage('linksUsage');
 }
 function getURL(url: string, key: keyof URL) {
   return new URL(url)[key];

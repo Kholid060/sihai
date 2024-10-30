@@ -11,3 +11,10 @@ export interface LinkListResult {
   items: LinkListItem[];
   nextCursor: string | null;
 }
+
+export type LinkWithRedirect = Pick<
+  SelectLink,
+  'rules' | 'utmOptions' | 'target'
+> & {
+  redirects: { usage: number; limit: number; id: number };
+};

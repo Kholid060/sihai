@@ -80,7 +80,7 @@ const config: Config = {
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
         mono: ['DM Mono', ...defaultTheme.fontFamily.mono],
-        serif: ['Merriweather', ...defaultTheme.fontFamily.serif],
+        serif: ['"Source Serif 4"', ...defaultTheme.fontFamily.serif],
       },
       keyframes: {
         'accordion-down': {

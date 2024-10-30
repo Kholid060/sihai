@@ -3,7 +3,7 @@
     <div class="flex">
       <div class="w-64 px-3 py-4">
         <VisuallyHidden>{{ title }}</VisuallyHidden>
-        <h2 class="text-lg font-bold">{{ title }}</h2>
+        <h2 class="text-xl font-bold">{{ title }}</h2>
         <UiTabsList class="custom-tabs mt-4 space-y-2">
           <UiTabsTrigger value="detail">
             <FileTextIcon class="mr-2 size-5" />
@@ -82,7 +82,7 @@
         @submit="onSubmit"
       >
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="detail">
-          <h3 class="mb-3 font-bold">Detail</h3>
+          <h3 class="mb-3 text-lg font-bold">Detail</h3>
           <div class="space-y-4">
             <UiFormField v-slot="{ componentField }" name="target">
               <UiFormItem>
@@ -154,7 +154,7 @@
           </div>
         </UiTabsContent>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="rules">
-          <h3 class="mb-3 font-bold">Rules</h3>
+          <h3 class="mb-3 text-lg font-bold">Rules</h3>
           <UiFormField v-slot="{ value, errorMessage, meta }" name="rules">
             <ClientOnly>
               <LinkRule
@@ -173,7 +173,7 @@
           </UiFormField>
         </UiTabsContent>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="qrcode">
-          <h3 class="mb-3 font-bold">QR Code</h3>
+          <h3 class="mb-3 text-lg font-bold">QR Code</h3>
           <UiFormField
             v-slot="{ componentField, field }"
             name="qrOptions.color"
@@ -220,7 +220,7 @@
           </UiFormField>
         </UiTabsContent>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="utm">
-          <h3 class="mb-3 font-bold">UTM Builder</h3>
+          <h3 class="mb-3 text-lg font-bold">UTM Builder</h3>
           <UiAlert
             v-if="!linkTarget.valid"
             class="mb-4 mt-2 items-center"
@@ -361,7 +361,7 @@ const {
   keepValuesOnUnmount: true,
 });
 
-const qrCodeElRef = ref<HTMLCanvasElement>();
+const qrCodeElRef = ref<HTMLDivElement>();
 
 const state = shallowReactive({
   lockKey: true,

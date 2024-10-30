@@ -31,7 +31,11 @@
     Add rule
   </UiButton>
   <UiDialog :open="Boolean(editRule)" @update:open="removeEditRule">
-    <UiDialogScrollContent v-if="editRule" class="max-w-xl">
+    <UiDialogScrollContent
+      v-if="editRule"
+      class="max-w-xl"
+      @interact-outside="$event.preventDefault()"
+    >
       <UiDialogTitle>
         <div class="relative font-serif text-lg font-bold">
           <PencilIcon

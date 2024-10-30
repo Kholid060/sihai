@@ -1,7 +1,15 @@
-import type { SelectPlan, SelectUser, SelectUserUsage } from '~/db/schema';
+import type { SelectUser, SelectUserPlan } from '~/db/schema';
 
 export interface UserProfile extends Pick<SelectUser, 'id' | 'name' | 'email'> {
   avatarUrl?: string;
-  plan: Pick<SelectPlan, 'maxRedirect' | 'maxRules' | 'maxUrl' | 'name'>;
-  usage: Pick<SelectUserUsage, 'periodEnd' | 'redirectCounts' | 'urlCounts'>;
+  plan: Pick<
+    SelectUserPlan,
+    | 'name'
+    | 'periodEnd'
+    | 'rulesLimit'
+    | 'linksLimit'
+    | 'linksUsage'
+    | 'redirectsLimit'
+    | 'redirectsUsage'
+  >;
 }

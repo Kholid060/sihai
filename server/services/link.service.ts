@@ -1,8 +1,12 @@
-import { linksTable, userUsagesTable } from '~/db/schema';
+import type { H3Event } from 'h3';
+import Bowser from 'bowser';
+import { isbot } from 'isbot';
+import { linksTable, userPlansTable } from '~/db/schema';
 import { drizzle } from '../lib/drizzle';
 import { createLimitExceedError } from '../utils/custom-errors';
 import type {
   LinkQueryValidation,
+  LinkUTMOptionsValidation,
   NewLinkValidation,
   UpdateLinkValidation,
 } from '../validation/link.validation';
@@ -13,20 +17,22 @@ import type {
   LinkDetail,
   LinkListItem,
   LinkListResult,
+  LinkWithRedirect,
 } from '~/interface/link.interface';
 import { and, asc, desc, eq, ilike, or } from 'drizzle-orm';
 import postgres from 'postgres';
-import { LINK_QUERY_LIMIT } from '../const/link.const';
+import { LINK_QUERY_LIMIT, LINK_UTM_QUERY_MAP } from '../const/link.const';
+import { LinkRulesTester } from '~/server/utils/LinkRuleTester';
 
 export async function createNewLink(
   userId: string,
   urlData: NewLinkValidation,
 ): Promise<LinkDetail> {
   const profile = await getUserProfile(userId);
-  if (profile.usage.urlCounts >= profile.plan.maxUrl) {
+  if (profile.plan.linksUsage >= profile.plan.linksLimit) {
     throw createLimitExceedError('URL');
   }
-  if (urlData.rules.length >= profile.plan.maxRules) {
+  if (urlData.rules.length >= profile.plan.rulesLimit) {
     throw createLimitExceedError('Link rule');
   }
 
@@ -55,8 +61,8 @@ export async function createNewLink(
 
       throw error;
     }
-    await tx.update(userUsagesTable).set({
-      urlCounts: incrementDBColumn(userUsagesTable.urlCounts),
+    await tx.update(userPlansTable).set({
+      linksUsage: incrementDBColumn(userPlansTable.linksUsage),
     });
 
     return result as LinkDetail;
@@ -169,7 +175,33 @@ export async function findLinksByUser(
   return result;
 }
 
-export const findLinkById = defineCachedFunction(
+export async function findLinkByKey(key: string): Promise<LinkWithRedirect> {
+  const [link] = await drizzle
+    .select({
+      rules: linksTable.rules,
+      target: linksTable.target,
+      utmOptions: linksTable.utmOptions,
+      redirects: {
+        id: userPlansTable.id,
+        usage: userPlansTable.redirectsUsage,
+        limit: userPlansTable.redirectsLimit,
+      },
+    })
+    .from(linksTable)
+    .innerJoin(userPlansTable, eq(linksTable.userId, userPlansTable.userId))
+    .where(eq(linksTable.key, key))
+    .limit(1);
+  if (!link) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found',
+    });
+  }
+
+  return link;
+}
+
+export const findLinkByUserAndId = defineCachedFunction(
   async (userId: string, linkId: string): Promise<LinkDetail> => {
     const [link] = await drizzle
       .select({
@@ -206,7 +238,7 @@ export async function updateLink(
 
   if (data.rules) {
     const profile = await getUserProfile(userId);
-    if (data.rules.length > profile.plan.maxRules) {
+    if (data.rules.length > profile.plan.rulesLimit) {
       throw createLimitExceedError('Link rule');
     }
   }
@@ -235,4 +267,55 @@ export async function deleteLink(userId: string, linkId: string) {
       statusMessage: 'Not Found',
     });
   }
+}
+
+export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
+  if (link.redirects.usage >= link.redirects.limit) {
+    throw createError({
+      statusCode: 402,
+      statusMessage: 'The redirect limit has been exceeded',
+    });
+  }
+
+  const userAgent = event.headers.get('user-agent') ?? '';
+  const uaParser = Bowser.getParser(userAgent, true);
+
+  let redirectURL = '';
+
+  if (
+    isbot(userAgent) ||
+    !uaParser.getBrowserName() ||
+    link.rules.length === 0
+  ) {
+    redirectURL = link.target;
+  } else {
+    redirectURL =
+      LinkRulesTester.findMatchRules({ event, rules: link.rules, userAgent })
+        ?.target ?? link.target;
+  }
+
+  if (link.utmOptions) {
+    const redirectURLObj = new URL(redirectURL);
+    for (const _key in link.utmOptions) {
+      const key = _key as keyof LinkUTMOptionsValidation;
+      if (link.utmOptions[key]?.trim()) {
+        redirectURLObj.searchParams.set(
+          LINK_UTM_QUERY_MAP[key],
+          link.utmOptions[key],
+        );
+      }
+    }
+
+    redirectURL = redirectURLObj.href;
+  }
+
+  drizzle
+    .update(userPlansTable)
+    .set({
+      redirectsUsage: incrementDBColumn(userPlansTable.redirectsUsage),
+    })
+    .where(eq(userPlansTable.id, link.redirects.id))
+    .execute();
+
+  return sendRedirect(event, redirectURL);
 }

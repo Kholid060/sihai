@@ -1,7 +1,14 @@
-import Bowser from 'bowser';
-import { isbot } from 'isbot';
+import { findLinkByKey, redirectLink } from '~/server/services/link.service';
 
-export default defineEventHandler((event) => {
-  console.log(isbot(event.headers.get('user-agent')!), event.path);
-  return Bowser.parse(event.headers.get('user-agent')!);
+const BASE_PATH = '/api/redirect/';
+
+export default defineEventHandler(async (event) => {
+  // throw createError({
+  //   statusCode: 403,
+  //   statusMessage: 'Limit exceeded',
+  // });
+  const urlKey = event.path.slice(BASE_PATH.length);
+  const link = await findLinkByKey(urlKey);
+
+  return await redirectLink(link, event);
 });

@@ -1,10 +1,10 @@
 import { authGuard } from '~/server/guards/auth.guard';
-import { findLinkById } from '~/server/services/link.service';
+import { findLinkByUserAndId } from '~/server/services/link.service';
 
 export default defineEventHandler({
   onRequest: [authGuard],
   async handler(event) {
-    const result = await findLinkById(
+    const result = await findLinkByUserAndId(
       event.context.user.id,
       getRouterParam(event, 'linkId')!,
     );

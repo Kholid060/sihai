@@ -1,5 +1,4 @@
 import type { UserProfile } from '~/interface/user.interface';
-import { APP_FREE_PLAN } from '~/server/const/app.const';
 
 export const useUserStore = defineStore('user', () => {
   let isFetched = false;
@@ -9,8 +8,15 @@ export const useUserStore = defineStore('user', () => {
     name: '',
     email: '',
     avatarUrl: '',
-    plan: APP_FREE_PLAN,
-    usage: { periodEnd: '', redirectCounts: 0, urlCounts: 0 },
+    plan: {
+      name: '',
+      periodEnd: '',
+      linksLimit: 0,
+      linksUsage: 0,
+      rulesLimit: 0,
+      redirectsLimit: 0,
+      redirectsUsage: 0,
+    },
   });
 
   async function fetch() {
@@ -23,8 +29,8 @@ export const useUserStore = defineStore('user', () => {
     isFetched = true;
     Object.assign(profile, result.data);
   }
-  function incrementUsage(key: 'redirectCounts' | 'urlCounts', by = 1) {
-    profile.usage[key] += by;
+  function incrementUsage(key: 'linksUsage' | 'redirectsUsage', by = 1) {
+    profile.plan[key] += by;
   }
 
   return { profile, fetch, incrementUsage };

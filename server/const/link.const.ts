@@ -25,9 +25,9 @@ export const LINK_RULE_CONDITION_TYPE = [
   'user-agent',
   'url-query',
   'device',
-  'day-user',
-  'date-user',
-  'time-user',
+  // 'day-user',
+  // 'date-user',
+  // 'time-user',
 ] as const;
 export type LinkRuleConditionType = (typeof LINK_RULE_CONDITION_TYPE)[number];
 
