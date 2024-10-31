@@ -10,6 +10,8 @@ import {
   json,
   boolean,
   serial,
+  char,
+  smallint,
 } from 'drizzle-orm/pg-core';
 import {
   DB_LINK_DESCRIPTION_MAX_LEN,
@@ -126,3 +128,38 @@ export const linksTable = pgTable(
 );
 export type NewLink = typeof linksTable.$inferInsert;
 export type SelectLink = typeof linksTable.$inferSelect;
+
+export const linkSessionsTable = pgTable('link_events', {
+  id: text('id').primaryKey(),
+  device: varchar('device', { length: 16 }).default(''),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .notNull()
+    .defaultNow(),
+  os: varchar('os', { length: 32 }),
+  country: char('country', { length: 2 }),
+  language: char('language', { length: 16 }),
+  event: smallint('event').default(1),
+  linkId: text('link_id')
+    .notNull()
+    .references(() => linksTable.id),
+});
+export type NewLinkSession = typeof linkSessionsTable.$inferInsert;
+export type SelectLinkSession = typeof linkSessionsTable.$inferSelect;
+
+export const linkEventsTable = pgTable('link_events', {
+  id: serial().primaryKey(),
+  target: varchar('target', { length: 500 }).default(''),
+  refPath: varchar('ref_path', { length: 500 }).default(''),
+  refDomain: varchar('ref_domain', { length: 500 }).default(''),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .notNull()
+    .defaultNow(),
+  linkId: text('link_id')
+    .notNull()
+    .references(() => linksTable.id),
+  linkSessionId: text('link_session_id')
+    .references(() => linkSessionsTable.id)
+    .notNull(),
+});
+export type NewLinkEvent = typeof linkEventsTable.$inferInsert;
+export type SelectLinkEvent = typeof linkEventsTable.$inferSelect;

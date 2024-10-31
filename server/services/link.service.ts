@@ -281,6 +281,7 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
   const uaParser = Bowser.getParser(userAgent, true);
 
   let redirectURL = '';
+  let skipRedirectCount = false;
 
   if (
     isbot(userAgent) ||
@@ -288,6 +289,7 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
     link.rules.length === 0
   ) {
     redirectURL = link.target;
+    skipRedirectCount = true;
   } else {
     redirectURL =
       LinkRulesTester.findMatchRules({ event, rules: link.rules, userAgent })
@@ -309,13 +311,15 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
     redirectURL = redirectURLObj.href;
   }
 
-  drizzle
-    .update(userPlansTable)
-    .set({
-      redirectsUsage: incrementDBColumn(userPlansTable.redirectsUsage),
-    })
-    .where(eq(userPlansTable.id, link.redirects.id))
-    .execute();
+  if (!skipRedirectCount) {
+    drizzle
+      .update(userPlansTable)
+      .set({
+        redirectsUsage: incrementDBColumn(userPlansTable.redirectsUsage),
+      })
+      .where(eq(userPlansTable.id, link.redirects.id))
+      .execute();
+  }
 
   return sendRedirect(event, redirectURL);
 }

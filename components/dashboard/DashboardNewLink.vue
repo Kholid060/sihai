@@ -1,28 +1,16 @@
 <template>
-  <UiTabs default-value="detail">
-    <div class="flex">
-      <div class="w-64 px-3 py-4">
+  <UiTabs v-model="activeTab">
+    <div class="flex flex-col-reverse md:flex-row md:pb-0">
+      <div class="w-full px-2 py-3 md:w-64 md:px-3 md:py-4">
         <VisuallyHidden>{{ title }}</VisuallyHidden>
-        <h2 class="text-xl font-bold">{{ title }}</h2>
-        <UiTabsList class="custom-tabs mt-4 space-y-2">
-          <UiTabsTrigger value="detail">
-            <FileTextIcon class="mr-2 size-5" />
-            Detail
-          </UiTabsTrigger>
-          <UiTabsTrigger value="rules">
-            <WorkflowIcon class="mr-2 size-5" />
-            Rules
-          </UiTabsTrigger>
-          <UiTabsTrigger value="utm">
-            <MilestoneIcon class="mr-2 size-5" />
-            UTM Builder
-          </UiTabsTrigger>
-          <UiTabsTrigger value="qrcode">
-            <QrCodeIcon class="mr-2 size-5" />
-            QR Code
+        <h2 class="hidden text-xl font-bold md:block">{{ title }}</h2>
+        <UiTabsList v-if="isDesktop" class="custom-tabs mt-4 space-y-2">
+          <UiTabsTrigger v-for="(tab, key) in TABS" :key="key" :value="key">
+            <component :is="tab.icon" class="mr-2 size-5" />
+            {{ tab.title }}
           </UiTabsTrigger>
         </UiTabsList>
-        <UiSeparator class="my-4" />
+        <UiSeparator class="my-4 hidden md:block" />
         <div class="flex items-center">
           <p class="grow text-sm font-semibold">QR Code Preview</p>
           <UiTooltipSimple label="Copy QR code">
@@ -78,11 +66,16 @@
         </div>
       </div>
       <form
-        class="flex min-h-[400px] w-screen max-w-xl grow flex-col rounded-lg bg-card p-6 shadow-sm"
+        class="flex min-h-[400px] w-screen grow flex-col rounded-lg bg-card p-4 shadow-sm md:max-w-xl md:p-6"
         @submit="onSubmit"
       >
+        <h3 v-if="isDesktop" class="mb-3 text-lg font-bold">
+          {{ TABS[activeTab].title }}
+        </h3>
+        <h3 v-else class="mb-3 text-lg font-bold">
+          {{ title }}
+        </h3>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="detail">
-          <h3 class="mb-3 text-lg font-bold">Detail</h3>
           <div class="space-y-4">
             <UiFormField v-slot="{ componentField }" name="target">
               <UiFormItem>
@@ -154,7 +147,6 @@
           </div>
         </UiTabsContent>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="rules">
-          <h3 class="mb-3 text-lg font-bold">Rules</h3>
           <UiFormField v-slot="{ value, errorMessage, meta }" name="rules">
             <ClientOnly>
               <LinkRule
@@ -173,7 +165,6 @@
           </UiFormField>
         </UiTabsContent>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="qrcode">
-          <h3 class="mb-3 text-lg font-bold">QR Code</h3>
           <UiFormField
             v-slot="{ componentField, field }"
             name="qrOptions.color"
@@ -220,7 +211,6 @@
           </UiFormField>
         </UiTabsContent>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="utm">
-          <h3 class="mb-3 text-lg font-bold">UTM Builder</h3>
           <UiAlert
             v-if="!linkTarget.valid"
             class="mb-4 mt-2 items-center"
@@ -267,7 +257,7 @@
             />
           </div>
         </UiTabsContent>
-        <div class="mt-10 flex items-center">
+        <div v-if="isDesktop" class="mt-10 flex items-center">
           <div class="grow"></div>
           <UiButton as-child variant="ghost">
             <UiDialogClose> Cancel </UiDialogClose>
@@ -277,6 +267,27 @@
           </UiButton>
         </div>
       </form>
+    </div>
+    <div v-if="!isDesktop" class="sticky bottom-0 bg-background p-2 sm:flex">
+      <UiSelect v-model="activeTab">
+        <UiSelectTrigger class="mb-2 sm:w-auto">
+          <UiSelectValue />
+        </UiSelectTrigger>
+        <UiSelectContent>
+          <UiSelectItem v-for="(tab, key) in TABS" :key="key" :value="key">
+            {{ tab.title }}
+          </UiSelectItem>
+        </UiSelectContent>
+      </UiSelect>
+      <div class="grow"></div>
+      <div class="flex">
+        <UiButton as-child variant="ghost">
+          <UiDialogClose> Cancel </UiDialogClose>
+        </UiButton>
+        <UiButton type="submit" class="ml-4 grow" :is-loading="state.isLoading">
+          {{ submitLabel }}
+        </UiButton>
+      </div>
     </div>
   </UiTabs>
 </template>
@@ -301,7 +312,7 @@ import {
 } from '~/server/validation/link.validation';
 import { LINK_UTM_QUERY_MAP } from '~/server/const/link.const';
 import { nanoid } from 'nanoid';
-import { watchDebounced } from '@vueuse/core';
+import { useMediaQuery, watchDebounced } from '@vueuse/core';
 import { useToast } from '../ui/toast';
 import type { LinkDetail } from '~/interface/link.interface';
 import { APP_DOMAIN } from '~/server/const/app.const';
@@ -341,10 +352,30 @@ const utmForms: {
   { key: 'ref', label: 'Referral', placeholder: 'example.com' },
 ];
 
+const TABS = {
+  detail: {
+    title: 'Detail',
+    icon: FileTextIcon,
+  },
+  rules: {
+    title: 'Rules',
+    icon: WorkflowIcon,
+  },
+  utm: {
+    icon: MilestoneIcon,
+    title: 'UTM Builder',
+  },
+  qrcode: {
+    title: 'QR Code',
+    icon: QrCodeIcon,
+  },
+} as const;
+
 let targetObjUrl: URL | null = null;
 let qrCodeStyling: QRCodeStyling | null = null;
 
 const toast = useToast();
+const isDesktop = useMediaQuery('(min-width: 768px)');
 const {
   handleSubmit,
   values,
@@ -362,6 +393,7 @@ const {
 });
 
 const qrCodeElRef = ref<HTMLDivElement>();
+const activeTab = shallowRef<keyof typeof TABS>('detail');
 
 const state = shallowReactive({
   lockKey: true,
