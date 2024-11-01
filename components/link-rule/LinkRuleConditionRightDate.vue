@@ -55,7 +55,6 @@ import {
   type DateValue,
   parseDate,
   getLocalTimeZone,
-  today,
 } from '@internationalized/date';
 import { cn } from '~/lib/utils';
 
@@ -73,7 +72,7 @@ function tryParseDate(str: string) {
   }
 }
 
-const rightValue = computed<DateValue | DateValue[]>({
+const rightValue = computed<DateValue | DateValue[] | undefined>({
   get() {
     let value: string | string[] = model.value.right;
 
@@ -90,12 +89,12 @@ const rightValue = computed<DateValue | DateValue[]>({
 
           return acc;
         }, [])
-      : (tryParseDate(value) ?? today(getLocalTimeZone()));
+      : (tryParseDate(value) ?? undefined);
   },
   set(value) {
     model.value.right = Array.isArray(value)
       ? value.map((date) => date.toString())
-      : value.toString();
+      : (value?.toString() ?? '');
   },
 });
 </script>
