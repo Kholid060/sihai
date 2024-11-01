@@ -9,7 +9,7 @@
       v-for="link in sidebarLinks"
       :key="link.to"
       :to="link.to"
-      active-class="active"
+      exact-active-class="active"
       class="sidebar-link group relative mb-3 px-4"
     >
       <span

@@ -47,6 +47,7 @@
     "tailwind-merge": "^2.5.4",
     "type-fest": "^4.26.1",
     "ulidx": "^2.4.1",
+    "uuid": "^11.0.2",
     "vaul-vue": "^0.2.0",
     "vee-validate": "^4.13.2",
     "vue": "latest",

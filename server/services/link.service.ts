@@ -1,7 +1,12 @@
 import type { H3Event } from 'h3';
 import Bowser from 'bowser';
 import { isbot } from 'isbot';
-import { linksTable, userPlansTable } from '~/db/schema';
+import {
+  linkEventsTable,
+  linkSessionsTable,
+  linksTable,
+  userPlansTable,
+} from '~/db/schema';
 import { drizzle } from '../lib/drizzle';
 import { createLimitExceedError } from '../utils/custom-errors';
 import type {
@@ -21,8 +26,14 @@ import type {
 } from '~/interface/link.interface';
 import { and, asc, desc, eq, ilike, or } from 'drizzle-orm';
 import postgres from 'postgres';
-import { LINK_QUERY_LIMIT, LINK_UTM_QUERY_MAP } from '../const/link.const';
+import {
+  LINK_EVENT_TRIGGER,
+  LINK_QUERY_LIMIT,
+  LINK_UTM_QUERY_MAP,
+} from '../const/link.const';
 import { LinkRulesTester } from '~/server/utils/LinkRuleTester';
+import type { SessionData } from '../lib/session';
+import { getSessionData, getSessionId } from '../lib/session';
 
 export async function createNewLink(
   userId: string,
@@ -178,6 +189,7 @@ export async function findLinksByUser(
 export async function findLinkByKey(key: string): Promise<LinkWithRedirect> {
   const [link] = await drizzle
     .select({
+      id: linksTable.id,
       rules: linksTable.rules,
       target: linksTable.target,
       utmOptions: linksTable.utmOptions,
@@ -269,6 +281,50 @@ export async function deleteLink(userId: string, linkId: string) {
   }
 }
 
+async function insertLinkSession(
+  linkId: string,
+  {
+    os,
+    isQr,
+    device,
+    browser,
+    country,
+    refPath,
+    language,
+    targetURL,
+    sessionId,
+    refDomain,
+  }: SessionData & { targetURL: string },
+) {
+  await drizzle.transaction(async (tx) => {
+    await tx
+      .insert(linkSessionsTable)
+      .values({
+        os,
+        linkId,
+        device,
+        country,
+        browser,
+        language,
+        id: sessionId,
+      })
+      .onConflictDoUpdate({
+        target: linkSessionsTable.id,
+        set: {
+          event: incrementDBColumn(linkSessionsTable.event),
+        },
+      });
+    await tx.insert(linkEventsTable).values({
+      linkId,
+      refPath,
+      refDomain,
+      linkSessionId: sessionId,
+      target: targetURL.slice(0, 500),
+      trigger: isQr ? LINK_EVENT_TRIGGER.qr : null,
+    });
+  });
+}
+
 export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
   if (link.redirects.usage >= link.redirects.limit) {
     throw createError({
@@ -280,21 +336,17 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
   const userAgent = event.headers.get('user-agent') ?? '';
   const uaParser = Bowser.getParser(userAgent, true);
 
-  let redirectURL = '';
-  let skipRedirectCount = false;
-
-  if (
-    isbot(userAgent) ||
-    !uaParser.getBrowserName() ||
-    link.rules.length === 0
-  ) {
-    redirectURL = link.target;
-    skipRedirectCount = true;
-  } else {
-    redirectURL =
-      LinkRulesTester.findMatchRules({ event, rules: link.rules, userAgent })
-        ?.target ?? link.target;
+  if (isbot(userAgent) || !uaParser.getBrowserName()) {
+    return sendRedirect(event, link.target);
   }
+
+  const sessionId = await getSessionId(event);
+  const sessionData = await getSessionData(event, sessionId);
+
+  const redirectURL =
+    LinkRulesTester.findMatchRules({ event, rules: link.rules, sessionData })
+      ?.target ?? link.target;
+  let redirectURLWithUtm: string | null = null;
 
   if (link.utmOptions) {
     const redirectURLObj = new URL(redirectURL);
@@ -308,18 +360,17 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
       }
     }
 
-    redirectURL = redirectURLObj.href;
+    redirectURLWithUtm = redirectURLObj.href;
   }
 
-  if (!skipRedirectCount) {
-    drizzle
-      .update(userPlansTable)
-      .set({
-        redirectsUsage: incrementDBColumn(userPlansTable.redirectsUsage),
-      })
-      .where(eq(userPlansTable.id, link.redirects.id))
-      .execute();
-  }
+  drizzle
+    .update(userPlansTable)
+    .set({
+      redirectsUsage: incrementDBColumn(userPlansTable.redirectsUsage),
+    })
+    .where(eq(userPlansTable.id, link.redirects.id))
+    .execute();
+  insertLinkSession(link.id, { ...sessionData, targetURL: redirectURL });
 
-  return sendRedirect(event, redirectURL);
+  return sendRedirect(event, redirectURLWithUtm || redirectURL);
 }

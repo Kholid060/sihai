@@ -40,3 +40,13 @@ export async function getValidatedEventData<T extends ZodType>(
 
   return result.data;
 }
+
+export function getRequestPath(event: H3Event, sliceStart = 0) {
+  let path = event.path;
+
+  const queryIndex = path.indexOf('?');
+  if (queryIndex !== -1) path = path.slice(sliceStart, queryIndex);
+  else if (typeof sliceStart === 'number') path = path.slice(sliceStart);
+
+  return path;
+}

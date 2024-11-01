@@ -259,7 +259,7 @@
         </UiTabsContent>
         <div v-if="isDesktop" class="mt-10 flex items-center">
           <div class="grow"></div>
-          <UiButton as-child variant="ghost">
+          <UiButton as-child variant="outline" class="bg-inherit">
             <UiDialogClose> Cancel </UiDialogClose>
           </UiButton>
           <UiButton type="submit" class="ml-4" :is-loading="state.isLoading">

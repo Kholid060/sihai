@@ -1,5 +1,4 @@
 import type { LinkRuleValidation } from '~/server/validation/link.validation';
-import type { Parser } from 'bowser';
 import type { H3Event } from 'h3';
 import type {
   LinkRuleConditionOperator,
@@ -13,8 +12,7 @@ import {
 } from '@internationalized/date';
 import acceptLanguage from 'accept-language';
 import languages from '~/data/language.json';
-import Bowser from 'bowser';
-import { lookup } from 'ip-location-api';
+import type { SessionData } from '../lib/session';
 
 acceptLanguage.languages(Object.keys(languages));
 
@@ -104,24 +102,21 @@ function testCondition(
 
 interface LinkRulesTesterOptions {
   event: H3Event;
-  userAgent: string;
+  sessionData: SessionData;
   rules: LinkRuleValidation[];
 }
 
 export class LinkRulesTester {
   private readonly event: H3Event;
-  private readonly userAgent: string;
-  private readonly uaParser: Parser.Parser;
   private readonly rules: LinkRuleValidation[];
 
+  private sessionData: SessionData;
   private cacheData: Partial<Record<LinkRuleConditionType, unknown>> = {};
 
-  constructor({ event, rules, userAgent }: LinkRulesTesterOptions) {
+  constructor({ event, rules, sessionData }: LinkRulesTesterOptions) {
     this.rules = rules;
     this.event = event;
-    this.userAgent = userAgent;
-
-    this.uaParser = Bowser.getParser(userAgent, true);
+    this.sessionData = sessionData;
   }
 
   private getConditionLeftValue(type: LinkRuleConditionType) {
@@ -129,11 +124,9 @@ export class LinkRulesTester {
 
     switch (type) {
       case 'browser':
-        return this.uaParser.getBrowserName();
+        return this.sessionData.browser;
       case 'country':
-        this.cacheData.ip ??= getRequestIP(this.event, { xForwardedFor: true });
-        this.cacheData.country = lookup(this.cacheData.ip)?.country ?? null;
-        return this.cacheData.country;
+        return this.sessionData.country;
       case 'date': {
         const date = new Date();
         this.cacheData.date = new CalendarDate(
@@ -147,20 +140,15 @@ export class LinkRulesTester {
         this.cacheData.day = new Date().getUTCDay().toString();
         return this.cacheData.day;
       case 'device':
-        return this.uaParser.getPlatformType();
+        return this.sessionData.device;
       case 'os':
-        return this.uaParser.getOSName();
+        return this.sessionData.os;
       case 'ip':
-        this.cacheData.ip = getRequestIP(this.event, { xForwardedFor: true });
-        return this.cacheData.ip;
+        return this.sessionData.ip;
       case 'is-qr':
-        this.cacheData['is-qr'] = Object.hasOwn(getQuery(this.event), 'qr');
-        return this.cacheData['is-qr'];
+        return this.sessionData.isQr;
       case 'language': {
-        this.cacheData.language = acceptLanguage.get(
-          this.event.headers.get('accept-language'),
-        );
-        return this.cacheData.language;
+        return this.sessionData.language;
       }
       case 'time': {
         const date = new Date();
@@ -177,7 +165,7 @@ export class LinkRulesTester {
         ).search.slice(1);
         return this.cacheData['url-query'];
       case 'user-agent':
-        return this.userAgent;
+        return this.sessionData.userAgent;
       default:
         throw new Error(`"${type}" is invalid type`);
     }
@@ -205,6 +193,8 @@ export class LinkRulesTester {
   }
 
   static findMatchRules(options: LinkRulesTesterOptions) {
+    if (options.rules.length === 0) return null;
+
     return new LinkRulesTester(options).findMatch();
   }
 }

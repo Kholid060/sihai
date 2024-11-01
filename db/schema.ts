@@ -129,37 +129,98 @@ export const linksTable = pgTable(
 export type NewLink = typeof linksTable.$inferInsert;
 export type SelectLink = typeof linksTable.$inferSelect;
 
-export const linkSessionsTable = pgTable('link_events', {
-  id: text('id').primaryKey(),
-  device: varchar('device', { length: 16 }).default(''),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .notNull()
-    .defaultNow(),
-  os: varchar('os', { length: 32 }),
-  country: char('country', { length: 2 }),
-  language: char('language', { length: 16 }),
-  event: smallint('event').default(1),
-  linkId: text('link_id')
-    .notNull()
-    .references(() => linksTable.id),
-});
+export const linkSessionsTable = pgTable(
+  'link_sessions',
+  {
+    id: text('id').primaryKey(),
+    device: varchar('device', { length: 16 }).default(''),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .notNull()
+      .defaultNow(),
+    os: varchar('os', { length: 32 }),
+    country: char('country', { length: 2 }),
+    browser: char('browser', { length: 32 }),
+    language: char('language', { length: 16 }),
+    event: smallint('event').default(1),
+    linkId: text('link_id')
+      .notNull()
+      .references(() => linksTable.id),
+  },
+  (table) => ({
+    linkIdIdx: index('ls_link_id').onOnly(table.linkId),
+    linkCreatedAtIdx: index('ls_created_at').onOnly(table.createdAt),
+    linkIdDeviceIdx: index('ls_link_id_device').on(
+      table.linkId,
+      table.createdAt,
+      table.device,
+    ),
+    linkIdOsIdx: index('ls_link_id_os').on(
+      table.linkId,
+      table.createdAt,
+      table.os,
+    ),
+    linkIdCountryIdx: index('ls_link_id_country').on(
+      table.linkId,
+      table.createdAt,
+      table.country,
+    ),
+    linkIdBrowserIdx: index('ls_link_id_browser').on(
+      table.linkId,
+      table.createdAt,
+      table.browser,
+    ),
+    linkIdLanguageIdx: index('ls_link_id_language').on(
+      table.linkId,
+      table.createdAt,
+      table.language,
+    ),
+  }),
+);
 export type NewLinkSession = typeof linkSessionsTable.$inferInsert;
 export type SelectLinkSession = typeof linkSessionsTable.$inferSelect;
 
-export const linkEventsTable = pgTable('link_events', {
-  id: serial().primaryKey(),
-  target: varchar('target', { length: 500 }).default(''),
-  refPath: varchar('ref_path', { length: 500 }).default(''),
-  refDomain: varchar('ref_domain', { length: 500 }).default(''),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .notNull()
-    .defaultNow(),
-  linkId: text('link_id')
-    .notNull()
-    .references(() => linksTable.id),
-  linkSessionId: text('link_session_id')
-    .references(() => linkSessionsTable.id)
-    .notNull(),
-});
+export const linkEventsTable = pgTable(
+  'link_events',
+  {
+    id: serial().primaryKey(),
+    trigger: varchar('trigger', { length: 32 }),
+    target: varchar('target', { length: 500 }).default(''),
+    refPath: varchar('ref_path', { length: 500 }).default(''),
+    refDomain: varchar('ref_domain', { length: 500 }).default(''),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .notNull()
+      .defaultNow(),
+    linkId: text('link_id')
+      .notNull()
+      .references(() => linksTable.id),
+    linkSessionId: text('link_session_id')
+      .references(() => linkSessionsTable.id)
+      .notNull(),
+  },
+  (table) => ({
+    linkIdIdx: index('le_link_id').onOnly(table.linkId),
+    createdAtIdx: index('le_created_at').onOnly(table.createdAt),
+    linkSessionIdIdx: index('le_link_session_id').onOnly(table.linkSessionId),
+    linkIdCreatedDateIdx: index('le_link_id_created').on(
+      table.linkId,
+      table.createdAt,
+    ),
+    linkIdRefDomainIdx: index('le_link_id_ref_domain').on(
+      table.linkId,
+      table.createdAt,
+      table.refDomain,
+    ),
+    linkIdTriggerIdx: index('le_link_id_trigger').on(
+      table.linkId,
+      table.createdAt,
+      table.trigger,
+    ),
+    linkIdTargetIdx: index('le_link_id_target').on(
+      table.linkId,
+      table.createdAt,
+      table.target,
+    ),
+  }),
+);
 export type NewLinkEvent = typeof linkEventsTable.$inferInsert;
 export type SelectLinkEvent = typeof linkEventsTable.$inferSelect;

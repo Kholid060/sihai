@@ -48,3 +48,7 @@ export type LinkRuleConditionOperator =
 export const LINK_MAX_CONDITIONS = 8;
 
 export const LINK_QUERY_LIMIT = 15;
+
+export const LINK_EVENT_TRIGGER = {
+  qr: 'qr',
+} as const;
