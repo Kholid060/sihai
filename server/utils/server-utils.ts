@@ -41,7 +41,7 @@ export async function getValidatedEventData<T extends ZodType>(
   return result.data;
 }
 
-export function getRequestPath(event: H3Event, sliceStart = 0) {
+export function getTheRequestPath(event: H3Event, sliceStart = 0) {
   let path = event.path;
 
   const queryIndex = path.indexOf('?');
@@ -49,4 +49,8 @@ export function getRequestPath(event: H3Event, sliceStart = 0) {
   else if (typeof sliceStart === 'number') path = path.slice(sliceStart);
 
   return path;
+}
+
+export function addCachePrefixKey(prefix: string) {
+  return (...args: unknown[]) => `${prefix}:${args.join('')}`;
 }

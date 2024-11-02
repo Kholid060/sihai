@@ -138,39 +138,39 @@ export const linkSessionsTable = pgTable(
       .notNull()
       .defaultNow(),
     os: varchar('os', { length: 32 }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => profilesTable.id),
     country: char('country', { length: 2 }),
-    browser: char('browser', { length: 32 }),
-    language: char('language', { length: 16 }),
+    browser: varchar('browser', { length: 32 }),
+    language: varchar('language', { length: 16 }),
     event: smallint('event').default(1),
     linkId: text('link_id')
       .notNull()
       .references(() => linksTable.id),
   },
   (table) => ({
+    userIdIdx: index('user_id').onOnly(table.userId),
     linkIdIdx: index('ls_link_id').onOnly(table.linkId),
-    linkCreatedAtIdx: index('ls_created_at').onOnly(table.createdAt),
-    linkIdDeviceIdx: index('ls_link_id_device').on(
-      table.linkId,
+    createdAtIdx: index('ls_created_at').onOnly(table.createdAt),
+    createdAtDeviceIdx: index('ls_created_at_device').on(
+      table.userId,
       table.createdAt,
       table.device,
     ),
-    linkIdOsIdx: index('ls_link_id_os').on(
-      table.linkId,
-      table.createdAt,
-      table.os,
-    ),
-    linkIdCountryIdx: index('ls_link_id_country').on(
-      table.linkId,
+    createdAtOsIdx: index('ls_created_at_os').on(table.createdAt, table.os),
+    createdAtCountryIdx: index('ls_created_at_country').on(
+      table.userId,
       table.createdAt,
       table.country,
     ),
-    linkIdBrowserIdx: index('ls_link_id_browser').on(
-      table.linkId,
+    createdAtBrowserIdx: index('ls_created_at_browser').on(
+      table.userId,
       table.createdAt,
       table.browser,
     ),
-    linkIdLanguageIdx: index('ls_link_id_language').on(
-      table.linkId,
+    createdAtLanguageIdx: index('ls_created_at_language').on(
+      table.userId,
       table.createdAt,
       table.language,
     ),
@@ -184,6 +184,9 @@ export const linkEventsTable = pgTable(
   {
     id: serial().primaryKey(),
     trigger: varchar('trigger', { length: 32 }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => profilesTable.id),
     target: varchar('target', { length: 500 }).default(''),
     refPath: varchar('ref_path', { length: 500 }).default(''),
     refDomain: varchar('ref_domain', { length: 500 }).default(''),
@@ -199,24 +202,20 @@ export const linkEventsTable = pgTable(
   },
   (table) => ({
     linkIdIdx: index('le_link_id').onOnly(table.linkId),
+    userIdIdx: index('le_user_id').onOnly(table.userId),
     createdAtIdx: index('le_created_at').onOnly(table.createdAt),
-    linkSessionIdIdx: index('le_link_session_id').onOnly(table.linkSessionId),
-    linkIdCreatedDateIdx: index('le_link_id_created').on(
-      table.linkId,
-      table.createdAt,
-    ),
-    linkIdRefDomainIdx: index('le_link_id_ref_domain').on(
-      table.linkId,
+    createdAtRefDomainIdx: index('le_created_at_ref_domain').on(
+      table.userId,
       table.createdAt,
       table.refDomain,
     ),
-    linkIdTriggerIdx: index('le_link_id_trigger').on(
-      table.linkId,
+    createdAtTriggerIdx: index('le_created_at_trigger').on(
+      table.userId,
       table.createdAt,
       table.trigger,
     ),
-    linkIdTargetIdx: index('le_link_id_target').on(
-      table.linkId,
+    createdAtTargetIdx: index('le_created_at_target').on(
+      table.userId,
       table.createdAt,
       table.target,
     ),

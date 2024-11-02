@@ -25,3 +25,10 @@ export function getFetchError(error: unknown) {
     description: error instanceof Error ? error.message : '',
   };
 }
+
+export function subtractCurrentDate(numberDay: number) {
+  const date = new Date();
+  date.setDate(date.getDate() - numberDay);
+
+  return date;
+}

@@ -8,6 +8,20 @@
       "when": 1730444051363,
       "tag": "0000_brainy_redwing",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1730452900149,
+      "tag": "0001_thick_lethal_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1730452962814,
+      "tag": "0002_striped_lord_hawal",
+      "breakpoints": true
     }
   ]
 }

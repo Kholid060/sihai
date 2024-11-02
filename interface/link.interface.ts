@@ -14,7 +14,7 @@ export interface LinkListResult {
 
 export type LinkWithRedirect = Pick<
   SelectLink,
-  'rules' | 'utmOptions' | 'target' | 'id'
+  'rules' | 'utmOptions' | 'target' | 'id' | 'userId'
 > & {
   redirects: { usage: number; limit: number; id: number };
 };

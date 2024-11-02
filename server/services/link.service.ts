@@ -191,6 +191,7 @@ export async function findLinkByKey(key: string): Promise<LinkWithRedirect> {
     .select({
       id: linksTable.id,
       rules: linksTable.rules,
+      userId: linksTable.userId,
       target: linksTable.target,
       utmOptions: linksTable.utmOptions,
       redirects: {
@@ -269,20 +270,29 @@ export async function updateLink(
 }
 
 export async function deleteLink(userId: string, linkId: string) {
-  const result = await drizzle
-    .delete(linksTable)
-    .where(and(eq(linksTable.id, linkId), eq(linksTable.userId, userId)))
-    .returning({ id: linksTable.id });
-  if (result.length === 0) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Not Found',
-    });
-  }
+  await drizzle.transaction(async (tx) => {
+    const result = await tx
+      .delete(linksTable)
+      .where(and(eq(linksTable.id, linkId), eq(linksTable.userId, userId)))
+      .returning({ id: linksTable.id });
+    if (result.length === 0) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Not Found',
+      });
+    }
+
+    await drizzle
+      .delete(linkSessionsTable)
+      .where(eq(linkSessionsTable.linkId, linkId));
+    await drizzle
+      .delete(linkEventsTable)
+      .where(eq(linkEventsTable.linkId, linkId));
+  });
 }
 
 async function insertLinkSession(
-  linkId: string,
+  { linkId, userId }: { linkId: string; userId: string },
   {
     os,
     isQr,
@@ -303,6 +313,7 @@ async function insertLinkSession(
         os,
         linkId,
         device,
+        userId,
         country,
         browser,
         language,
@@ -316,6 +327,7 @@ async function insertLinkSession(
       });
     await tx.insert(linkEventsTable).values({
       linkId,
+      userId,
       refPath,
       refDomain,
       linkSessionId: sessionId,
@@ -370,7 +382,10 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
     })
     .where(eq(userPlansTable.id, link.redirects.id))
     .execute();
-  insertLinkSession(link.id, { ...sessionData, targetURL: redirectURL });
+  insertLinkSession(
+    { linkId: link.id, userId: link.userId },
+    { ...sessionData, targetURL: redirectURL },
+  );
 
   return sendRedirect(event, redirectURLWithUtm || redirectURL);
 }
