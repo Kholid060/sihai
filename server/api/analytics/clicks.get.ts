@@ -8,8 +8,8 @@ export default defineEventHandler({
     const query = await getValidatedEventData(
       event,
       'query',
-      analyticsQueryValidation.pick({ period: true }),
+      analyticsQueryValidation.pick({ interval: true }),
     );
-    return getAnalyticsByClicks(event.context.user.id, query.period);
+    return getAnalyticsByClicks(event.context.user.id, query.interval);
   },
 });

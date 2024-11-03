@@ -1,33 +1,18 @@
 import { linkEventsTable, linkSessionsTable } from '~/db/schema';
 import { drizzle } from '../lib/drizzle';
 import { and, count, eq, gte, sql, sum } from 'drizzle-orm';
-import type { AnalyticsPeriod } from '../const/analytics.const';
+import {
+  ANALYTICS_INTERVAL_DAY_COUNT,
+  type AnalyticsInterval,
+} from '../const/analytics.const';
 import { subtractCurrentDate } from '~/utils/helper';
 import type { AnalyticsQueryValidation } from '../validation/analytics.validation';
 import { addCachePrefixKey } from '../utils/server-utils';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 
-function getPeriodData(period: AnalyticsPeriod) {
-  let date: Date;
-  let trunc = 'day';
-
-  switch (period) {
-    case '24h':
-      date = subtractCurrentDate(1);
-      trunc = 'hour';
-      break;
-    case '14d':
-      date = subtractCurrentDate(14);
-      break;
-    case '30d':
-      date = subtractCurrentDate(30);
-      break;
-    case '90d':
-      date = subtractCurrentDate(90);
-      break;
-    default:
-      throw new Error('Invalid period');
-  }
+function getIntervalData(interval: AnalyticsInterval) {
+  const trunc = interval === '24h' ? 'hour' : 'day';
+  const date = subtractCurrentDate(ANALYTICS_INTERVAL_DAY_COUNT[interval]);
 
   date.setHours(0);
   date.setMinutes(0);
@@ -37,8 +22,8 @@ function getPeriodData(period: AnalyticsPeriod) {
 }
 
 export const getAnalyticsByClicks = defineCachedFunction(
-  async (userId: string, period: AnalyticsPeriod) => {
-    const { date, trunc } = getPeriodData(period);
+  async (userId: string, interval: AnalyticsInterval) => {
+    const { date, trunc } = getIntervalData(interval);
     const result = await drizzle
       .select({
         event: sum(linkSessionsTable.event).mapWith(Number),
@@ -59,17 +44,17 @@ export const getAnalyticsByClicks = defineCachedFunction(
 );
 
 async function queryLinkSessions({
-  period,
   userId,
   linkId,
   groupBy,
+  interval,
 }: {
   userId: string;
   linkId?: string;
   groupBy: AnyPgColumn;
-  period: AnalyticsPeriod;
+  interval: AnalyticsInterval;
 }): Promise<{ label: string; event: number }[]> {
-  const { date } = getPeriodData(period);
+  const { date } = getIntervalData(interval);
   const result = await drizzle
     .select({
       label: groupBy,
@@ -90,17 +75,17 @@ async function queryLinkSessions({
 }
 
 async function queryLinkEvents({
-  period,
   userId,
   linkId,
   groupBy,
+  interval,
 }: {
   userId: string;
   linkId?: string;
   groupBy: AnyPgColumn;
-  period: AnalyticsPeriod;
+  interval: AnalyticsInterval;
 }): Promise<{ label: string; event: number }[]> {
-  const { date } = getPeriodData(period);
+  const { date } = getIntervalData(interval);
   const result = drizzle
     .select({
       label: groupBy,
@@ -122,69 +107,69 @@ async function queryLinkEvents({
 }
 
 export const getAnalyticsData = defineCachedFunction(
-  (userId: string, { orderBy, period, linkId }: AnalyticsQueryValidation) => {
+  (userId: string, { orderBy, interval, linkId }: AnalyticsQueryValidation) => {
     switch (orderBy) {
       case 'country':
         return queryLinkSessions({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkSessionsTable.country,
         });
       case 'browser':
         return queryLinkSessions({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkSessionsTable.browser,
         });
       case 'language':
         return queryLinkSessions({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkSessionsTable.language,
         });
       case 'device':
         return queryLinkSessions({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkSessionsTable.device,
         });
       case 'os':
         return queryLinkSessions({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkSessionsTable.os,
         });
       case 'link':
         return queryLinkSessions({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkSessionsTable.linkId,
         });
       case 'referer':
         return queryLinkEvents({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkEventsTable.refDomain,
         });
       case 'target':
         return queryLinkEvents({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkEventsTable.target,
         });
       case 'trigger':
         return queryLinkEvents({
           userId,
-          period,
           linkId,
+          interval,
           groupBy: linkEventsTable.trigger,
         });
       default:

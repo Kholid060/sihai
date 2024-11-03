@@ -32,3 +32,30 @@ export function subtractCurrentDate(numberDay: number) {
 
   return date;
 }
+
+export function generateTimeSeries(count: number, type: 'day' | 'hour') {
+  const endDate = new Date();
+  endDate.setMinutes(0);
+
+  const result: Date[] = [endDate];
+
+  for (let index = 1; index < count; index += 1) {
+    const date = new Date();
+    if (type === 'day') date.setDate(endDate.getDate() - index);
+    else date.setHours(endDate.getHours() - index, 0);
+
+    result.unshift(date);
+  }
+
+  return result;
+}
+
+export function isSameDate(left: Date, right: Date, by: 'hour' | 'date') {
+  if (by === 'hour') return left.getHours() === right.getHours();
+
+  return (
+    left.getFullYear() === right.getFullYear() &&
+    left.getMonth() === right.getMonth() &&
+    left.getDate() === right.getDate()
+  );
+}
