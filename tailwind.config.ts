@@ -26,6 +26,12 @@ const config: Config = {
       },
     },
     extend: {
+      container: {
+        padding: {
+          DEFAULT: '1rem',
+          sm: '2rem',
+        },
+      },
       colors: {
         border: 'hsl(var(--border))',
         'border-hover': 'hsl(var(--border-hover))',

@@ -3,6 +3,7 @@ import acceptLanguage from 'accept-language';
 import languages from '~/data/language.json';
 import { lookup } from 'ip-location-api';
 import Bowser from 'bowser';
+import { BROWSER_ALIASES_MAP } from 'bowser/src/constants';
 import { uuid } from '~/lib/crypto';
 
 acceptLanguage.languages(Object.keys(languages));
@@ -20,6 +21,10 @@ export interface SessionData {
   language: string | null;
   refDomain: string | null;
 }
+
+const OS_MAP_ALIAS = Object.fromEntries(
+  Object.entries(Bowser.OS_MAP).map(([key, value]) => [value, key]),
+);
 
 export const getSessionData = defineCachedFunction(
   (event: H3Event, sessionId: string): SessionData => {
@@ -44,10 +49,10 @@ export const getSessionData = defineCachedFunction(
       refDomain,
       userAgent,
       sessionId,
-      os: uaParser.getOSName(),
-      browser: uaParser.getBrowserName(),
       device: uaParser.getPlatformType(),
+      os: OS_MAP_ALIAS[uaParser.getOSName()],
       isQr: Object.hasOwn(getQuery(event), 'qr'),
+      browser: BROWSER_ALIASES_MAP[uaParser.getBrowserName()],
       country: ip ? ((lookup(ip)?.country as string) ?? null) : null,
       language: acceptLanguage.get(event.headers.get('accept-language')),
     };

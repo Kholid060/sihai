@@ -67,15 +67,12 @@ const query = useQuery({
 await query.suspense();
 
 const locale = useDefaultLocale();
+const numberFormatter = useNumberFormatter(undefined, locale.value);
 const df = new DateFormatter(locale.value, {
   dateStyle: 'medium',
 });
 const tf = new DateFormatter(locale.value, {
   timeStyle: 'short',
-});
-const numberFormatter = new Intl.NumberFormat(locale.value, {
-  notation: 'compact',
-  maximumSignificantDigits: 3,
 });
 
 const chartData = computed(() => {

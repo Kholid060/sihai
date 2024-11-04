@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts',
     '@pinia/nuxt',
     'nuxt-security',
+    '@nuxt/image',
   ],
   security: {
     headers: {

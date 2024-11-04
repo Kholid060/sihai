@@ -1,9 +1,8 @@
-export const ANALYTICS_INTERVAL = ['24h', '7d', '14d', '30d', '90d'] as const;
+export const ANALYTICS_INTERVAL = ['24h', '7d', '14d', '30d'] as const;
 export type AnalyticsInterval = (typeof ANALYTICS_INTERVAL)[number];
 
 export const ANALYTICS_GROUP = [
   'os',
-  'link',
   'target',
   'device',
   'country',
@@ -19,5 +18,4 @@ export const ANALYTICS_INTERVAL_DAY_COUNT: Record<AnalyticsInterval, number> = {
   '24h': 1,
   '14d': 14,
   '30d': 30,
-  '90d': 90,
 };

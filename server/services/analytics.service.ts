@@ -1,6 +1,6 @@
-import { linkEventsTable, linkSessionsTable } from '~/db/schema';
+import { linkEventsTable, linkSessionsTable, linksTable } from '~/db/schema';
 import { drizzle } from '../lib/drizzle';
-import { and, count, eq, gte, sql, sum } from 'drizzle-orm';
+import { and, desc, eq, gte, sql, sum } from 'drizzle-orm';
 import {
   ANALYTICS_INTERVAL_DAY_COUNT,
   type AnalyticsInterval,
@@ -58,7 +58,7 @@ async function queryLinkSessions({
   const result = await drizzle
     .select({
       label: groupBy,
-      event: sum(linkSessionsTable.event).mapWith(Number),
+      event: sql`SUM(${linkSessionsTable.event}) as _sum`.mapWith(Number),
     })
     .from(linkSessionsTable)
     .where(
@@ -69,6 +69,7 @@ async function queryLinkSessions({
       ),
     )
     .groupBy(groupBy)
+    .orderBy(desc(sql`_sum`))
     .$dynamic();
 
   return result;
@@ -86,10 +87,10 @@ async function queryLinkEvents({
   interval: AnalyticsInterval;
 }): Promise<{ label: string; event: number }[]> {
   const { date } = getIntervalData(interval);
-  const result = drizzle
+  const result = await drizzle
     .select({
       label: groupBy,
-      event: count(sql`*`),
+      event: sql`COUNT(*) as _count`.mapWith(Number),
     })
     .from(linkEventsTable)
     .where(
@@ -99,12 +100,44 @@ async function queryLinkEvents({
         linkId ? eq(linkEventsTable.linkId, linkId) : undefined,
       ),
     )
-    .groupBy(groupBy);
+    .groupBy(groupBy)
+    .orderBy(desc(sql`_count`));
 
-  console.log(result.toSQL());
-
-  return await result;
+  return result;
 }
+
+export const queryTopLinks = defineCachedFunction(
+  async ({
+    userId,
+    linkId,
+    interval,
+  }: {
+    userId: string;
+    linkId?: string;
+    interval: AnalyticsInterval;
+  }): Promise<{ label: string; event: number }[]> => {
+    const { date } = getIntervalData(interval);
+    const result = await drizzle
+      .select({
+        label: linksTable.key,
+        linkId: linksTable.id,
+        event: sql`COUNT(*) as _count`.mapWith(Number),
+      })
+      .from(linkEventsTable)
+      .where(
+        and(
+          gte(linkEventsTable.createdAt, date.toISOString()),
+          eq(linkEventsTable.userId, userId),
+          linkId ? eq(linkEventsTable.linkId, linkId) : undefined,
+        ),
+      )
+      .innerJoin(linksTable, eq(linkEventsTable.linkId, linksTable.id))
+      .groupBy(linksTable.id)
+      .orderBy(desc(sql`_count`));
+
+    return result;
+  },
+);
 
 export const getAnalyticsData = defineCachedFunction(
   (userId: string, { groupBy, interval, linkId }: AnalyticsQueryValidation) => {
@@ -143,13 +176,6 @@ export const getAnalyticsData = defineCachedFunction(
           linkId,
           interval,
           groupBy: linkSessionsTable.os,
-        });
-      case 'link':
-        return queryLinkSessions({
-          userId,
-          linkId,
-          interval,
-          groupBy: linkSessionsTable.linkId,
         });
       case 'referer':
         return queryLinkEvents({

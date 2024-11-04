@@ -20,20 +20,7 @@
         class="flex h-9 items-center rounded-sm px-2 hover:bg-background"
         :class="index % 2 === 1 ? 'bg-background/50' : ''"
       >
-        <span class="aspect-video h-4 w-6 text-center">
-          <GlobeIcon
-            v-if="!item.label"
-            class="mx-auto size-4 text-muted-foreground"
-          />
-          <img
-            v-else
-            class="h-4 object-contain"
-            :src="`/flags/${item.label.toLowerCase()}.svg`"
-          />
-        </span>
-        <p class="ml-2 grow truncate">
-          {{ countries[item.label as keyof typeof countries] ?? '(unknown)' }}
-        </p>
+        <p class="ml-2 grow truncate">/{{ item.label ?? '(unknown)' }}</p>
         <span class="font-semibold">
           {{ numberFormatter.format(item.event) }}
         </span>
@@ -43,16 +30,14 @@
 </template>
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { GlobeIcon } from 'lucide-vue-next';
 import type { AnalyticsInterval } from '~/server/const/analytics.const';
-import countries from '~/data/country.json';
 
 const props = defineProps<{ interval: AnalyticsInterval }>();
 const query = useQuery({
-  queryKey: computed(() => ['analytics-click-country', props.interval]),
+  queryKey: computed(() => ['analytics-click-links', props.interval]),
   queryFn: () =>
-    $fetch('/api/analytics', {
-      params: { interval: props.interval, groupBy: 'country' },
+    $fetch('/api/analytics/links', {
+      params: { interval: props.interval },
       headers: useRequestHeaders(['cookie']),
     }),
 });
