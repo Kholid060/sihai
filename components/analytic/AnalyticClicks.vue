@@ -57,7 +57,7 @@ import {
 const props = defineProps<{ interval: AnalyticsInterval }>();
 
 const query = useQuery({
-  queryKey: computed(() => ['anlytic-click', props.interval]),
+  queryKey: computed(() => ['analytics-click', props.interval]),
   queryFn: () =>
     $fetch('/api/analytics/clicks', {
       params: { interval: props.interval },

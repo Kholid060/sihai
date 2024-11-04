@@ -1,7 +1,7 @@
 <template>
   <DashboardHeading>Analytics</DashboardHeading>
   <div class="mt-10 flex">
-    <UiSelect v-model="period" placholder="Halo">
+    <UiSelect v-model="interval" placholder="Halo">
       <UiSelectTrigger class="w-auto">
         <CalendarDaysIcon class="mr-2 size-4 text-muted-foreground" />
         <UiSelectValue />
@@ -13,10 +13,31 @@
       </UiSelectContent>
     </UiSelect>
   </div>
-  <AnalyticClicks :interval="period" class="mt-8" />
+  <AnalyticClicks :interval="interval" class="mt-8" />
+  <div class="mt-8 grid grid-cols-2">
+    <UiCard class="min-h-80">
+      <UiTabs>
+        <UiCardHeader class="flex-row items-center justify-between">
+          <UiTabsList class="w-auto">
+            <UiTabsTrigger value="countries">Countries</UiTabsTrigger>
+            <UiTabsTrigger value="languages">Languages</UiTabsTrigger>
+          </UiTabsList>
+          <div
+            class="rounded-sm bg-background px-1.5 py-1 text-sm text-muted-foreground"
+          >
+            <MousePointerClickIcon class="inline size-5 align-bottom" />
+            <span class="ml-1">clicks</span>
+          </div>
+        </UiCardHeader>
+        <UiCardContent>
+          <AnalyticClicksCountries :interval="interval" />
+        </UiCardContent>
+      </UiTabs>
+    </UiCard>
+  </div>
 </template>
 <script setup lang="ts">
-import { CalendarDaysIcon } from 'lucide-vue-next';
+import { CalendarDaysIcon, MousePointerClickIcon } from 'lucide-vue-next';
 import type { AnalyticsInterval } from '~/server/const/analytics.const';
 
 const periods: Record<AnalyticsInterval, string> = {
@@ -27,5 +48,5 @@ const periods: Record<AnalyticsInterval, string> = {
   '90d': 'Last 90 days',
 };
 
-const period = shallowRef<AnalyticsInterval>('24h');
+const interval = shallowRef<AnalyticsInterval>('24h');
 </script>

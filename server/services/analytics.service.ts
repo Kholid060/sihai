@@ -107,8 +107,8 @@ async function queryLinkEvents({
 }
 
 export const getAnalyticsData = defineCachedFunction(
-  (userId: string, { orderBy, interval, linkId }: AnalyticsQueryValidation) => {
-    switch (orderBy) {
+  (userId: string, { groupBy, interval, linkId }: AnalyticsQueryValidation) => {
+    switch (groupBy) {
       case 'country':
         return queryLinkSessions({
           userId,
@@ -173,7 +173,7 @@ export const getAnalyticsData = defineCachedFunction(
           groupBy: linkEventsTable.trigger,
         });
       default:
-        throw new Error(`"${orderBy}" is invalid`);
+        throw new Error(`"${groupBy}" is invalid`);
     }
   },
   { maxAge: 5 },
