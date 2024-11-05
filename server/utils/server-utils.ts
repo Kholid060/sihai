@@ -52,5 +52,13 @@ export function getTheRequestPath(event: H3Event, sliceStart = 0) {
 }
 
 export function addCachePrefixKey(prefix: string) {
-  return (...args: unknown[]) => `${prefix}:${args.join('')}`;
+  return (...args: unknown[]) => {
+    let key = prefix + ':';
+    args.forEach((arg) => {
+      if (typeof arg === 'object') key += JSON.stringify(arg);
+      else key += arg;
+    });
+
+    return key;
+  };
 }

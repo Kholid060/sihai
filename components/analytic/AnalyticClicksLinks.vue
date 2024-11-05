@@ -14,16 +14,17 @@
       <li v-if="query.data.value.length === 0">
         <p class="text-center text-muted-foreground">No data</p>
       </li>
-      <li
-        v-for="(item, index) in query.data.value"
-        :key="item.label"
-        class="flex h-9 items-center rounded-sm px-2 hover:bg-background"
-        :class="index % 2 === 1 ? 'bg-background/50' : ''"
-      >
-        <p class="ml-2 grow truncate">/{{ item.label ?? '(unknown)' }}</p>
-        <span class="font-semibold">
-          {{ numberFormatter.format(item.event) }}
-        </span>
+      <li v-for="(item, index) in query.data.value" :key="item.label">
+        <button
+          class="flex h-9 w-full items-center rounded-sm px-2 text-left transition-colors hover:bg-background"
+          :class="index % 2 === 1 ? 'bg-background/50' : ''"
+          @click="emits('selected', { id: item.linkId, key: item.label })"
+        >
+          <p class="ml-2 grow truncate">/{{ item.label ?? '(unknown)' }}</p>
+          <span class="font-semibold">
+            {{ numberFormatter.format(item.event) }}
+          </span>
+        </button>
       </li>
     </template>
   </ul>
@@ -32,13 +33,19 @@
 import { useQuery } from '@tanstack/vue-query';
 import type { AnalyticsInterval } from '~/server/const/analytics.const';
 
-const props = defineProps<{ interval: AnalyticsInterval }>();
+const props = defineProps<{ interval: AnalyticsInterval; linkId?: string }>();
+const emits = defineEmits<{ selected: [link: { id: string; key: string }] }>();
+
 const query = useQuery({
-  queryKey: computed(() => ['analytics-click-links', props.interval]),
+  queryKey: computed(() => [
+    'analytics-click-links',
+    props.interval,
+    props.linkId,
+  ]),
   queryFn: () =>
     $fetch('/api/analytics/links', {
-      params: { interval: props.interval },
       headers: useRequestHeaders(['cookie']),
+      params: { interval: props.interval, linkId: props.linkId },
     }),
 });
 await query.suspense();

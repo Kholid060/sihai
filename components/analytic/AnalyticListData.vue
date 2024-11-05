@@ -17,19 +17,14 @@
       <li
         v-for="(item, index) in query.data.value"
         :key="item.label"
-        class="flex h-9 items-center rounded-sm px-2 hover:bg-background"
+        class="flex h-9 items-center rounded-sm px-2 transition-colors hover:bg-background"
         :class="index % 2 === 1 ? 'bg-background/50' : ''"
       >
-        <span class="aspect-video h-4 text-center">
-          <GlobeIcon v-if="!item.label" class="size-5 text-muted-foreground" />
-          <img
-            v-else
-            class="mx-auto h-4"
-            :src="`/images/device/${item.label.toLowerCase()}.png`"
-          />
-        </span>
-        <p class="ml-2 grow truncate capitalize">
-          {{ item.label ?? '(unknown)' }}
+        <slot name="item:prefix" :item="item" />
+        <p class="ml-2 grow truncate">
+          {{
+            (labelFormatter ? labelFormatter(item) : item.label) ?? noneLabel
+          }}
         </p>
         <span class="font-semibold">
           {{ numberFormatter.format(item.event) }}
@@ -42,16 +37,37 @@
 import { useQuery } from '@tanstack/vue-query';
 import type { AnalyticsInterval } from '~/server/const/analytics.const';
 
-const props = defineProps<{ interval: AnalyticsInterval }>();
+interface Props {
+  groupBy: string;
+  linkId?: string;
+  noneLabel?: string;
+  interval: AnalyticsInterval;
+  labelFormatter?: (item: { label: string; event: number }) => string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  noneLabel: '(unknown)',
+});
+
 const query = useQuery({
-  queryKey: computed(() => ['analytics-click-devices', props.interval]),
+  queryKey: computed(() => [
+    `analytics-click-${props.groupBy}`,
+    props.interval,
+    props.linkId,
+  ]),
   queryFn: () =>
     $fetch('/api/analytics', {
-      params: { interval: props.interval, groupBy: 'device' },
       headers: useRequestHeaders(['cookie']),
+      params: {
+        linkId: props.linkId,
+        groupBy: props.groupBy,
+        interval: props.interval,
+      },
     }),
 });
-await query.suspense();
+if (import.meta.server) {
+  await query.suspense();
+}
 
 const numberFormatter = useNumberFormatter();
 </script>

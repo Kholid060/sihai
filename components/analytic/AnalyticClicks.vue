@@ -54,14 +54,14 @@ import {
   type AnalyticsInterval,
 } from '~/server/const/analytics.const';
 
-const props = defineProps<{ interval: AnalyticsInterval }>();
+const props = defineProps<{ interval: AnalyticsInterval; linkId?: string }>();
 
 const query = useQuery({
-  queryKey: computed(() => ['analytics-click', props.interval]),
+  queryKey: computed(() => ['analytics-click', props.interval, props.linkId]),
   queryFn: () =>
     $fetch('/api/analytics/clicks', {
-      params: { interval: props.interval },
       headers: useRequestHeaders(['cookie']),
+      params: { interval: props.interval, linkId: props.linkId },
     }),
 });
 await query.suspense();

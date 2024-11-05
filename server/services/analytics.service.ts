@@ -7,7 +7,6 @@ import {
 } from '../const/analytics.const';
 import { subtractCurrentDate } from '~/utils/helper';
 import type { AnalyticsQueryValidation } from '../validation/analytics.validation';
-import { addCachePrefixKey } from '../utils/server-utils';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 
 function getIntervalData(interval: AnalyticsInterval) {
@@ -22,7 +21,15 @@ function getIntervalData(interval: AnalyticsInterval) {
 }
 
 export const getAnalyticsByClicks = defineCachedFunction(
-  async (userId: string, interval: AnalyticsInterval) => {
+  async ({
+    linkId,
+    userId,
+    interval,
+  }: {
+    userId: string;
+    linkId?: string;
+    interval: AnalyticsInterval;
+  }) => {
     const { date, trunc } = getIntervalData(interval);
     const result = await drizzle
       .select({
@@ -34,13 +41,17 @@ export const getAnalyticsByClicks = defineCachedFunction(
         and(
           gte(linkSessionsTable.createdAt, date.toISOString()),
           eq(linkSessionsTable.userId, userId),
+          linkId ? eq(linkSessionsTable.linkId, linkId) : undefined,
         ),
       )
       .groupBy(sql`_date`);
 
     return result;
   },
-  { maxAge: 5, getKey: addCachePrefixKey('clicks') },
+  {
+    maxAge: 5,
+    getKey: (arg) => `clicks-${arg.userId}-${arg.interval}-${arg.linkId}`,
+  },
 );
 
 async function queryLinkSessions({
@@ -90,7 +101,7 @@ async function queryLinkEvents({
   const result = await drizzle
     .select({
       label: groupBy,
-      event: sql`COUNT(*) as _count`.mapWith(Number),
+      event: sql`COUNT(${linkEventsTable.id}) as _count`.mapWith(Number),
     })
     .from(linkEventsTable)
     .where(
@@ -115,13 +126,13 @@ export const queryTopLinks = defineCachedFunction(
     userId: string;
     linkId?: string;
     interval: AnalyticsInterval;
-  }): Promise<{ label: string; event: number }[]> => {
+  }) => {
     const { date } = getIntervalData(interval);
     const result = await drizzle
       .select({
         label: linksTable.key,
         linkId: linksTable.id,
-        event: sql`COUNT(*) as _count`.mapWith(Number),
+        event: sql`COUNT(${linksTable.id}) as _count`.mapWith(Number),
       })
       .from(linkEventsTable)
       .where(

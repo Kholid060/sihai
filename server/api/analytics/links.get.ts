@@ -8,7 +8,7 @@ export default defineEventHandler({
     const query = await getValidatedEventData(
       event,
       'query',
-      analyticsQueryValidation.pick({ interval: true }),
+      analyticsQueryValidation.pick({ interval: true, linkId: true }),
     );
     return queryTopLinks({
       ...query,
