@@ -5,6 +5,7 @@ import {
 } from '../const/db.const';
 import type { LinkRuleConditionOperator } from '../const/link.const';
 import {
+  LINK_QR_OPTIONS,
   LINK_RULE_CONDITION_OPERATOR,
   LINK_RULE_CONDITION_TYPE,
 } from '../const/link.const';
@@ -15,6 +16,14 @@ export const linkQROptionsValidation = z.object({
   logo: z.boolean().default(true),
   color: zHex.optional().default('#000'),
   bgColor: zHex.optional().default('#fff'),
+  cornerDotType: z
+    .enum(LINK_QR_OPTIONS.cornerDotType)
+    .optional()
+    .default('square'),
+  cornerSquareType: z
+    .enum(LINK_QR_OPTIONS.cornerSquareType)
+    .optional()
+    .default('square'),
 });
 export type LinkQROptionsValidation = z.infer<typeof linkQROptionsValidation>;
 

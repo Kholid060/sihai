@@ -12,8 +12,8 @@ import type {
 
 const LINK_RULE_GROUP = {
   url: 'URL',
-  other: 'Other',
   device: 'Device',
+  request: 'Request',
   time: 'Date & Time',
   location: 'Location',
 };
@@ -142,7 +142,13 @@ export const linkRuleItems: {
     id: 'user-agent',
     type: 'string',
     label: 'User agent',
-    group: LINK_RULE_GROUP.other,
+    group: LINK_RULE_GROUP.request,
+  },
+  referer: {
+    id: 'referer',
+    type: 'string',
+    label: 'Referer',
+    group: LINK_RULE_GROUP.request,
   },
 };
 

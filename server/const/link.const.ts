@@ -19,12 +19,13 @@ export const LINK_RULE_CONDITION_TYPE = [
   'date',
   'time',
   'is-qr',
+  'device',
+  'referer',
   'browser',
   'country',
   'language',
   'user-agent',
   'url-query',
-  'device',
   // 'day-user',
   // 'date-user',
   // 'time-user',
@@ -51,4 +52,9 @@ export const LINK_QUERY_LIMIT = 15;
 
 export const LINK_EVENT_TRIGGER = {
   qr: 'qr',
+} as const;
+
+export const LINK_QR_OPTIONS = {
+  cornerDotType: ['square', 'dot'],
+  cornerSquareType: ['square', 'extra-rounded', 'dot'],
 } as const;

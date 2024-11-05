@@ -87,7 +87,6 @@ const chartData = computed(() => {
   let totalClicks = 0;
 
   const copyData = [...query.data.value];
-  console.log(copyData, timeSeries);
   const data = timeSeries.map((date) => {
     const label = is24Hours ? tf.format(date) : df.format(date);
     const index = copyData.findIndex((item) =>

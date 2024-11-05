@@ -209,6 +209,49 @@
               <UiFormDescription />
             </UiFormItem>
           </UiFormField>
+          <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
+            <UiFormField
+              v-slot="{ componentField }"
+              name="qrOptions.cornerSquareType"
+            >
+              <UiFormItem class="mt-4">
+                <UiFormLabel>Corner Square Type</UiFormLabel>
+                <UiSelect v-bind="componentField">
+                  <UiSelectTrigger class="bg-inherit">
+                    <UiSelectValue />
+                  </UiSelectTrigger>
+                  <UiSelectContent>
+                    <UiSelectItem value="square"> Square </UiSelectItem>
+                    <UiSelectItem value="extra-rounded">
+                      Extra rounded
+                    </UiSelectItem>
+                    <UiSelectItem value="dot"> Dot </UiSelectItem>
+                  </UiSelectContent>
+                </UiSelect>
+                <UiFormMessage />
+                <UiFormDescription />
+              </UiFormItem>
+            </UiFormField>
+            <UiFormField
+              v-slot="{ componentField }"
+              name="qrOptions.cornerDotType"
+            >
+              <UiFormItem class="mt-4">
+                <UiFormLabel>Corner Dot Type</UiFormLabel>
+                <UiSelect v-bind="componentField">
+                  <UiSelectTrigger class="bg-inherit">
+                    <UiSelectValue />
+                  </UiSelectTrigger>
+                  <UiSelectContent>
+                    <UiSelectItem value="square"> Square </UiSelectItem>
+                    <UiSelectItem value="dot"> Dot </UiSelectItem>
+                  </UiSelectContent>
+                </UiSelect>
+                <UiFormMessage />
+                <UiFormDescription />
+              </UiFormItem>
+            </UiFormField>
+          </div>
         </UiTabsContent>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="utm">
           <UiAlert
@@ -318,7 +361,7 @@ import type { LinkDetail } from '~/interface/link.interface';
 import { APP_DOMAIN } from '~/server/const/app.const';
 import { VisuallyHidden } from 'radix-vue';
 import UiTooltipSimple from '~/components/ui/tooltip/TooltipSimple.vue';
-import QRCodeStyling from 'qr-code-styling';
+import QRCodeStyling, { type Options } from 'qr-code-styling';
 import logoPng from '~/assets/images/logo.png';
 
 const props = withDefaults(
@@ -566,6 +609,21 @@ watchDebounced(
     }
 
     const data = `https://${APP_DOMAIN}/${keyValue}?qr=1`;
+    const options: Partial<Options> = {
+      image: logoPng,
+      backgroundOptions: {
+        color: qrOptions?.bgColor,
+      },
+      dotsOptions: {
+        color: qrOptions?.color,
+      },
+      cornersDotOptions: {
+        type: qrOptions?.cornerDotType,
+      },
+      cornersSquareOptions: {
+        type: qrOptions?.cornerSquareType,
+      },
+    };
 
     if (!qrCodeStyling) {
       qrCodeStyling = new QRCodeStyling({
@@ -573,25 +631,14 @@ watchDebounced(
         margin: 0,
         width: 120,
         height: 120,
-        image: logoPng,
-        backgroundOptions: {
-          color: qrOptions?.bgColor,
-        },
-        dotsOptions: {
-          color: qrOptions?.color,
-        },
         data,
+        ...options,
       });
       qrCodeStyling.append(qrCodeElRef.value);
     } else {
       qrCodeStyling.update({
         data,
-        backgroundOptions: {
-          color: qrOptions?.bgColor,
-        },
-        dotsOptions: {
-          color: qrOptions?.color,
-        },
+        ...options,
       });
     }
 

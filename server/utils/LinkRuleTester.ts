@@ -139,6 +139,8 @@ export class LinkRulesTester {
       case 'day':
         this.cacheData.day = new Date().getUTCDay().toString();
         return this.cacheData.day;
+      case 'referer':
+        return this.sessionData.referer;
       case 'device':
         return this.sessionData.device;
       case 'os':

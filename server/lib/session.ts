@@ -16,6 +16,7 @@ export interface SessionData {
   browser: string;
   sessionId: string;
   userAgent: string;
+  referer: string | null;
   country: string | null;
   refPath: string | null;
   language: string | null;
@@ -46,6 +47,7 @@ export const getSessionData = defineCachedFunction(
     return {
       ip,
       refPath,
+      referer,
       refDomain,
       userAgent,
       sessionId,
