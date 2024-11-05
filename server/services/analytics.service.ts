@@ -13,7 +13,7 @@ function getIntervalData(interval: AnalyticsInterval) {
   const trunc = interval === '24h' ? 'hour' : 'day';
   const date = subtractCurrentDate(ANALYTICS_INTERVAL_DAY_COUNT[interval]);
 
-  date.setHours(0);
+  if (interval !== '24h') date.setHours(0);
   date.setMinutes(0);
   date.setSeconds(0);
 

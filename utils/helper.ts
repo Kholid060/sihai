@@ -39,7 +39,7 @@ export function generateTimeSeries(count: number, type: 'day' | 'hour') {
 
   const result: Date[] = [endDate];
 
-  for (let index = 1; index < count; index += 1) {
+  for (let index = 1; index < count + 1; index += 1) {
     const date = new Date();
     if (type === 'day') date.setDate(endDate.getDate() - index);
     else date.setHours(endDate.getHours() - index, 0);
@@ -51,11 +51,12 @@ export function generateTimeSeries(count: number, type: 'day' | 'hour') {
 }
 
 export function isSameDate(left: Date, right: Date, by: 'hour' | 'date') {
-  if (by === 'hour') return left.getHours() === right.getHours();
-
-  return (
+  const isDateEqual =
     left.getFullYear() === right.getFullYear() &&
     left.getMonth() === right.getMonth() &&
-    left.getDate() === right.getDate()
-  );
+    left.getDate() === right.getDate();
+
+  if (by === 'hour') return isDateEqual && left.getHours() === right.getHours();
+
+  return isDateEqual;
 }

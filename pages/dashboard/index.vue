@@ -191,6 +191,17 @@
                   <PencilIcon class="mr-2 size-4" />
                   <span>Edit</span>
                 </UiDropdownMenuItem>
+                <UiDropdownMenuItem as-child>
+                  <NuxtLink
+                    :to="{
+                      path: '/dashboard/analytics',
+                      query: { linkKey: link.key, linkId: link.id },
+                    }"
+                  >
+                    <ChartColumnIcon class="mr-2 size-4" />
+                    <span>Analytics</span>
+                  </NuxtLink>
+                </UiDropdownMenuItem>
                 <UiDropdownMenuSeparator />
                 <UiDropdownMenuItem
                   class="text-destructive data-[highlighted]:bg-destructive/20 data-[highlighted]:text-destructive"
@@ -294,11 +305,12 @@ import {
   TrashIcon,
   MousePointerClickIcon,
   LinkIcon,
+  ChartColumnIcon,
 } from 'lucide-vue-next';
 import { APP_DOMAIN } from '~/server/const/app.const';
 import type { LinkQueryValidation } from '~/server/validation/link.validation';
 import { useToast } from '~/components/ui/toast';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/vue-query';
+import { useInfiniteQuery } from '@tanstack/vue-query';
 import { useDateFormatter } from 'radix-vue';
 
 const sortKeys: { key: LinkQueryValidation['sortBy']; label: string }[] = [
@@ -308,7 +320,6 @@ const sortKeys: { key: LinkQueryValidation['sortBy']; label: string }[] = [
 
 const toast = useToast();
 const locale = useDefaultLocale();
-const queryClient = useQueryClient();
 const dateFormatter = useDateFormatter(locale.value);
 
 const userStore = useUserStore();
@@ -409,8 +420,4 @@ async function deleteLink() {
     deleteLinkState.loading = false;
   }
 }
-
-onMounted(() => {
-  console.log(queryClient);
-});
 </script>

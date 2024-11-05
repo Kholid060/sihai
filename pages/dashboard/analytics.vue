@@ -294,6 +294,10 @@ const searchParams = useUrlSearchParams<SearchParams>('history', {
   },
 });
 
+if (!intervals[query.interval]) {
+  searchParams.interval = '24h';
+}
+
 const tabsState = shallowReactive({
   links: 'links',
   ref: 'referrers',

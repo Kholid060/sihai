@@ -54,14 +54,14 @@ import {
   type AnalyticsInterval,
 } from '~/server/const/analytics.const';
 
-const props = defineProps<{ interval: AnalyticsInterval; linkId?: string }>();
+const props = defineProps<{ interval: AnalyticsInterval }>();
 
 const query = useQuery({
-  queryKey: computed(() => ['analytics-click', props.interval, props.linkId]),
+  queryKey: computed(() => ['analytics-click', props.interval]),
   queryFn: () =>
     $fetch('/api/analytics/clicks', {
+      params: { interval: props.interval },
       headers: useRequestHeaders(['cookie']),
-      params: { interval: props.interval, linkId: props.linkId },
     }),
 });
 await query.suspense();
@@ -87,6 +87,7 @@ const chartData = computed(() => {
   let totalClicks = 0;
 
   const copyData = [...query.data.value];
+  console.log(copyData, timeSeries);
   const data = timeSeries.map((date) => {
     const label = is24Hours ? tf.format(date) : df.format(date);
     const index = copyData.findIndex((item) =>
