@@ -9,7 +9,7 @@
       v-for="link in sidebarLinks"
       :key="link.to"
       :to="link.to"
-      exact-active-class="active"
+      active-class="active"
       class="sidebar-link group relative mb-3 px-4"
     >
       <span
@@ -43,7 +43,7 @@
                 {{ userStore.profile.email }}
               </p>
             </div>
-            <ChevronDownIcon class="absolute right-6 size-5 shrink-0" />
+            <ChevronsUpDownIcon class="absolute right-6 size-5 shrink-0" />
           </UiDropdownMenuTrigger>
           <UiDropdownMenuContent
             class="dropdown-trigger-width text-sm"
@@ -130,14 +130,14 @@
 </template>
 <script setup lang="ts">
 import {
-  LogOutIcon,
-  ChevronDownIcon,
   LinkIcon,
-  ChartColumnIcon,
-  SettingsIcon,
-  ChevronRightIcon,
   GaugeIcon,
+  LogOutIcon,
+  SettingsIcon,
   UserRoundIcon,
+  ChartColumnIcon,
+  ChevronRightIcon,
+  ChevronsUpDownIcon,
 } from 'lucide-vue-next';
 import { useToast } from '../ui/toast';
 import { useDateFormatter } from 'radix-vue';
@@ -149,7 +149,7 @@ const supabase = useSupabaseClient();
 const df = useDateFormatter(locale.value);
 
 const sidebarLinks = [
-  { to: '/dashboard', icon: LinkIcon, label: 'Links' },
+  { to: '/dashboard/links', icon: LinkIcon, label: 'Links' },
   { to: '/dashboard/analytics', icon: ChartColumnIcon, label: 'Analytics' },
   { to: '/dashboard/settings', icon: SettingsIcon, label: 'Settings' },
 ];

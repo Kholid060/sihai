@@ -32,6 +32,9 @@ export const useUserStore = defineStore('user', () => {
   function incrementUsage(key: 'linksUsage' | 'redirectsUsage', by = 1) {
     profile.plan[key] += by;
   }
+  function updateProfile(data: Partial<Pick<UserProfile, 'name' | 'email'>>) {
+    Object.assign(profile, data);
+  }
 
-  return { profile, fetch, incrementUsage };
+  return { profile, fetch, incrementUsage, updateProfile };
 });

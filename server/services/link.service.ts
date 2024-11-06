@@ -186,33 +186,35 @@ export async function findLinksByUser(
   return result;
 }
 
-export async function findLinkByKey(key: string): Promise<LinkWithRedirect> {
-  const [link] = await drizzle
-    .select({
-      id: linksTable.id,
-      rules: linksTable.rules,
-      userId: linksTable.userId,
-      target: linksTable.target,
-      utmOptions: linksTable.utmOptions,
-      redirects: {
-        id: userPlansTable.id,
-        usage: userPlansTable.redirectsUsage,
-        limit: userPlansTable.redirectsLimit,
-      },
-    })
-    .from(linksTable)
-    .innerJoin(userPlansTable, eq(linksTable.userId, userPlansTable.userId))
-    .where(eq(linksTable.key, key))
-    .limit(1);
-  if (!link) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Not Found',
-    });
-  }
+export const findLinkByKey = defineCachedFunction(
+  async (key: string): Promise<LinkWithRedirect> => {
+    const [link] = await drizzle
+      .select({
+        id: linksTable.id,
+        rules: linksTable.rules,
+        userId: linksTable.userId,
+        target: linksTable.target,
+        utmOptions: linksTable.utmOptions,
+        redirects: {
+          id: userPlansTable.id,
+          usage: userPlansTable.redirectsUsage,
+          limit: userPlansTable.redirectsLimit,
+        },
+      })
+      .from(linksTable)
+      .innerJoin(userPlansTable, eq(linksTable.userId, userPlansTable.userId))
+      .where(eq(linksTable.key, key))
+      .limit(1);
+    if (!link) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Not Found',
+      });
+    }
 
-  return link;
-}
+    return link;
+  },
+);
 
 export const findLinkByUserAndId = defineCachedFunction(
   async (userId: string, linkId: string): Promise<LinkDetail> => {

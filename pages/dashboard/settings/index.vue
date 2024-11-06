@@ -1,5 +1,5 @@
 <script setup lang="ts">
 definePageMeta({
-  redirect: '/dashboard/links',
+  redirect: '/dashboard/settings/account',
 });
 </script>

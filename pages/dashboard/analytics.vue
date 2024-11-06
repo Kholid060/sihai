@@ -18,7 +18,7 @@
     >
       Link
       <span class="mx-1.5 font-semibold text-muted-foreground">is</span>
-      /{{ searchParams.linkKey }}
+      <span class="max-w-md truncate"> /{{ searchParams.linkKey }} </span>
       <button
         class="-mr-1 ml-2 rounded-full bg-secondary-hover p-1 transition-colors hover:bg-secondary-active"
         @click="

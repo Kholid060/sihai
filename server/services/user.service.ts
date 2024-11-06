@@ -1,8 +1,9 @@
-import type { SelectUserPlan } from '~/db/schema';
+import type { NewUser, SelectUserPlan } from '~/db/schema';
 import { profilesTable, userPlansTable } from '~/db/schema';
 import { drizzle } from '../lib/drizzle';
 import { eq } from 'drizzle-orm';
 import type { UserProfile } from '~/interface/user.interface';
+import type { UpdateUserPasswordValidation } from '../validation/profile.validation';
 
 export const getUserProfile = defineCachedFunction(
   async (userId: string): Promise<UserProfile> => {
@@ -73,3 +74,42 @@ export const getUserProfile = defineCachedFunction(
   },
   { maxAge: 5 },
 );
+
+export async function updateUserProfile(
+  userId: string,
+  { name }: Partial<NewUser>,
+) {
+  await drizzle
+    .update(profilesTable)
+    .set({ name })
+    .where(eq(profilesTable.id, userId));
+}
+
+export async function updateUserPassword(
+  userId: string,
+  {
+    newPassword,
+    confirmPassword,
+    currentPassword,
+  }: UpdateUserPasswordValidation,
+) {
+  if (confirmPassword !== newPassword) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      message: 'Confirm password is not the same',
+    });
+  }
+
+  const [user] =
+    await drizzle.$client`SELECT id FROM auth.users WHERE id = ${userId} and crypt(${currentPassword}::text, auth.users.encrypted_password) = encrypted_password LIMIT 1`;
+  if (!user) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      message: 'The current password is incorrect',
+    });
+  }
+
+  await drizzle.$client`UPDATE auth.users SET encrypted_password = crypt(${newPassword}, gen_salt('bf')) WHERE id = ${userId}`;
+}
