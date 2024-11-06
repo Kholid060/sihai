@@ -95,6 +95,10 @@ import { z } from 'zod';
 import { XIcon, EyeOffIcon, EyeIcon } from 'lucide-vue-next';
 import { newUserValidation } from '~/server/validation/auth-email.validation';
 
+definePageMeta({
+  middleware: ['verify-reset-password'],
+});
+
 const supabase = useSupabaseClient();
 
 const alertError = shallowRef<{ title: string; description: string } | null>(

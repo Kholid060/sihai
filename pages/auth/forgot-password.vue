@@ -87,12 +87,7 @@ const onSubmit = handleSubmit(async ({ email }) => {
     isLoading.value = true;
     alertError.value = null;
 
-    const result = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: new URL(
-        `/auth/redirect?path=${encodeURIComponent('/dashboard/reset-password')}`,
-        window.location.href,
-      ).href,
-    });
+    const result = await supabase.auth.resetPasswordForEmail(email);
     if (result.error) {
       alertError.value = {
         title: 'Error when registering!',
