@@ -33,8 +33,12 @@ export function subtractCurrentDate(numberDay: number) {
   return date;
 }
 
-export function generateTimeSeries(count: number, type: 'day' | 'hour') {
-  const endDate = new Date();
+export function generateTimeSeries(
+  count: number,
+  type: 'day' | 'hour',
+  startDate = new Date(),
+) {
+  const endDate = startDate;
   endDate.setMinutes(0);
 
   const result: Date[] = [endDate];
@@ -59,4 +63,12 @@ export function isSameDate(left: Date, right: Date, by: 'hour' | 'date') {
   if (by === 'hour') return isDateEqual && left.getHours() === right.getHours();
 
   return isDateEqual;
+}
+
+export function dateDiffInDays(left: Date, right: Date) {
+  const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+  const utc1 = Date.UTC(left.getFullYear(), left.getMonth(), left.getDate());
+  const utc2 = Date.UTC(right.getFullYear(), right.getMonth(), right.getDate());
+
+  return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 }

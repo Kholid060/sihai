@@ -15,8 +15,6 @@
 import { useIsFetching } from '@tanstack/vue-query';
 
 const isFetching = useIsFetching();
-
-watch(isFetching, console.log);
 </script>
 <style lang="postcss" scoped>
 .loading-indicator {

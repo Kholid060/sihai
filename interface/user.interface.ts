@@ -9,6 +9,7 @@ export interface UserProfile extends Pick<SelectUser, 'id' | 'name' | 'email'> {
     | 'rulesLimit'
     | 'linksLimit'
     | 'linksUsage'
+    | 'periodStart'
     | 'redirectsLimit'
     | 'redirectsUsage'
   >;

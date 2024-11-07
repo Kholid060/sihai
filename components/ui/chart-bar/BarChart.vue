@@ -107,7 +107,6 @@ const selectorsBar = computed(() =>
       />
 
       <VisBarComponent
-        orientation="horizontal"
         :x="(d: Data, i: number) => i"
         :y="categories.map((category) => (d: Data) => d[category])"
         :color="colors"

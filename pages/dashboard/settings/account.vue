@@ -10,7 +10,7 @@
         </UiCardDescription>
         <UiInput v-model="formNameState.value" class="max-w-sm bg-inherit" />
       </UiCardContent>
-      <UiCardFooter>
+      <UiCardFooter class="block md:flex">
         <UiButton
           type="submit"
           :is-loading="formNameState.isLoading"
@@ -23,14 +23,14 @@
           >Save changes
         </UiButton>
         <div class="grow"></div>
-        <p class="text-sm text-muted-foreground">
+        <p class="mt-2 text-sm text-muted-foreground md:mt-0">
           Min {{ DB_USER_NAME_LENGTH.min }} and max
           {{ DB_USER_NAME_LENGTH.max }} characters
         </p>
       </UiCardFooter>
     </form>
   </UiCard>
-  <UiCard class="mt-8 max-w-4xl">
+  <UiCard class="mt-6 max-w-4xl">
     <UiCardHeader>
       <UiCardTitle>Change password</UiCardTitle>
     </UiCardHeader>
@@ -69,7 +69,7 @@
           />
         </fieldset>
       </UiCardContent>
-      <UiCardFooter>
+      <UiCardFooter class="block md:flex">
         <UiButton
           type="submit"
           :is-loading="formPasswordState.isLoading"
@@ -83,7 +83,7 @@
           >Save changes
         </UiButton>
         <div class="grow"></div>
-        <p class="text-sm text-muted-foreground">
+        <p class="mt-2 text-sm text-muted-foreground md:mt-0">
           Min {{ DB_USER_PASSWORD_LENGTH.min }} and max
           {{ DB_USER_PASSWORD_LENGTH.max }} characters
         </p>

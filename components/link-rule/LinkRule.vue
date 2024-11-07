@@ -109,7 +109,6 @@ function saveChanges() {
   if (!editRule.value) return;
 
   if (z.string().url().safeParse(editRule.value.target).error) {
-    console.log('huh');
     isInvalidTarget.value = true;
     return;
   }

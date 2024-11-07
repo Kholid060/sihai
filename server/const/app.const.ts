@@ -1,5 +1,5 @@
 export const APP_PLAN_ID = {
-  free: 'free-plan',
+  free: 'free',
 } as const;
 
 export const APP_FREE_PLAN = {

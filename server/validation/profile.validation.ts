@@ -12,3 +12,8 @@ export const updateUserPasswordValidation = z.object({
 export type UpdateUserPasswordValidation = z.infer<
   typeof updateUserPasswordValidation
 >;
+
+export const queryUserUsageValidation = z.object({
+  type: z.enum(['links', 'redirects']),
+});
+export type QueryUserUsageValidation = z.infer<typeof queryUserUsageValidation>;

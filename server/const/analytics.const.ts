@@ -1,5 +1,7 @@
 export const ANALYTICS_INTERVAL = ['24h', '7d', '14d', '30d'] as const;
-export type AnalyticsInterval = (typeof ANALYTICS_INTERVAL)[number];
+export type AnalyticsInterval =
+  | (typeof ANALYTICS_INTERVAL)[number]
+  | `$date:${string}~${string}`;
 
 export const ANALYTICS_GROUP = [
   'os',
@@ -19,3 +21,5 @@ export const ANALYTICS_INTERVAL_DAY_COUNT: Record<AnalyticsInterval, number> = {
   '14d': 14,
   '30d': 30,
 };
+
+export const ANALYTIC_INTERVAL_PREFIX = '$date:';

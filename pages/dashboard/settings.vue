@@ -14,7 +14,7 @@
       </UiTabsTrigger>
     </UiTabsList>
   </UiTabs>
-  <main class="mt-8">
+  <main class="mt-6">
     <NuxtPage />
   </main>
 </template>
@@ -22,7 +22,7 @@
 const BASE_PATH = '/dashboard/settings/';
 const settings: { label: string; path: string }[] = [
   { label: 'Account', path: 'account' },
-  { label: 'Billing', path: 'billing' },
+  { label: 'Plan & Usage', path: 'billing' },
 ];
 
 const route = useRoute();

@@ -33,9 +33,9 @@
   <AnalyticClicks
     :interval="searchParams.interval"
     :link-id="searchParams.linkId"
-    class="mt-8"
+    class="mt-6"
   />
-  <div class="mt-8 grid gap-8 pb-24 lg:grid-cols-2">
+  <div class="mt-6 grid gap-6 pb-24 lg:grid-cols-2">
     <UiCard class="min-h-80">
       <UiTabs v-model="tabsState.links">
         <UiCardHeader

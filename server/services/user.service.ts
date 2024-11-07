@@ -18,6 +18,7 @@ export const getUserProfile = defineCachedFunction(
           rulesLimit: userPlansTable.rulesLimit,
           linksLimit: userPlansTable.linksLimit,
           linksUsage: userPlansTable.linksUsage,
+          periodStart: userPlansTable.periodStart,
           redirectsUsage: userPlansTable.redirectsUsage,
           redirectsLimit: userPlansTable.redirectsLimit,
         },
@@ -65,6 +66,7 @@ export const getUserProfile = defineCachedFunction(
         linksLimit: result.linksLimit,
         linksUsage: result.linksUsage,
         rulesLimit: result.rulesLimit,
+        periodStart: result.periodStart,
         redirectsLimit: result.redirectsLimit,
         redirectsUsage: result.redirectsUsage,
       };
