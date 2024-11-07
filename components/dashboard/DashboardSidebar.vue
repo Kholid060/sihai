@@ -50,13 +50,17 @@
             side="top"
             :side-offset="10"
           >
-            <UiDropdownMenuItem>
-              <UserRoundIcon class="mr-2 size-4" />
-              Account
+            <UiDropdownMenuItem as-child>
+              <NuxtLink to="/dashboard/settings/account">
+                <UserRoundIcon class="mr-2 size-4" />
+                Account
+              </NuxtLink>
             </UiDropdownMenuItem>
-            <UiDropdownMenuItem>
-              <GaugeIcon class="mr-2 size-4" />
-              Usage
+            <UiDropdownMenuItem as-child>
+              <NuxtLink to="/dashboard/settings/billing">
+                <GaugeIcon class="mr-2 size-4" />
+                Usage
+              </NuxtLink>
             </UiDropdownMenuItem>
             <UiDropdownMenuSeparator />
             <UiDropdownMenuItem

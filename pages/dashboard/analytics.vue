@@ -294,7 +294,7 @@ const searchParams = useUrlSearchParams<SearchParams>('history', {
   },
 });
 
-if (!intervals[query.interval]) {
+if (query.interval && !intervals[query.interval]) {
   searchParams.interval = '24h';
 }
 

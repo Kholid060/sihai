@@ -126,11 +126,8 @@ async function updateName() {
       method: 'PATCH',
       body: JSON.stringify({ name: formNameState.value }),
     });
-    toast.toast({ title: 'Success', description: 'Password updated' });
-
-    formPasswordState.newPassword = '';
-    formPasswordState.currentPassword = '';
-    formPasswordState.confirmPassword = '';
+    userStore.updateProfile({ name: formNameState.value });
+    toast.toast({ title: 'Success', description: 'Name updated' });
   } catch (error) {
     toast.toast({
       ...getFetchError(error),
@@ -151,6 +148,11 @@ async function updatePassword() {
       method: 'POST',
       body: JSON.stringify({ newPassword, confirmPassword, currentPassword }),
     });
+
+    formPasswordState.newPassword = '';
+    formPasswordState.currentPassword = '';
+    formPasswordState.confirmPassword = '';
+    toast.toast({ title: 'Success', description: 'Password updated' });
   } catch (error) {
     toast.toast({
       ...getFetchError(error),
