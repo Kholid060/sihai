@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'nuxt-security',
     '@nuxt/image',
+    '@nuxthub/core',
   ],
   security: {
     headers: {
