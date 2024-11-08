@@ -1,8 +1,9 @@
 <template>
   <UiTagsInput
     v-if="model.operator === 'iao'"
-    v-model="rightValue as string[]"
+    :model-value="rightValue as string[]"
     class="rounded-t-none border-0"
+    @update:model-value="rightValue = $event as string[]"
   >
     <UiTagsInputItem v-for="item in rightValue" :key="item" :value="item">
       <UiTagsInputItemText />

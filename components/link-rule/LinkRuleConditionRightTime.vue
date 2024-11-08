@@ -1,8 +1,9 @@
 <template>
   <UiTagsInput
-    v-if="model.operator === 'iao'"
-    v-model="rightValue as string[]"
+    v-if="model?.operator === 'iao'"
+    :model-value="rightValue as string[]"
     class="rounded-t-none border-0"
+    @update:model-value="rightValue = $event as string[]"
   >
     <UiTagsInputItem v-for="item in rightValue" :key="item" :value="item">
       <UiTagsInputItemText />
@@ -23,18 +24,18 @@
 <script setup lang="ts">
 import type { LinkRuleConditionValidation } from '~/server/validation/link.validation';
 
-const model = defineModel<LinkRuleConditionValidation>({ default: {} });
+const model = defineModel<LinkRuleConditionValidation>();
 
 const rightValue = computed({
   get() {
-    if (model.value.operator === 'iao') {
+    if (model.value?.operator === 'iao') {
       return Array.isArray(model.value.right) ? model.value.right : [];
     }
 
-    return Array.isArray(model.value.right) ? '' : model.value.right;
+    return Array.isArray(model.value?.right) ? '' : (model.value?.right ?? '');
   },
   set(value) {
-    model.value.right = value;
+    model.value!.right = value;
   },
 });
 </script>
