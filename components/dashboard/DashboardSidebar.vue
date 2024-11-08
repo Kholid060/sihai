@@ -3,7 +3,7 @@
     class="fixed top-0 flex h-screen w-64 flex-col bg-grass-12 py-4 text-olive-1"
   >
     <div class="mb-12 px-7 pt-4">
-      <h2 class="text-2xl font-bold">App name</h2>
+      <h2 class="text-2xl font-bold">Sihai</h2>
     </div>
     <NuxtLink
       v-for="link in sidebarLinks"
@@ -27,7 +27,7 @@
       <div
         class="min-h-12 w-full rounded-md border bg-secondary text-foreground shadow"
       >
-        <UiDropdownMenu>
+        <UserDropDownMenu same-width-content>
           <UiDropdownMenuTrigger
             class="flex h-12 w-full items-center overflow-hidden rounded-md px-2 text-left transition-colors hover:bg-secondary-hover"
           >
@@ -45,33 +45,7 @@
             </div>
             <ChevronsUpDownIcon class="absolute right-6 size-5 shrink-0" />
           </UiDropdownMenuTrigger>
-          <UiDropdownMenuContent
-            class="dropdown-trigger-width text-sm"
-            side="top"
-            :side-offset="10"
-          >
-            <UiDropdownMenuItem as-child>
-              <NuxtLink to="/dashboard/settings/account">
-                <UserRoundIcon class="mr-2 size-4" />
-                Account
-              </NuxtLink>
-            </UiDropdownMenuItem>
-            <UiDropdownMenuItem as-child>
-              <NuxtLink to="/dashboard/settings/billing">
-                <GaugeIcon class="mr-2 size-4" />
-                Usage
-              </NuxtLink>
-            </UiDropdownMenuItem>
-            <UiDropdownMenuSeparator />
-            <UiDropdownMenuItem
-              class="text-destructive focus:text-destructive"
-              @click="signOut"
-            >
-              <LogOutIcon class="mr-2 size-4" />
-              Sign out
-            </UiDropdownMenuItem>
-          </UiDropdownMenuContent>
-        </UiDropdownMenu>
+        </UserDropDownMenu>
         <div class="border-t p-2 text-sm text-muted-foreground">
           <div class="text-xs">
             <div class="flex justify-between">
@@ -135,21 +109,16 @@
 <script setup lang="ts">
 import {
   LinkIcon,
-  GaugeIcon,
-  LogOutIcon,
   SettingsIcon,
-  UserRoundIcon,
   ChartColumnIcon,
   ChevronRightIcon,
+  UserRoundIcon,
   ChevronsUpDownIcon,
 } from 'lucide-vue-next';
-import { useToast } from '../ui/toast';
 import { useDateFormatter } from 'radix-vue';
 
-const toast = useToast();
 const userStore = useUserStore();
 const locale = useDefaultLocale();
-const supabase = useSupabaseClient();
 const df = useDateFormatter(locale.value);
 
 const sidebarLinks = [
@@ -157,20 +126,6 @@ const sidebarLinks = [
   { to: '/dashboard/analytics', icon: ChartColumnIcon, label: 'Analytics' },
   { to: '/dashboard/settings', icon: SettingsIcon, label: 'Settings' },
 ];
-
-async function signOut() {
-  const result = await supabase.auth.signOut();
-  if (result.error) {
-    toast.toast({
-      variant: 'destructive',
-      title: 'An error occured',
-      description: result.error.message,
-    });
-    return;
-  }
-
-  await navigateTo('/auth/login', { external: true });
-}
 </script>
 <style lang="postcss" scoped>
 .sidebar-link.active {

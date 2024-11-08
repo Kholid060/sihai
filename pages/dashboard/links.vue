@@ -1,7 +1,7 @@
 <template>
   <DashboardHeading>Links</DashboardHeading>
   <div class="mt-10 flex flex-wrap items-center gap-2 md:gap-4">
-    <div class="flex grow gap-4">
+    <div class="flex grow gap-2 md:gap-4">
       <div
         class="inline-flex h-10 items-center rounded-md border bg-secondary shadow-sm"
       >

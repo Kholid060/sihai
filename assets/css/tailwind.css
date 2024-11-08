@@ -131,6 +131,10 @@
   h1, h2, h3, h4 {
     font-family: theme('fontFamily.serif');
   }
+
+  .dropdown-trigger-width {
+    width: var(--radix-popper-anchor-width);
+  }
 }
 
 .center-line:before {
@@ -142,10 +146,6 @@
   position: absolute;
   transform: translate(-50%, -50%);
   background-color: theme('colors.border');
-}
-
-.dropdown-trigger-width {
-  width: var(--radix-popper-anchor-width);
 }
 
 @keyframes animation-progress-1 {
