@@ -336,6 +336,12 @@ async function insertLinkSession(
       target: targetURL.slice(0, 500),
       trigger: isQr ? LINK_EVENT_TRIGGER.qr : null,
     });
+    await tx
+      .update(linksTable)
+      .set({
+        clicks: incrementDBColumn(linksTable.clicks),
+      })
+      .where(eq(linksTable.id, linkId));
   });
 }
 
