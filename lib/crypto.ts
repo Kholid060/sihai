@@ -1,6 +1,6 @@
-import { hash } from 'crypto';
+import { hash } from 'ohash';
 import { v5 } from 'uuid';
 
 export function uuid(...args: string[]) {
-  return v5(hash('sha512', args.join(''), 'hex'), v5.DNS);
+  return v5(hash(args.join('')), v5.DNS);
 }
