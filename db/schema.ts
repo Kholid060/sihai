@@ -140,14 +140,14 @@ export const linkSessionsTable = pgTable(
     os: varchar('os', { length: 32 }),
     userId: uuid('user_id')
       .notNull()
-      .references(() => profilesTable.id),
+      .references(() => profilesTable.id, { onDelete: 'cascade' }),
     country: char('country', { length: 2 }),
     browser: varchar('browser', { length: 32 }),
     language: varchar('language', { length: 16 }),
     event: smallint('event').default(1),
     linkId: text('link_id')
       .notNull()
-      .references(() => linksTable.id),
+      .references(() => linksTable.id, { onDelete: 'cascade' }),
   },
   (table) => ({
     userIdIdx: index('user_id').onOnly(table.userId),
@@ -186,7 +186,7 @@ export const linkEventsTable = pgTable(
     trigger: varchar('trigger', { length: 32 }),
     userId: uuid('user_id')
       .notNull()
-      .references(() => profilesTable.id),
+      .references(() => profilesTable.id, { onDelete: 'cascade' }),
     target: varchar('target', { length: 500 }).default(''),
     refPath: varchar('ref_path', { length: 500 }).default(''),
     refDomain: varchar('ref_domain', { length: 500 }).default(''),
@@ -195,7 +195,7 @@ export const linkEventsTable = pgTable(
       .defaultNow(),
     linkId: text('link_id')
       .notNull()
-      .references(() => linksTable.id),
+      .references(() => linksTable.id, { onDelete: 'cascade' }),
     linkSessionId: text('link_session_id')
       .references(() => linkSessionsTable.id)
       .notNull(),

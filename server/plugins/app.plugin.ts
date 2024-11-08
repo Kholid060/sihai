@@ -2,7 +2,7 @@ import { findLinkByKey, redirectLink } from '../services/link.service';
 
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('request', async (event) => {
-    const host = getRequestHost(event);
+    const { host, pathname } = getRequestURL(event);
     if (
       host.startsWith('app.') ||
       host === '/' ||
@@ -11,7 +11,7 @@ export default defineNitroPlugin((nitroApp) => {
     )
       return;
 
-    const link = await findLinkByKey(event.path.slice(1));
+    const link = await findLinkByKey(pathname.slice(1));
     return await redirectLink(link, event);
   });
 });
