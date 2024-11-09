@@ -285,6 +285,10 @@ const intervals: Record<AnalyticsInterval, string> = {
   '30d': 'Last 30 days',
 };
 
+useSeoMeta({
+  title: 'Analytics',
+});
+
 const query = useRoute().query as unknown as SearchParams;
 const searchParams = useUrlSearchParams<SearchParams>('history', {
   initialValue: {

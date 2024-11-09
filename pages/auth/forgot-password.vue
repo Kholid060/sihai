@@ -66,6 +66,9 @@ definePageMeta({
   layout: 'auth',
   middleware: ['no-auth'],
 });
+useSeoMeta({
+  title: 'Forgot Password',
+});
 
 const supabase = useSupabaseClient();
 

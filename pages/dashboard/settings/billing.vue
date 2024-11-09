@@ -69,7 +69,7 @@
             <UiButton class="mt-6 min-w-32" variant="secondary">Retry</UiButton>
           </UiStateError>
           <UiSkeleton
-            v-if="query.status.value === 'pending' || !query.data.value"
+            v-else-if="query.status.value === 'pending' || !query.data.value"
             class="w-full"
           />
           <UiBarChart
@@ -101,6 +101,10 @@
 import { DateFormatter } from '@internationalized/date';
 import { useQuery } from '@tanstack/vue-query';
 import { LinkIcon, SignpostIcon } from 'lucide-vue-next';
+
+useSeoMeta({
+  title: 'Plan & Usage',
+});
 
 const usageTabs = [
   {

@@ -116,6 +116,9 @@ definePageMeta({
   layout: 'auth',
   middleware: ['no-auth'],
 });
+useSeoMeta({
+  title: 'Register',
+});
 
 const supabase = useSupabaseClient();
 

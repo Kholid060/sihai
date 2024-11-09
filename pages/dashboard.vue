@@ -18,6 +18,17 @@
   </UiTooltipProvider>
 </template>
 <script setup lang="ts">
+import { APP_NAME } from '~/server/const/app.const';
+
+useSeoMeta({
+  title: APP_NAME,
+  titleTemplate: (titleChunk) => {
+    return titleChunk
+      ? `${titleChunk} - ${APP_NAME} Dashboard`
+      : `${APP_NAME} Dashboard`;
+  },
+});
+
 const userStore = useUserStore();
 
 const showSidebar = shallowRef(false);

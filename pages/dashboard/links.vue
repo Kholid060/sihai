@@ -313,6 +313,10 @@ import { useToast } from '~/components/ui/toast';
 import { useInfiniteQuery } from '@tanstack/vue-query';
 import { useDateFormatter } from 'radix-vue';
 
+useSeoMeta({
+  title: 'Links',
+});
+
 const sortKeys: { key: LinkQueryValidation['sortBy']; label: string }[] = [
   { key: 'create-date', label: 'Created Date' },
   { key: 'clicks', label: 'Clicks Count' },

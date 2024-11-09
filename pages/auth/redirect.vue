@@ -2,6 +2,10 @@
   <p class="px-4 py-12 text-center">Redirecting...</p>
 </template>
 <script lang="ts" setup>
+useSeoMeta({
+  title: 'Redirect...',
+});
+
 const route = useRoute();
 const user = useSupabaseUser();
 

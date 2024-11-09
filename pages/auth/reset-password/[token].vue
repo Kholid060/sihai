@@ -98,6 +98,9 @@ import { newUserValidation } from '~/server/validation/auth-email.validation';
 definePageMeta({
   middleware: ['verify-reset-password'],
 });
+useSeoMeta({
+  title: 'Reset Password',
+});
 
 const supabase = useSupabaseClient();
 

@@ -102,6 +102,10 @@ definePageMeta({
   middleware: ['no-auth'],
 });
 
+useSeoMeta({
+  title: 'Sign In',
+});
+
 const supabase = useSupabaseClient();
 
 const isLoading = shallowRef(false);

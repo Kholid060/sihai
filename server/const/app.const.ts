@@ -11,3 +11,5 @@ export const APP_FREE_PLAN = {
 } as const;
 
 export const APP_DOMAIN = 'example.com';
+
+export const APP_NAME = 'Sihai';

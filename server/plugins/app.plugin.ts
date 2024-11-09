@@ -15,8 +15,7 @@ export default defineNitroPlugin((nitroApp) => {
     const link = await findLinkByKey(pathname.slice(1));
     return await redirectLink(link, event);
   });
-  nitroApp.hooks.hook('beforeResponse', (event, response) => {
-    console.log(event.context.cf);
+  nitroApp.hooks.hook('beforeResponse', (event) => {
     if (
       event.path.startsWith('/api/') ||
       import.meta.dev ||

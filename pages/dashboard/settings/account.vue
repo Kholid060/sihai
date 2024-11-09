@@ -99,6 +99,10 @@ import {
   DB_USER_PASSWORD_LENGTH,
 } from '~/server/const/db.const';
 
+useSeoMeta({
+  title: 'Account Settings',
+});
+
 const toast = useToast();
 const user = useSupabaseUser();
 

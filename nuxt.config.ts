@@ -5,11 +5,11 @@ export default defineNuxtConfig({
     'shadcn-nuxt',
     '@nuxt/eslint',
     '@nuxtjs/supabase',
-    '@nuxtjs/google-fonts',
     '@pinia/nuxt',
     'nuxt-security',
     '@nuxt/image',
     '@nuxthub/core',
+    '@nuxtjs/robots',
   ],
   security: {
     headers: {
