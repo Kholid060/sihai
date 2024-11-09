@@ -13,6 +13,9 @@ export function useDrizzle() {
   return instance;
 }
 
-export function destroyDrizzle() {
-  return instance?.$client.end() ?? Promise.resolve();
+export async function destroyDrizzle() {
+  if (!instance) return;
+
+  await instance.$client.end();
+  instance = null;
 }

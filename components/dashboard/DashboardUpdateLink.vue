@@ -9,7 +9,7 @@
       description="An error occurred when trying to fetch the link"
     >
       <UiButton
-        :is-loading="query.isLoadingError.value"
+        :is-loading="query.isLoading.value"
         variant="secondary"
         class="mx-auto mt-6 min-w-32"
         @click="query.refetch()"
