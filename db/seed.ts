@@ -1,8 +1,8 @@
-import 'dotenv/config';
-import { drizzle } from '../server/lib/drizzle';
+// import 'dotenv/config';
+// import { drizzle } from '../server/lib/drizzle';
 
-// code here
+// // code here
 
-await drizzle.$client.end();
+// await drizzle.$client.end();
 
-console.log('Seed success');
+// console.log('Seed success');

@@ -18,6 +18,11 @@ export default defineNuxtConfig({
       },
     },
   },
+  hub: import.meta.dev
+    ? {}
+    : {
+        cache: true,
+      },
   devtools: { enabled: true },
   runtimeConfig: {
     dbURL: process.env.DATABASE_URL,

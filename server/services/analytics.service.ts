@@ -1,5 +1,5 @@
 import { linkEventsTable, linkSessionsTable, linksTable } from '~/db/schema';
-import { drizzle } from '../lib/drizzle';
+import { useDrizzle } from '../lib/drizzle';
 import { and, desc, eq, gte, sql, sum } from 'drizzle-orm';
 import {
   ANALYTICS_INTERVAL_DAY_COUNT,
@@ -31,7 +31,7 @@ export const getAnalyticsByClicks = defineCachedFunction(
     interval: AnalyticsInterval;
   }) => {
     const { date, trunc } = getIntervalData(interval);
-    const result = await drizzle
+    const result = await useDrizzle()
       .select({
         event: sum(linkSessionsTable.event).mapWith(Number),
         createdAt: sql`date_trunc('${sql.raw(trunc)}', ${linkSessionsTable.createdAt}) as _date`,
@@ -66,7 +66,7 @@ async function queryLinkSessions({
   interval: AnalyticsInterval;
 }): Promise<{ label: string; event: number }[]> {
   const { date } = getIntervalData(interval);
-  const result = await drizzle
+  const result = await useDrizzle()
     .select({
       label: groupBy,
       event: sql`SUM(${linkSessionsTable.event}) as _sum`.mapWith(Number),
@@ -98,7 +98,7 @@ async function queryLinkEvents({
   interval: AnalyticsInterval;
 }): Promise<{ label: string; event: number }[]> {
   const { date } = getIntervalData(interval);
-  const result = await drizzle
+  const result = await useDrizzle()
     .select({
       label: groupBy,
       event: sql`COUNT(${linkEventsTable.id}) as _count`.mapWith(Number),
@@ -128,7 +128,7 @@ export const queryTopLinks = defineCachedFunction(
     interval: AnalyticsInterval;
   }) => {
     const { date } = getIntervalData(interval);
-    const result = await drizzle
+    const result = await useDrizzle()
       .select({
         label: linksTable.key,
         linkId: linksTable.id,

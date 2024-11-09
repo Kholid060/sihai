@@ -1,12 +1,13 @@
 import type { NewUser, SelectUserPlan } from '~/db/schema';
 import { profilesTable, userPlansTable } from '~/db/schema';
-import { drizzle } from '../lib/drizzle';
+import { useDrizzle } from '../lib/drizzle';
 import { eq } from 'drizzle-orm';
 import type { UserProfile } from '~/interface/user.interface';
 import type { UpdateUserPasswordValidation } from '../validation/profile.validation';
 
 export const getUserProfile = defineCachedFunction(
   async (userId: string): Promise<UserProfile> => {
+    const drizzle = useDrizzle();
     const [profile] = await drizzle
       .select({
         id: profilesTable.id,
@@ -81,7 +82,7 @@ export async function updateUserProfile(
   userId: string,
   { name }: Partial<NewUser>,
 ) {
-  await drizzle
+  await useDrizzle()
     .update(profilesTable)
     .set({ name })
     .where(eq(profilesTable.id, userId));
@@ -103,6 +104,7 @@ export async function updateUserPassword(
     });
   }
 
+  const drizzle = useDrizzle();
   const [user] =
     await drizzle.$client`SELECT id FROM auth.users WHERE id = ${userId} and crypt(${currentPassword}::text, auth.users.encrypted_password) = encrypted_password LIMIT 1`;
   if (!user) {

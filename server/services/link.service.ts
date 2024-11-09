@@ -7,7 +7,7 @@ import {
   linksTable,
   userPlansTable,
 } from '~/db/schema';
-import { drizzle } from '../lib/drizzle';
+import { useDrizzle } from '../lib/drizzle';
 import { createLimitExceedError } from '../utils/custom-errors';
 import type {
   LinkQueryValidation,
@@ -47,7 +47,7 @@ export async function createNewLink(
     throw createLimitExceedError('Link rule');
   }
 
-  const newLink = await drizzle.transaction(async (tx) => {
+  const newLink = await useDrizzle().transaction(async (tx) => {
     let result: LinkDetail;
     const key = urlData.key ?? nanoid(6);
 
@@ -89,7 +89,7 @@ export async function findLinksByUser(
   userId: string,
   filter: LinkQueryValidation,
 ): Promise<LinkListResult> {
-  let query = drizzle
+  let query = useDrizzle()
     .select({
       id: linksTable.id,
       key: linksTable.key,
@@ -188,7 +188,7 @@ export async function findLinksByUser(
 
 export const findLinkByKey = defineCachedFunction(
   async (key: string): Promise<LinkWithRedirect> => {
-    const [link] = await drizzle
+    const [link] = await useDrizzle()
       .select({
         id: linksTable.id,
         rules: linksTable.rules,
@@ -218,7 +218,7 @@ export const findLinkByKey = defineCachedFunction(
 
 export const findLinkByUserAndId = defineCachedFunction(
   async (userId: string, linkId: string): Promise<LinkDetail> => {
-    const [link] = await drizzle
+    const [link] = await useDrizzle()
       .select({
         id: linksTable.id,
         key: linksTable.key,
@@ -258,7 +258,7 @@ export async function updateLink(
     }
   }
 
-  const result = await drizzle
+  const result = await useDrizzle()
     .update(linksTable)
     .set(data)
     .where(and(eq(linksTable.id, linkId), eq(linksTable.userId, userId)))
@@ -272,6 +272,7 @@ export async function updateLink(
 }
 
 export async function deleteLink(userId: string, linkId: string) {
+  const drizzle = useDrizzle();
   await drizzle.transaction(async (tx) => {
     const result = await tx
       .delete(linksTable)
@@ -308,7 +309,7 @@ async function insertLinkSession(
     refDomain,
   }: SessionData & { targetURL: string },
 ) {
-  await drizzle.transaction(async (tx) => {
+  await useDrizzle().transaction(async (tx) => {
     await tx
       .insert(linkSessionsTable)
       .values({
@@ -383,7 +384,7 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
     redirectURLWithUtm = redirectURLObj.href;
   }
 
-  drizzle
+  useDrizzle()
     .update(userPlansTable)
     .set({
       redirectsUsage: incrementDBColumn(userPlansTable.redirectsUsage),

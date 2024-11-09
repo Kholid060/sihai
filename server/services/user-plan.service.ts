@@ -1,9 +1,9 @@
 import { userPlansTable } from '~/db/schema';
-import { drizzle } from '../lib/drizzle';
+import { useDrizzle } from '../lib/drizzle';
 import { eq } from 'drizzle-orm';
 
 export async function getUserPlan(userId: string) {
-  const result = await drizzle
+  const result = await useDrizzle()
     .select({
       name: userPlansTable.name,
       periodEnd: userPlansTable.periodEnd,

@@ -1,7 +1,7 @@
 import { getUserPlan } from './user-plan.service';
 import { linkSessionsTable, linksTable } from '~/db/schema';
 import { sum, sql, and, eq, between, count } from 'drizzle-orm';
-import { drizzle } from '../lib/drizzle';
+import { useDrizzle } from '../lib/drizzle';
 import type { QueryUserUsageValidation } from '../validation/profile.validation';
 
 export const getUserRedirectsUsage = defineCachedFunction(
@@ -9,7 +9,7 @@ export const getUserRedirectsUsage = defineCachedFunction(
     const userPlan = await getUserPlan(userId);
     if (!userPlan) return [];
 
-    const result = await drizzle
+    const result = await useDrizzle()
       .select({
         event: sum(linkSessionsTable.event).mapWith(Number),
         createdAt: sql`date_trunc('day', ${linkSessionsTable.createdAt}) as _date`,
@@ -36,7 +36,7 @@ export const getUserLinksUsage = defineCachedFunction(
     const userPlan = await getUserPlan(userId);
     if (!userPlan) return [];
 
-    const result = await drizzle
+    const result = await useDrizzle()
       .select({
         event: count(linksTable.createdAt),
         createdAt: sql`date_trunc('day', ${linksTable.createdAt}) as _date`,
