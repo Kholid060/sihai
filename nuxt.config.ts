@@ -43,9 +43,6 @@ export default defineNuxtConfig({
       callback: '/auth/redirect',
     },
   },
-  nitro: {
-    minify: false,
-  },
   tailwindcss: {
     configPath: 'tailwind.config.ts',
   },
