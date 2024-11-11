@@ -32,6 +32,7 @@ const OS_MAP_ALIAS = Object.fromEntries(
 );
 
 async function getCountry(event: H3Event, ip: string) {
+  console.log([...event.headers.keys()]);
   if (event.headers.has('cf-ipcountry')) {
     return event.headers.get('cf-ipcountry');
   }
@@ -81,7 +82,7 @@ export const getSessionData = defineCachedFunction(
   },
   {
     maxAge: 3,
-    getKey: (_event: unknown, sessionId: string) => sessionId,
+    getKey: (_event: unknown, sessionId: string) => 'session' + sessionId,
   },
 );
 

@@ -13,9 +13,12 @@ export default defineNitroPlugin((nitroApp) => {
       return;
 
     const drizzle = useDrizzle();
-
     const link = await findLinkByKey(drizzle, pathname.slice(1));
 
-    return await redirectLink(drizzle, link, event);
+    await redirectLink(drizzle, link, event);
+  });
+  nitroApp.hooks.hook('error', (error, context) => {
+    console.log('context', context.event?.path);
+    console.error(error);
   });
 });

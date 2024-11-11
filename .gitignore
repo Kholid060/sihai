@@ -25,5 +25,5 @@ logs
 
 supabase
 
-GeoLite2-Country.mmdb
+geo
 .wrangler
