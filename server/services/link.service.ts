@@ -7,7 +7,6 @@ import {
   linksTable,
   userPlansTable,
 } from '~/db/schema';
-import { useDrizzle } from '../lib/drizzle';
 import { createLimitExceedError } from '../utils/custom-errors';
 import type {
   LinkQueryValidation,
@@ -34,12 +33,14 @@ import {
 import { LinkRulesTester } from '~/server/utils/LinkRuleTester';
 import type { SessionData } from '../lib/session';
 import { getSessionData, getSessionId } from '../lib/session';
+import type { DrizzleDB } from '../lib/drizzle';
 
 export async function createNewLink(
+  db: DrizzleDB,
   userId: string,
   urlData: NewLinkValidation,
 ): Promise<LinkDetail> {
-  const profile = await getUserProfile(userId);
+  const profile = await getUserProfile(db, userId);
   if (profile.plan.linksUsage >= profile.plan.linksLimit) {
     throw createLimitExceedError('URL');
   }
@@ -47,7 +48,7 @@ export async function createNewLink(
     throw createLimitExceedError('Link rule');
   }
 
-  const newLink = await useDrizzle().transaction(async (tx) => {
+  const newLink = await db.transaction(async (tx) => {
     let result: LinkDetail;
     const key = urlData.key ?? nanoid(6);
 
@@ -86,10 +87,11 @@ export async function createNewLink(
 }
 
 export async function findLinksByUser(
+  db: DrizzleDB,
   userId: string,
   filter: LinkQueryValidation,
 ): Promise<LinkListResult> {
-  let query = useDrizzle()
+  let query = db
     .select({
       id: linksTable.id,
       key: linksTable.key,
@@ -187,8 +189,8 @@ export async function findLinksByUser(
 }
 
 export const findLinkByKey = defineCachedFunction(
-  async (key: string): Promise<LinkWithRedirect> => {
-    const [link] = await useDrizzle()
+  async (db: DrizzleDB, key: string): Promise<LinkWithRedirect> => {
+    const [link] = await db
       .select({
         id: linksTable.id,
         rules: linksTable.rules,
@@ -214,11 +216,16 @@ export const findLinkByKey = defineCachedFunction(
 
     return link;
   },
+  { getKey: (_, key) => 'link' + key },
 );
 
 export const findLinkByUserAndId = defineCachedFunction(
-  async (userId: string, linkId: string): Promise<LinkDetail> => {
-    const [link] = await useDrizzle()
+  async (
+    db: DrizzleDB,
+    userId: string,
+    linkId: string,
+  ): Promise<LinkDetail> => {
+    const [link] = await db
       .select({
         id: linksTable.id,
         key: linksTable.key,
@@ -241,10 +248,11 @@ export const findLinkByUserAndId = defineCachedFunction(
 
     return link;
   },
-  { maxAge: 5 },
+  { maxAge: 5, getKey: (_, userId, linkId) => userId + linkId },
 );
 
 export async function updateLink(
+  db: DrizzleDB,
   userId: string,
   linkId: string,
   data: UpdateLinkValidation,
@@ -252,13 +260,13 @@ export async function updateLink(
   if (Object.keys(data).length === 0) return;
 
   if (data.rules) {
-    const profile = await getUserProfile(userId);
+    const profile = await getUserProfile(db, userId);
     if (data.rules.length > profile.plan.rulesLimit) {
       throw createLimitExceedError('Link rule');
     }
   }
 
-  const result = await useDrizzle()
+  const result = await db
     .update(linksTable)
     .set(data)
     .where(and(eq(linksTable.id, linkId), eq(linksTable.userId, userId)))
@@ -271,9 +279,12 @@ export async function updateLink(
   }
 }
 
-export async function deleteLink(userId: string, linkId: string) {
-  const drizzle = useDrizzle();
-  await drizzle.transaction(async (tx) => {
+export async function deleteLink(
+  db: DrizzleDB,
+  userId: string,
+  linkId: string,
+) {
+  await db.transaction(async (tx) => {
     const result = await tx
       .delete(linksTable)
       .where(and(eq(linksTable.id, linkId), eq(linksTable.userId, userId)))
@@ -285,16 +296,15 @@ export async function deleteLink(userId: string, linkId: string) {
       });
     }
 
-    await drizzle
+    await db
       .delete(linkSessionsTable)
       .where(eq(linkSessionsTable.linkId, linkId));
-    await drizzle
-      .delete(linkEventsTable)
-      .where(eq(linkEventsTable.linkId, linkId));
+    await db.delete(linkEventsTable).where(eq(linkEventsTable.linkId, linkId));
   });
 }
 
 async function insertLinkSession(
+  db: DrizzleDB,
   { linkId, userId }: { linkId: string; userId: string },
   {
     os,
@@ -309,7 +319,7 @@ async function insertLinkSession(
     refDomain,
   }: SessionData & { targetURL: string },
 ) {
-  await useDrizzle().transaction(async (tx) => {
+  await db.transaction(async (tx) => {
     await tx
       .insert(linkSessionsTable)
       .values({
@@ -346,7 +356,11 @@ async function insertLinkSession(
   });
 }
 
-export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
+export async function redirectLink(
+  db: DrizzleDB,
+  link: LinkWithRedirect,
+  event: H3Event,
+) {
   if (link.redirects.usage >= link.redirects.limit) {
     throw createError({
       statusCode: 402,
@@ -358,6 +372,7 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
   const uaParser = Bowser.getParser(userAgent, true);
 
   if (isbot(userAgent) || !uaParser.getBrowserName()) {
+    if (!import.meta.dev) event.waitUntil(db.$client.end());
     return sendRedirect(event, link.target);
   }
 
@@ -384,17 +399,19 @@ export async function redirectLink(link: LinkWithRedirect, event: H3Event) {
     redirectURLWithUtm = redirectURLObj.href;
   }
 
-  useDrizzle()
-    .update(userPlansTable)
+  db.update(userPlansTable)
     .set({
       redirectsUsage: incrementDBColumn(userPlansTable.redirectsUsage),
     })
     .where(eq(userPlansTable.id, link.redirects.id))
     .execute();
   insertLinkSession(
+    db,
     { linkId: link.id, userId: link.userId },
     { ...sessionData, targetURL: redirectURL },
   );
+
+  if (!import.meta.dev) event.waitUntil(db.$client.end());
 
   return sendRedirect(event, redirectURLWithUtm || redirectURL);
 }

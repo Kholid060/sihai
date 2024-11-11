@@ -14,6 +14,7 @@ export const useUserStore = defineStore('user', () => {
       linksLimit: 0,
       linksUsage: 0,
       rulesLimit: 0,
+      periodStart: '',
       redirectsLimit: 0,
       redirectsUsage: 0,
     },

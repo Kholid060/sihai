@@ -1,4 +1,4 @@
-import { destroyDrizzle } from '../lib/drizzle';
+import { useDrizzle } from '../lib/drizzle';
 import { findLinkByKey, redirectLink } from '../services/link.service';
 
 export default defineNitroPlugin((nitroApp) => {
@@ -12,17 +12,10 @@ export default defineNitroPlugin((nitroApp) => {
     )
       return;
 
-    const link = await findLinkByKey(pathname.slice(1));
-    return await redirectLink(link, event);
-  });
-  nitroApp.hooks.hook('beforeResponse', (event) => {
-    if (
-      event.path.startsWith('/api/') ||
-      import.meta.dev ||
-      process.env.PLATFORM !== 'cloudflare'
-    )
-      return;
+    const drizzle = useDrizzle();
 
-    event.waitUntil(destroyDrizzle());
+    const link = await findLinkByKey(drizzle, pathname.slice(1));
+
+    return await redirectLink(drizzle, link, event);
   });
 });

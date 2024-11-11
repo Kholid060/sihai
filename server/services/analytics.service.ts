@@ -1,5 +1,5 @@
 import { linkEventsTable, linkSessionsTable, linksTable } from '~/db/schema';
-import { useDrizzle } from '../lib/drizzle';
+import type { DrizzleDB } from '../lib/drizzle';
 import { and, desc, eq, gte, sql, sum } from 'drizzle-orm';
 import {
   ANALYTICS_INTERVAL_DAY_COUNT,
@@ -8,6 +8,7 @@ import {
 import { subtractCurrentDate } from '~/utils/helper';
 import type { AnalyticsQueryValidation } from '../validation/analytics.validation';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
+import { hash } from 'ohash';
 
 function getIntervalData(interval: AnalyticsInterval) {
   const trunc = interval === '24h' ? 'hour' : 'day';
@@ -21,17 +22,20 @@ function getIntervalData(interval: AnalyticsInterval) {
 }
 
 export const getAnalyticsByClicks = defineCachedFunction(
-  async ({
-    linkId,
-    userId,
-    interval,
-  }: {
-    userId: string;
-    linkId?: string;
-    interval: AnalyticsInterval;
-  }) => {
+  async (
+    db: DrizzleDB,
+    {
+      linkId,
+      userId,
+      interval,
+    }: {
+      userId: string;
+      linkId?: string;
+      interval: AnalyticsInterval;
+    },
+  ) => {
     const { date, trunc } = getIntervalData(interval);
-    const result = await useDrizzle()
+    const result = await db
       .select({
         event: sum(linkSessionsTable.event).mapWith(Number),
         createdAt: sql`date_trunc('${sql.raw(trunc)}', ${linkSessionsTable.createdAt}) as _date`,
@@ -50,23 +54,26 @@ export const getAnalyticsByClicks = defineCachedFunction(
   },
   {
     maxAge: 5,
-    getKey: (arg) => `clicks-${arg.userId}-${arg.interval}-${arg.linkId}`,
+    getKey: (_arg, params) => hash(params),
   },
 );
 
-async function queryLinkSessions({
-  userId,
-  linkId,
-  groupBy,
-  interval,
-}: {
-  userId: string;
-  linkId?: string;
-  groupBy: AnyPgColumn;
-  interval: AnalyticsInterval;
-}): Promise<{ label: string; event: number }[]> {
+async function queryLinkSessions(
+  db: DrizzleDB,
+  {
+    userId,
+    linkId,
+    groupBy,
+    interval,
+  }: {
+    userId: string;
+    linkId?: string;
+    groupBy: AnyPgColumn;
+    interval: AnalyticsInterval;
+  },
+): Promise<{ label: string; event: number }[]> {
   const { date } = getIntervalData(interval);
-  const result = await useDrizzle()
+  const result = await db
     .select({
       label: groupBy,
       event: sql`SUM(${linkSessionsTable.event}) as _sum`.mapWith(Number),
@@ -86,19 +93,22 @@ async function queryLinkSessions({
   return result;
 }
 
-async function queryLinkEvents({
-  userId,
-  linkId,
-  groupBy,
-  interval,
-}: {
-  userId: string;
-  linkId?: string;
-  groupBy: AnyPgColumn;
-  interval: AnalyticsInterval;
-}): Promise<{ label: string; event: number }[]> {
+async function queryLinkEvents(
+  db: DrizzleDB,
+  {
+    userId,
+    linkId,
+    groupBy,
+    interval,
+  }: {
+    userId: string;
+    linkId?: string;
+    groupBy: AnyPgColumn;
+    interval: AnalyticsInterval;
+  },
+): Promise<{ label: string; event: number }[]> {
   const { date } = getIntervalData(interval);
-  const result = await useDrizzle()
+  const result = await db
     .select({
       label: groupBy,
       event: sql`COUNT(${linkEventsTable.id}) as _count`.mapWith(Number),
@@ -118,17 +128,20 @@ async function queryLinkEvents({
 }
 
 export const queryTopLinks = defineCachedFunction(
-  async ({
-    userId,
-    linkId,
-    interval,
-  }: {
-    userId: string;
-    linkId?: string;
-    interval: AnalyticsInterval;
-  }) => {
+  async (
+    db: DrizzleDB,
+    {
+      userId,
+      linkId,
+      interval,
+    }: {
+      userId: string;
+      linkId?: string;
+      interval: AnalyticsInterval;
+    },
+  ) => {
     const { date } = getIntervalData(interval);
-    const result = await useDrizzle()
+    const result = await db
       .select({
         label: linksTable.key,
         linkId: linksTable.id,
@@ -148,62 +161,67 @@ export const queryTopLinks = defineCachedFunction(
 
     return result;
   },
+  { getKey: (_, key) => hash(key), maxAge: 3 },
 );
 
 export const getAnalyticsData = defineCachedFunction(
-  (userId: string, { groupBy, interval, linkId }: AnalyticsQueryValidation) => {
+  (
+    db: DrizzleDB,
+    userId: string,
+    { groupBy, interval, linkId }: AnalyticsQueryValidation,
+  ) => {
     switch (groupBy) {
       case 'country':
-        return queryLinkSessions({
+        return queryLinkSessions(db, {
           userId,
           linkId,
           interval,
           groupBy: linkSessionsTable.country,
         });
       case 'browser':
-        return queryLinkSessions({
+        return queryLinkSessions(db, {
           userId,
           linkId,
           interval,
           groupBy: linkSessionsTable.browser,
         });
       case 'language':
-        return queryLinkSessions({
+        return queryLinkSessions(db, {
           userId,
           linkId,
           interval,
           groupBy: linkSessionsTable.language,
         });
       case 'device':
-        return queryLinkSessions({
+        return queryLinkSessions(db, {
           userId,
           linkId,
           interval,
           groupBy: linkSessionsTable.device,
         });
       case 'os':
-        return queryLinkSessions({
+        return queryLinkSessions(db, {
           userId,
           linkId,
           interval,
           groupBy: linkSessionsTable.os,
         });
       case 'referer':
-        return queryLinkEvents({
+        return queryLinkEvents(db, {
           userId,
           linkId,
           interval,
           groupBy: linkEventsTable.refDomain,
         });
       case 'target':
-        return queryLinkEvents({
+        return queryLinkEvents(db, {
           userId,
           linkId,
           interval,
           groupBy: linkEventsTable.target,
         });
       case 'trigger':
-        return queryLinkEvents({
+        return queryLinkEvents(db, {
           userId,
           linkId,
           interval,
@@ -213,5 +231,5 @@ export const getAnalyticsData = defineCachedFunction(
         throw new Error(`"${groupBy}" is invalid`);
     }
   },
-  { maxAge: 5 },
+  { maxAge: 5, getKey: (_, userId, param) => userId + hash(param) },
 );

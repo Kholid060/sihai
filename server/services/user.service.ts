@@ -1,14 +1,13 @@
 import type { NewUser, SelectUserPlan } from '~/db/schema';
 import { profilesTable, userPlansTable } from '~/db/schema';
-import { useDrizzle } from '../lib/drizzle';
 import { eq } from 'drizzle-orm';
 import type { UserProfile } from '~/interface/user.interface';
 import type { UpdateUserPasswordValidation } from '../validation/profile.validation';
+import type { DrizzleDB } from '../lib/drizzle';
 
 export const getUserProfile = defineCachedFunction(
-  async (userId: string): Promise<UserProfile> => {
-    const drizzle = useDrizzle();
-    const [profile] = await drizzle
+  async (db: DrizzleDB, userId: string): Promise<UserProfile> => {
+    const [profile] = await db
       .select({
         id: profilesTable.id,
         name: profilesTable.name,
@@ -40,7 +39,7 @@ export const getUserProfile = defineCachedFunction(
       let result: SelectUserPlan;
 
       if (profile.plan) {
-        [result] = await drizzle
+        [result] = await db
           .update(userPlansTable)
           .set({
             linksUsage: 0,
@@ -51,7 +50,7 @@ export const getUserProfile = defineCachedFunction(
           .where(eq(userPlansTable.userId, userId))
           .returning();
       } else {
-        [result] = await drizzle
+        [result] = await db
           .insert(userPlansTable)
           .values({
             userId,
@@ -75,20 +74,22 @@ export const getUserProfile = defineCachedFunction(
 
     return profile as UserProfile;
   },
-  { maxAge: 5 },
+  { maxAge: 5, getKey: (db, userId) => 'profile' + userId },
 );
 
 export async function updateUserProfile(
+  db: DrizzleDB,
   userId: string,
   { name }: Partial<NewUser>,
 ) {
-  await useDrizzle()
+  await db
     .update(profilesTable)
     .set({ name })
     .where(eq(profilesTable.id, userId));
 }
 
 export async function updateUserPassword(
+  db: DrizzleDB,
   userId: string,
   {
     newPassword,
@@ -104,9 +105,8 @@ export async function updateUserPassword(
     });
   }
 
-  const drizzle = useDrizzle();
   const [user] =
-    await drizzle.$client`SELECT id FROM auth.users WHERE id = ${userId} and crypt(${currentPassword}::text, auth.users.encrypted_password) = encrypted_password LIMIT 1`;
+    await db.$client`SELECT id FROM auth.users WHERE id = ${userId} and crypt(${currentPassword}::text, auth.users.encrypted_password) = encrypted_password LIMIT 1`;
   if (!user) {
     throw createError({
       statusCode: 400,
@@ -115,5 +115,5 @@ export async function updateUserPassword(
     });
   }
 
-  await drizzle.$client`UPDATE auth.users SET encrypted_password = crypt(${newPassword}, gen_salt('bf')) WHERE id = ${userId}`;
+  await db.$client`UPDATE auth.users SET encrypted_password = crypt(${newPassword}, gen_salt('bf')) WHERE id = ${userId}`;
 }

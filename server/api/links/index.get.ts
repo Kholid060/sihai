@@ -1,4 +1,3 @@
-import { authGuard } from '~/server/guards/auth.guard';
 import { findLinksByUser } from '~/server/services/link.service';
 import {
   createAPIResponse,
@@ -6,17 +5,14 @@ import {
 } from '~/server/utils/server-utils';
 import { linkQueryValidation } from '~/server/validation/link.validation';
 
-export default defineEventHandler({
-  onRequest: [authGuard],
-  async handler(event) {
-    const query = await getValidatedEventData(
-      event,
-      'query',
-      linkQueryValidation,
-    );
+export default defineAPIEventHandler(async (event) => {
+  const query = await getValidatedEventData(
+    event,
+    'query',
+    linkQueryValidation,
+  );
 
-    return createAPIResponse(
-      await findLinksByUser(event.context.user.id, query),
-    );
-  },
+  return createAPIResponse(
+    await findLinksByUser(event.context.drizzle, event.context.user.id, query),
+  );
 });
