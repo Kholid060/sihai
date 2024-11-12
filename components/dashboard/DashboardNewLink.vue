@@ -80,12 +80,14 @@
             <UiFormField v-slot="{ componentField }" name="target">
               <UiFormItem>
                 <UiFormLabel>Destination URL</UiFormLabel>
-                <UiInput
-                  v-bind="componentField"
-                  type="url"
-                  class="bg-card"
-                  placeholder="https://example.com/sub/my/long-url"
-                />
+                <UiFormControl>
+                  <UiInput
+                    v-bind="componentField"
+                    type="url"
+                    class="bg-card"
+                    placeholder="https://example.com/sub/my/long-url"
+                  />
+                </UiFormControl>
                 <UiFormMessage />
                 <UiFormDescription />
               </UiFormItem>
@@ -93,11 +95,13 @@
             <UiFormField v-slot="{ componentField }" name="title">
               <UiFormItem>
                 <UiFormLabel>Title (optional)</UiFormLabel>
-                <UiInput
-                  placeholder="A short link"
-                  v-bind="componentField"
-                  class="bg-card"
-                />
+                <UiFormControl>
+                  <UiInput
+                    placeholder="A short link"
+                    v-bind="componentField"
+                    class="bg-card"
+                  />
+                </UiFormControl>
                 <UiFormMessage />
                 <UiFormDescription />
               </UiFormItem>
@@ -121,12 +125,14 @@
                   >
                     {{ APP_DOMAIN }}/
                   </p>
-                  <UiInput
-                    v-bind="componentField"
-                    placeholder="optional"
-                    :disabled="isEditing && state.lockKey"
-                    class="grow rounded-l-none border-l-0 bg-card"
-                  />
+                  <UiFormControl>
+                    <UiInput
+                      v-bind="componentField"
+                      placeholder="optional"
+                      :disabled="isEditing && state.lockKey"
+                      class="grow rounded-l-none border-l-0 bg-card"
+                    />
+                  </UiFormControl>
                 </div>
                 <UiFormMessage />
                 <UiFormDescription />
@@ -135,11 +141,13 @@
             <UiFormField v-slot="{ componentField }" name="description">
               <UiFormItem>
                 <UiFormLabel>Description (optional)</UiFormLabel>
-                <UiTextarea
-                  placeholder="Short description about the link"
-                  v-bind="componentField"
-                  class="bg-card"
-                />
+                <UiFormControl>
+                  <UiTextarea
+                    placeholder="Short description about the link"
+                    v-bind="componentField"
+                    class="bg-card"
+                  />
+                </UiFormControl>
                 <UiFormMessage />
                 <UiFormDescription />
               </UiFormItem>
@@ -177,11 +185,13 @@
                   class="size-10 rounded-l-md border border-r-0"
                   type="color"
                 />
-                <UiInput
-                  v-bind="componentField"
-                  placeholder="optional"
-                  class="grow rounded-l-none bg-card"
-                />
+                <UiFormControl>
+                  <UiInput
+                    v-bind="componentField"
+                    placeholder="optional"
+                    class="grow rounded-l-none bg-card"
+                  />
+                </UiFormControl>
               </div>
               <UiFormMessage />
               <UiFormDescription />
@@ -199,11 +209,13 @@
                   class="size-10 rounded-l-md border border-r-0"
                   type="color"
                 />
-                <UiInput
-                  v-bind="componentField"
-                  placeholder="optional"
-                  class="grow rounded-l-none bg-card"
-                />
+                <UiFormControl>
+                  <UiInput
+                    v-bind="componentField"
+                    placeholder="optional"
+                    class="grow rounded-l-none bg-card"
+                  />
+                </UiFormControl>
               </div>
               <UiFormMessage />
               <UiFormDescription />
@@ -216,18 +228,20 @@
             >
               <UiFormItem class="mt-4">
                 <UiFormLabel>Corner Square Type</UiFormLabel>
-                <UiSelect v-bind="componentField">
-                  <UiSelectTrigger class="bg-inherit">
-                    <UiSelectValue />
-                  </UiSelectTrigger>
-                  <UiSelectContent>
-                    <UiSelectItem value="square"> Square </UiSelectItem>
-                    <UiSelectItem value="extra-rounded">
-                      Extra rounded
-                    </UiSelectItem>
-                    <UiSelectItem value="dot"> Dot </UiSelectItem>
-                  </UiSelectContent>
-                </UiSelect>
+                <UiFormControl>
+                  <UiSelect v-bind="componentField">
+                    <UiSelectTrigger class="bg-inherit">
+                      <UiSelectValue />
+                    </UiSelectTrigger>
+                    <UiSelectContent>
+                      <UiSelectItem value="square"> Square </UiSelectItem>
+                      <UiSelectItem value="extra-rounded">
+                        Extra rounded
+                      </UiSelectItem>
+                      <UiSelectItem value="dot"> Dot </UiSelectItem>
+                    </UiSelectContent>
+                  </UiSelect>
+                </UiFormControl>
                 <UiFormMessage />
                 <UiFormDescription />
               </UiFormItem>
@@ -238,20 +252,37 @@
             >
               <UiFormItem class="mt-4">
                 <UiFormLabel>Corner Dot Type</UiFormLabel>
-                <UiSelect v-bind="componentField">
-                  <UiSelectTrigger class="bg-inherit">
-                    <UiSelectValue />
-                  </UiSelectTrigger>
-                  <UiSelectContent>
-                    <UiSelectItem value="square"> Square </UiSelectItem>
-                    <UiSelectItem value="dot"> Dot </UiSelectItem>
-                  </UiSelectContent>
-                </UiSelect>
+                <UiFormControl>
+                  <UiSelect v-bind="componentField">
+                    <UiSelectTrigger class="bg-inherit">
+                      <UiSelectValue />
+                    </UiSelectTrigger>
+                    <UiSelectContent>
+                      <UiSelectItem value="square"> Square </UiSelectItem>
+                      <UiSelectItem value="dot"> Dot </UiSelectItem>
+                    </UiSelectContent>
+                  </UiSelect>
+                </UiFormControl>
                 <UiFormMessage />
                 <UiFormDescription />
               </UiFormItem>
             </UiFormField>
           </div>
+          <UiFormField v-slot="{ value, handleChange }" name="qrOptions.logo">
+            <UiFormItem class="mt-7 flex items-center gap-2 space-y-0">
+              <UiFormControl>
+                <UiSwitch
+                  :checked="value"
+                  :disabled="userStore.profile.plan.name === APP_FREE_PLAN.id"
+                  aria-readonly
+                  @update:checked="handleChange"
+                />
+              </UiFormControl>
+              <UiFormLabel>Show logo</UiFormLabel>
+              <UiFormMessage />
+              <UiFormDescription />
+            </UiFormItem>
+          </UiFormField>
         </UiTabsContent>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="utm">
           <UiAlert
@@ -274,15 +305,17 @@
                     }}</code
                     >)
                   </UiFormLabel>
-                  <UiInput
-                    v-bind="componentField"
-                    class="bg-card"
-                    :placeholder="item.placeholder"
-                    :disabled="!linkTarget.valid"
-                    @update:model-value="
-                      onUTMChanged(item.key, $event.toString())
-                    "
-                  />
+                  <UiFormControl>
+                    <UiInput
+                      v-bind="componentField"
+                      class="bg-card"
+                      :placeholder="item.placeholder"
+                      :disabled="!linkTarget.valid"
+                      @update:model-value="
+                        onUTMChanged(item.key, $event.toString())
+                      "
+                    />
+                  </UiFormControl>
                   <UiFormMessage />
                   <UiFormDescription />
                 </UiFormItem>
@@ -358,11 +391,11 @@ import { nanoid } from 'nanoid';
 import { useMediaQuery, watchDebounced } from '@vueuse/core';
 import { useToast } from '../ui/toast';
 import type { LinkDetail } from '~/interface/link.interface';
-import { APP_DOMAIN } from '~/server/const/app.const';
 import { VisuallyHidden } from 'radix-vue';
 import UiTooltipSimple from '~/components/ui/tooltip/TooltipSimple.vue';
 import QRCodeStyling, { type Options } from 'qr-code-styling';
 import logoPng from '~/assets/images/logo.png';
+import { APP_FREE_PLAN } from '~/server/const/app.const';
 
 const props = withDefaults(
   defineProps<{
@@ -381,6 +414,8 @@ const emit = defineEmits<{
   'new-link': [link: LinkDetail];
   'link-updated': [payload: UpdateLinkValidation];
 }>();
+
+const APP_DOMAIN = useRuntimeConfig().public.appDomain;
 
 const utmForms: {
   label: string;
@@ -434,6 +469,8 @@ const {
   },
   keepValuesOnUnmount: true,
 });
+
+const userStore = useUserStore();
 
 const qrCodeElRef = ref<HTMLDivElement>();
 const activeTab = shallowRef<keyof typeof TABS>('detail');
@@ -610,7 +647,10 @@ watchDebounced(
 
     const data = `https://${APP_DOMAIN}/${keyValue}?qr=1`;
     const options: Partial<Options> = {
-      image: logoPng,
+      image:
+        userStore.profile.plan.name === APP_FREE_PLAN.id || qrOptions?.logo
+          ? logoPng
+          : undefined,
       backgroundOptions: {
         color: qrOptions?.bgColor,
       },
@@ -628,7 +668,6 @@ watchDebounced(
     if (!qrCodeStyling) {
       qrCodeStyling = new QRCodeStyling({
         type: 'svg',
-        margin: 0,
         width: 120,
         height: 120,
         data,

@@ -3,13 +3,11 @@ export const APP_PLAN_ID = {
 } as const;
 
 export const APP_FREE_PLAN = {
-  maxUrl: 15,
+  maxUrl: 10,
   maxRules: 3,
-  maxRedirect: 500,
+  maxRedirect: 350,
   name: 'Free plan',
   id: APP_PLAN_ID.free,
 } as const;
-
-export const APP_DOMAIN = 'example.com';
 
 export const APP_NAME = 'Sihai';

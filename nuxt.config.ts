@@ -26,6 +26,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     dbURL: process.env.DATABASE_URL,
+    public: {
+      appDomain: process.env.APP_DOMAIN,
+    },
   },
   compatibilityDate: '2024-04-03',
   vite: {

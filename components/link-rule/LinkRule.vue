@@ -33,7 +33,7 @@
   <UiDialog :open="Boolean(editRule)" @update:open="removeEditRule">
     <UiDialogScrollContent
       v-if="editRule"
-      class="max-w-xl"
+      class="m-0 max-w-xl self-end p-4 md:self-auto md:p-6"
       @interact-outside="$event.preventDefault()"
     >
       <UiDialogTitle>
@@ -63,7 +63,7 @@
       <div>
         <h4 class="font-bold">Conditions</h4>
         <LinkRuleConditions v-model="editRule" />
-        <UiDialogFooter class="mt-8">
+        <UiDialogFooter class="mt-8 gap-2">
           <UiButton variant="outline" @click="removeEditRule">Cancel</UiButton>
           <UiButton class="min-w-20" @click="saveChanges">
             Save changes

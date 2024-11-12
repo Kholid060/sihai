@@ -307,7 +307,6 @@ import {
   LinkIcon,
   ChartColumnIcon,
 } from 'lucide-vue-next';
-import { APP_DOMAIN } from '~/server/const/app.const';
 import type { LinkQueryValidation } from '~/server/validation/link.validation';
 import { useToast } from '~/components/ui/toast';
 import { useInfiniteQuery } from '@tanstack/vue-query';
@@ -316,6 +315,8 @@ import { useDateFormatter } from 'radix-vue';
 useSeoMeta({
   title: 'Links',
 });
+
+const APP_DOMAIN = useRuntimeConfig().public.appDomain;
 
 const sortKeys: { key: LinkQueryValidation['sortBy']; label: string }[] = [
   { key: 'create-date', label: 'Created Date' },

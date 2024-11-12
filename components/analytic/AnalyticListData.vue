@@ -1,5 +1,5 @@
 <template>
-  <ul class="space-y-1">
+  <ul ref="containerRef" class="space-y-1">
     <div v-if="query.status.value === 'error'">
       <UiStateError title="Error fetching data">
         <UiButton variant="secondary" @click="query.refetch">Retry</UiButton>
@@ -35,6 +35,7 @@
 </template>
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
+import { useElementVisibility } from '@vueuse/core';
 import type { AnalyticsInterval } from '~/server/const/analytics.const';
 
 interface Props {
@@ -49,7 +50,11 @@ const props = withDefaults(defineProps<Props>(), {
   noneLabel: '(unknown)',
 });
 
+const containerRef = ref<HTMLDivElement>();
+const targetIsVisible = useElementVisibility(containerRef);
+
 const query = useQuery({
+  enabled: targetIsVisible,
   queryKey: computed(() => [
     `analytics-click-${props.groupBy}`,
     props.interval,
@@ -65,9 +70,6 @@ const query = useQuery({
       },
     }),
 });
-if (import.meta.server) {
-  await query.suspense();
-}
 
 const numberFormatter = useNumberFormatter();
 </script>
