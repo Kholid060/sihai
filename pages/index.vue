@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <p>Hello world</p>
+  <div class="container h-96">
+    <div class="size-full rounded-b-xl bg-grass-12">
+      <p>Hello world</p>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
