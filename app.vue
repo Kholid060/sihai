@@ -8,8 +8,6 @@
 <script setup lang="ts">
 import { APP_NAME } from './server/const/app.const';
 
-const supabase = useSupabaseClient();
-
 useServerSeoMeta({
   title: APP_NAME,
   ogTitle: APP_NAME,
@@ -20,9 +18,5 @@ useSeoMeta({
       ? `${titleChunk} - ${APP_NAME}`
       : APP_NAME;
   },
-});
-
-onBeforeMount(() => {
-  supabase.auth.onAuthStateChange(console.log);
 });
 </script>

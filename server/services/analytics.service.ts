@@ -161,7 +161,7 @@ export const queryTopLinks = defineCachedFunction(
 
     return result;
   },
-  { getKey: (_, key) => hash(key), maxAge: 3 },
+  { getKey: (_, key) => 'analytic-links' + hash(key), maxAge: 3 },
 );
 
 export const getAnalyticsData = defineCachedFunction(

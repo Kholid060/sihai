@@ -372,8 +372,7 @@ export async function redirectLink(
   const uaParser = Bowser.getParser(userAgent, true);
 
   if (isbot(userAgent) || !uaParser.getBrowserName()) {
-    if (!import.meta.dev) event.waitUntil(db.$client.end());
-    return sendRedirect(event, link.target);
+    return link.target;
   }
 
   const sessionId = await getSessionId(event);
@@ -411,7 +410,5 @@ export async function redirectLink(
     { ...sessionData, targetURL: redirectURL },
   );
 
-  if (!import.meta.dev) event.waitUntil(db.$client.end());
-
-  return sendRedirect(event, redirectURLWithUtm || redirectURL);
+  return redirectURLWithUtm || redirectURL;
 }

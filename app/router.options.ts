@@ -7,9 +7,8 @@ export default <RouterConfig>{
       return routes.filter((route) => route.name === 'landing-page');
     }
 
-    const [subdmain] = url.hostname.split('.');
-    if (subdmain === 'app') return routes;
+    if (url.hostname.startsWith('app.')) return routes;
 
-    return [];
+    return routes.filter((route) => route.name === 'redirect-link');
   },
 };

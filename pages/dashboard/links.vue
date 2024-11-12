@@ -374,7 +374,9 @@ const query = useInfiniteQuery({
   getNextPageParam: (lastPage) => lastPage.data.nextCursor,
   initialPageParam: '',
 });
-await query.suspense();
+if (import.meta.server) {
+  await query.suspense();
+}
 
 function onNewLinkCreated() {
   showNewLinkModal.value = false;

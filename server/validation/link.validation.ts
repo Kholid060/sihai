@@ -117,3 +117,10 @@ export const linkQueryValidation = z.object({
     .optional(),
 });
 export type LinkQueryValidation = z.infer<typeof linkQueryValidation>;
+
+export const linkRedirectQueryValidation = z.object({
+  linkId: z.string().min(1),
+});
+export type LinkRedirectQueryValidation = z.infer<
+  typeof linkRedirectQueryValidation
+>;

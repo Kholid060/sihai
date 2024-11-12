@@ -30,11 +30,13 @@
       </button>
     </div>
   </div>
-  <AnalyticClicks
-    :interval="searchParams.interval"
-    :link-id="searchParams.linkId"
-    class="mt-6"
-  />
+  <ClientOnly>
+    <AnalyticClicks
+      :interval="searchParams.interval"
+      :link-id="searchParams.linkId"
+      class="mt-6"
+    />
+  </ClientOnly>
   <div class="mt-6 grid gap-6 pb-24 lg:grid-cols-2">
     <UiCard class="min-h-80">
       <UiTabs v-model="tabsState.links">

@@ -48,7 +48,9 @@ const query = useQuery({
       params: { interval: props.interval, linkId: props.linkId },
     }),
 });
-await query.suspense();
+if (import.meta.server) {
+  await query.suspense();
+}
 
 const numberFormatter = useNumberFormatter();
 </script>

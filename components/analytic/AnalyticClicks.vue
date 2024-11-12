@@ -25,7 +25,7 @@
       <UiCardContent>
         <UiSkeleton
           v-if="query.status.value === 'pending' || !query.data.value"
-          class="h-64 w-full"
+          class="min-h-[400px] w-full"
         />
         <UiAreaChart
           v-else
@@ -64,7 +64,9 @@ const query = useQuery({
       headers: useRequestHeaders(['cookie']),
     }),
 });
-await query.suspense();
+if (import.meta.server) {
+  await query.suspense();
+}
 
 const locale = useDefaultLocale();
 const numberFormatter = useNumberFormatter(undefined, locale.value);

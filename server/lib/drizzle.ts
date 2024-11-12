@@ -8,7 +8,7 @@ let instance: DrizzleDB | null = null;
 
 export function useDrizzle() {
   if (!instance || !import.meta.dev) {
-    const client = postgres(process.env.DATABASE_URL!, { prepare: false });
+    const client = postgres(useRuntimeConfig().dbURL, { prepare: false });
     instance = drizzlePostgres(client);
   }
 

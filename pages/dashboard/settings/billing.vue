@@ -70,7 +70,7 @@
           </UiStateError>
           <UiSkeleton
             v-else-if="query.status.value === 'pending' || !query.data.value"
-            class="w-full"
+            class="min-h-[400px] w-full"
           />
           <UiBarChart
             v-else
