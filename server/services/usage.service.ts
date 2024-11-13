@@ -9,6 +9,12 @@ export const getUserRedirectsUsage = defineCachedFunction(
     const userPlan = await getUserPlan(db, userId);
     if (!userPlan) return [];
 
+    const periodStart = new Date(userPlan.periodStart);
+    periodStart.setHours(0, 0, 0);
+
+    const periodEnd = new Date(userPlan.periodEnd);
+    periodEnd.setHours(23, 59, 59);
+
     const result = await db
       .select({
         event: sum(linkSessionsTable.event).mapWith(Number),
@@ -19,8 +25,8 @@ export const getUserRedirectsUsage = defineCachedFunction(
         and(
           between(
             linkSessionsTable.createdAt,
-            userPlan.periodStart,
-            userPlan.periodEnd,
+            periodStart.toISOString(),
+            periodEnd.toISOString(),
           ),
           eq(linkSessionsTable.userId, userId),
         ),
@@ -36,6 +42,12 @@ export const getUserLinksUsage = defineCachedFunction(
     const userPlan = await getUserPlan(db, userId);
     if (!userPlan) return [];
 
+    const periodStart = new Date(userPlan.periodStart);
+    periodStart.setHours(0, 0, 0);
+
+    const periodEnd = new Date(userPlan.periodEnd);
+    periodEnd.setHours(23, 59, 59);
+
     const result = await db
       .select({
         event: count(linksTable.createdAt),
@@ -46,8 +58,8 @@ export const getUserLinksUsage = defineCachedFunction(
         and(
           between(
             linksTable.createdAt,
-            userPlan.periodStart,
-            userPlan.periodEnd,
+            periodStart.toISOString(),
+            periodEnd.toISOString(),
           ),
           eq(linksTable.userId, userId),
         ),

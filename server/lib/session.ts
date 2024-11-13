@@ -2,13 +2,14 @@ import type { H3Event } from 'h3';
 import acceptLanguage from 'accept-language';
 import languages from '~/data/language.json';
 import Bowser from 'bowser';
-// import type { Reader, CountryResponse } from 'maxmind';
+import path from 'node:path';
+import type { Reader, CountryResponse } from 'maxmind';
 import { BROWSER_ALIASES_MAP } from 'bowser/src/constants';
 import { uuid } from '~/lib/crypto';
 
 acceptLanguage.languages(Object.keys(languages));
 
-// let lookup: Reader<CountryResponse>;
+let lookup: Reader<CountryResponse>;
 
 export interface SessionData {
   ip: string;
@@ -29,7 +30,7 @@ const OS_MAP_ALIAS = Object.fromEntries(
   Object.entries(Bowser.OS_MAP).map(([key, value]) => [value, key]),
 );
 
-async function getCountry(event: H3Event, _ip: string) {
+async function getCountry(event: H3Event, ip: string) {
   if (event.headers.has('cf-ipcountry')) {
     return event.headers.get('cf-ipcountry');
   }
@@ -37,14 +38,15 @@ async function getCountry(event: H3Event, _ip: string) {
     return event.headers.get('x-vercel-ip-country');
   }
 
-  return null;
-  // if (!lookup && path) {
-  //   const dir = path.join(process.cwd(), 'geo');
-  //   const maxmind = await import('maxmind');
-  //   lookup = await maxmind.open(path.resolve(dir, 'GeoLite2-Country.mmdb'));
-  // }
+  if (!import.meta.dev) return null;
 
-  // return lookup?.get(ip)?.country?.iso_code ?? null;
+  if (!lookup) {
+    const dir = path.join(process.cwd(), 'geo');
+    const maxmind = await import('maxmind');
+    lookup = await maxmind.open(path.resolve(dir, 'GeoLite2-Country.mmdb'));
+  }
+
+  return lookup?.get(ip)?.country?.iso_code ?? null;
 }
 
 export const getSessionData = defineCachedFunction(

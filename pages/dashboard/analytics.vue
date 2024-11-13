@@ -1,7 +1,7 @@
 <template>
   <DashboardHeading>Analytics</DashboardHeading>
   <div class="mt-10 flex gap-4">
-    <UiSelect v-model="searchParams.interval" placholder="Halo">
+    <UiSelect v-model="searchParams.interval">
       <UiSelectTrigger class="w-auto">
         <CalendarDaysIcon class="mr-2 size-4 text-muted-foreground" />
         <UiSelectValue />
@@ -31,6 +31,9 @@
     </div>
   </div>
   <ClientOnly>
+    <template #fallback>
+      <div class="min-h-[550px]"></div>
+    </template>
     <AnalyticClicks
       :interval="searchParams.interval"
       :link-id="searchParams.linkId"

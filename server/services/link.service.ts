@@ -371,6 +371,8 @@ export async function redirectLink(
   const userAgent = event.headers.get('user-agent') ?? '';
   const uaParser = Bowser.getParser(userAgent, true);
 
+  console.log(isbot(userAgent), userAgent, uaParser.getBrowserName());
+
   if (isbot(userAgent) || !uaParser.getBrowserName()) {
     return link.target;
   }

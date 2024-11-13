@@ -155,7 +155,6 @@ const chartData = computed(() => {
   const timeSeries = generateTimeSeries(dayDiff, 'day', periodEndDate);
 
   const copyData = [...query.data.value.data];
-
   return timeSeries.map((date) => {
     const label = df.format(date);
     const index = copyData.findIndex((item) =>

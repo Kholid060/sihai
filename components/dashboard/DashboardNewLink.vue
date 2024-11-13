@@ -1,6 +1,6 @@
 <template>
   <UiTabs v-model="activeTab">
-    <div class="flex flex-col-reverse md:flex-row md:pb-0">
+    <div ref="containerRef" class="flex flex-col-reverse md:flex-row md:pb-0">
       <div class="w-full px-2 py-3 md:w-64 md:px-3 md:py-4">
         <VisuallyHidden>{{ title }}</VisuallyHidden>
         <h2 class="hidden text-xl font-bold md:block">{{ title }}</h2>
@@ -388,7 +388,7 @@ import {
 } from '~/server/validation/link.validation';
 import { LINK_UTM_QUERY_MAP } from '~/server/const/link.const';
 import { nanoid } from 'nanoid';
-import { useMediaQuery, watchDebounced } from '@vueuse/core';
+import { useMediaQuery, useResizeObserver, watchDebounced } from '@vueuse/core';
 import { useToast } from '../ui/toast';
 import type { LinkDetail } from '~/interface/link.interface';
 import { VisuallyHidden } from 'radix-vue';
@@ -473,6 +473,7 @@ const {
 const userStore = useUserStore();
 
 const qrCodeElRef = ref<HTMLDivElement>();
+const containerRef = ref<HTMLDivElement>();
 const activeTab = shallowRef<keyof typeof TABS>('detail');
 
 const state = shallowReactive({
@@ -483,6 +484,10 @@ const state = shallowReactive({
 const linkTarget = shallowReactive<{ valid: boolean; utmUrl: string }>({
   utmUrl: '',
   valid: false,
+});
+
+useResizeObserver(containerRef, ([entry]) => {
+  (entry.target as HTMLElement).style.height = entry.contentRect.height + 'px';
 });
 
 const onSubmit = handleSubmit(async (values) => {

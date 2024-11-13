@@ -44,7 +44,7 @@ export function generateTimeSeries(
   const result: Date[] = [endDate];
 
   for (let index = 1; index < count + 1; index += 1) {
-    const date = new Date();
+    const date = new Date(endDate);
     if (type === 'day') date.setDate(endDate.getDate() - index);
     else date.setHours(endDate.getHours() - index, 0);
 
