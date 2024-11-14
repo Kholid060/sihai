@@ -55,7 +55,7 @@
       <UiDialogScrollContent
         blur
         hide-close-btn
-        class="m-0 flex !w-auto max-w-none self-end p-0 md:self-auto md:p-2"
+        class="m-0 flex !w-auto max-w-none self-end p-0 md:mt-36 md:self-baseline md:p-2"
         @interact-outside="$event.preventDefault()"
       >
         <LazyDashboardNewLink @new-link="onNewLinkCreated" />
@@ -254,7 +254,7 @@
       <UiDialogScrollContent
         blur
         hide-close-btn
-        class="m-0 flex !w-auto max-w-none self-end p-0 md:self-auto md:p-2"
+        class="m-0 flex !w-auto max-w-none self-end p-0 md:mt-36 md:self-baseline md:p-2"
         @interact-outside="$event.preventDefault()"
       >
         <LazyDashboardUpdateLink

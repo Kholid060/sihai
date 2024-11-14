@@ -18,3 +18,13 @@ export type LinkWithRedirect = Pick<
 > & {
   redirects: { usage: number; limit: number; id: number };
 };
+
+export type LinkVariableList =
+  | 'os'
+  | 'time'
+  | 'date'
+  | 'device'
+  | 'browser'
+  | 'country'
+  | 'date-time'
+  | 'language';

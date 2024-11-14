@@ -49,6 +49,23 @@ async function getCountry(event: H3Event, ip: string) {
   return lookup?.get(ip)?.country?.iso_code ?? null;
 }
 
+function getRefererData(referer: string | null) {
+  let refPath = null;
+  let refDomain = null;
+
+  if (referer) {
+    const url = new URL(referer);
+    refDomain = url.hostname;
+    refPath = url.pathname.slice(0, 500);
+  }
+
+  return {
+    refPath,
+    referer,
+    refDomain,
+  };
+}
+
 export const getSessionData = defineCachedFunction(
   async (event: H3Event, sessionId: string): Promise<SessionData> => {
     const ip = getRequestIP(event, { xForwardedFor: true }) ?? '';
@@ -56,27 +73,15 @@ export const getSessionData = defineCachedFunction(
     const userAgent = event.headers.get('user-agent') ?? '';
     const uaParser = Bowser.getParser(userAgent ?? '', true);
 
-    let refPath = null;
-    let refDomain = null;
-
-    const referer = event.headers.get('referer');
-    if (referer) {
-      const url = new URL(referer);
-      refDomain = url.hostname;
-      refPath = url.pathname.slice(0, 500);
-    }
-
     return {
       ip,
-      refPath,
-      referer,
-      refDomain,
       userAgent,
       sessionId,
       device: uaParser.getPlatformType(),
       country: await getCountry(event, ip),
       os: OS_MAP_ALIAS[uaParser.getOSName()],
       isQr: Object.hasOwn(getQuery(event), 'qr'),
+      ...getRefererData(event.headers.get('referer')),
       browser: BROWSER_ALIASES_MAP[uaParser.getBrowserName()],
       language: acceptLanguage.get(event.headers.get('accept-language')),
     };

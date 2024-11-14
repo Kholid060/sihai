@@ -51,11 +51,7 @@
       </UiDialogTitle>
       <fieldset>
         <UiLabel>Destination URL</UiLabel>
-        <UiInput
-          v-model="editRule.target"
-          type="url"
-          placeholder="https://example.com"
-        />
+        <LinkDestinationURL v-model="editRule.target" />
         <p v-if="isInvalidTarget" class="text-sm text-destructive">
           Invalid URL
         </p>

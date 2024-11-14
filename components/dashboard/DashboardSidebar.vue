@@ -2,7 +2,7 @@
   <aside
     class="fixed top-0 flex h-screen w-64 flex-col bg-grass-12 py-4 text-olive-1"
   >
-    <div class="mb-12 px-7 pt-4">
+    <div class="mb-[46px] px-7 pt-4">
       <h2 class="text-3xl font-bold">Sihai</h2>
     </div>
     <NuxtLink

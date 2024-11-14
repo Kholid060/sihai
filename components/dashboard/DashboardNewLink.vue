@@ -77,15 +77,13 @@
         </h3>
         <UiTabsContent tabindex="-1" class="mt-0 grow" value="detail">
           <div class="space-y-4">
-            <UiFormField v-slot="{ componentField }" name="target">
+            <UiFormField v-slot="{ value, handleChange }" name="target">
               <UiFormItem>
                 <UiFormLabel>Destination URL</UiFormLabel>
                 <UiFormControl>
-                  <UiInput
-                    v-bind="componentField"
-                    type="url"
-                    class="bg-card"
-                    placeholder="https://example.com/sub/my/long-url"
+                  <LinkDestinationURL
+                    :model-value="value"
+                    @update:model-value="handleChange"
                   />
                 </UiFormControl>
                 <UiFormMessage />
@@ -388,7 +386,7 @@ import {
 } from '~/server/validation/link.validation';
 import { LINK_UTM_QUERY_MAP } from '~/server/const/link.const';
 import { nanoid } from 'nanoid';
-import { useMediaQuery, useResizeObserver, watchDebounced } from '@vueuse/core';
+import { useMediaQuery, watchDebounced } from '@vueuse/core';
 import { useToast } from '../ui/toast';
 import type { LinkDetail } from '~/interface/link.interface';
 import { VisuallyHidden } from 'radix-vue';
@@ -484,10 +482,6 @@ const state = shallowReactive({
 const linkTarget = shallowReactive<{ valid: boolean; utmUrl: string }>({
   utmUrl: '',
   valid: false,
-});
-
-useResizeObserver(containerRef, ([entry]) => {
-  (entry.target as HTMLElement).style.height = entry.contentRect.height + 'px';
 });
 
 const onSubmit = handleSubmit(async (values) => {

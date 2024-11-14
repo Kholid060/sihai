@@ -34,6 +34,7 @@ import { LinkRulesTester } from '~/server/utils/LinkRuleTester';
 import type { SessionData } from '../lib/session';
 import { getSessionData, getSessionId } from '../lib/session';
 import type { DrizzleDB } from '../lib/drizzle';
+import { linkVariableReplacer } from '../utils/link-utils';
 
 export async function createNewLink(
   db: DrizzleDB,
@@ -371,8 +372,6 @@ export async function redirectLink(
   const userAgent = event.headers.get('user-agent') ?? '';
   const uaParser = Bowser.getParser(userAgent, true);
 
-  console.log(isbot(userAgent), userAgent, uaParser.getBrowserName());
-
   if (isbot(userAgent) || !uaParser.getBrowserName()) {
     return link.target;
   }
@@ -412,5 +411,33 @@ export async function redirectLink(
     { ...sessionData, targetURL: redirectURL },
   );
 
-  return redirectURLWithUtm || redirectURL;
+  return linkVariableReplacer(
+    redirectURLWithUtm || redirectURL,
+    (varName, match) => {
+      switch (varName) {
+        case 'browser':
+          return sessionData.browser;
+        case 'country':
+          return sessionData.country ?? '(unknown)';
+        case 'date': {
+          const date = new Date();
+          return `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}`;
+        }
+        case 'date-time':
+          return new Date().toISOString();
+        case 'time': {
+          const date = new Date();
+          return `${date.getUTCHours()}:${date.getUTCMinutes()}`;
+        }
+        case 'device':
+          return sessionData.device;
+        case 'language':
+          return sessionData.language ?? '(unknown)';
+        case 'os':
+          return sessionData.os;
+        default:
+          return match;
+      }
+    },
+  );
 }
