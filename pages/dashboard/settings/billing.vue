@@ -19,7 +19,7 @@
         </h3>
       </section>
       <section class="self-center md:justify-self-end">
-        <UiButton>Upgrade</UiButton>
+        <UiButton>Upgrade (coming soon)</UiButton>
       </section>
     </UiCardHeader>
     <UiCardContent>
