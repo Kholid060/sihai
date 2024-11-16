@@ -72,3 +72,18 @@ export function dateDiffInDays(left: Date, right: Date) {
 
   return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 }
+
+export function joinWords(words: string[]) {
+  switch (words.length) {
+    case 0:
+      return '';
+    case 1:
+      return words[0];
+    case 2:
+      return `${words[0]} and ${words[1]}`;
+    default: {
+      const lastWord = words.pop();
+      return `${words.join(', ')}, and ${lastWord}`;
+    }
+  }
+}

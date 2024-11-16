@@ -1,6 +1,9 @@
 import type { SelectLink } from '~/db/schema';
 
-export type LinkDetail = Omit<SelectLink, 'userId' | 'updatedAt'>;
+export type LinkDetail = Omit<
+  SelectLink,
+  'userId' | 'updatedAt' | 'expUrl' | 'expDate'
+>;
 
 export type LinkListItem = Pick<
   SelectLink,
@@ -14,7 +17,7 @@ export interface LinkListResult {
 
 export type LinkWithRedirect = Pick<
   SelectLink,
-  'rules' | 'utmOptions' | 'target' | 'id' | 'userId'
+  'rules' | 'utmOptions' | 'target' | 'id' | 'userId' | 'expDate' | 'expUrl'
 > & {
   redirects: { usage: number; limit: number; id: number };
 };

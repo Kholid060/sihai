@@ -17,7 +17,7 @@
   </header>
   <div class="container h-96 min-h-[600px] pt-48">
     <h1 class="max-w-xl text-6xl font-bold leading-tight">
-      Gain More Control Over Your Short Links.
+      More Control Over Your Short Links.
     </h1>
     <p class="mt-6 text-lg text-muted-foreground">
       Lorem ipsum dolor sit amet consectetur adipisicing elit.

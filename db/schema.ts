@@ -116,6 +116,9 @@ export const linksTable = pgTable(
     qrOptions: json('qr_opts').notNull().$type<LinkQROptionsValidation>(),
     utmOptions: json('utm_opts').notNull().$type<LinkUTMOptionsValidation>(),
     target: text().notNull(),
+
+    expUrl: text('exp_url'),
+    expDate: timestamp('exp_date', { withTimezone: true, mode: 'string' }),
   },
   (table) => ({
     userIdIdx: index('l_user_id').on(table.userId),

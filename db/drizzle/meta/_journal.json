@@ -22,6 +22,13 @@
       "when": 1730452962814,
       "tag": "0002_striped_lord_hawal",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731740718722,
+      "tag": "0003_chief_warlock",
+      "breakpoints": true
     }
   ]
 }

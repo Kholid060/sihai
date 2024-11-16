@@ -35,6 +35,50 @@ import type { SessionData } from '../lib/session';
 import { getSessionData, getSessionId } from '../lib/session';
 import type { DrizzleDB } from '../lib/drizzle';
 import { linkVariableReplacer } from '../utils/link-utils';
+import type { UserProfile } from '~/interface/user.interface';
+import { APP_FREE_PLAN } from '../const/app.const';
+import { joinWords } from '~/utils/helper';
+
+async function validateLink(
+  db: DrizzleDB,
+  userId: string,
+  data: NewLinkValidation | UpdateLinkValidation,
+) {
+  const messages: string[] = [];
+  let profile: UserProfile | null;
+
+  const canAccessFeature = async (
+    handle: string | ((profile: UserProfile) => void),
+  ) => {
+    if (!profile) {
+      profile = await getUserProfile(db, userId);
+    }
+
+    if (profile.plan.name === APP_FREE_PLAN.id) {
+      if (typeof handle === 'string') messages.push(handle);
+      else handle(profile);
+    }
+  };
+
+  if (data.expDate) {
+    await canAccessFeature('Expiration Date');
+  }
+  if (data.rules) {
+    await canAccessFeature((profile) => {
+      if (data.rules!.length > profile.plan.rulesLimit) {
+        throw createLimitExceedError('Link rule');
+      }
+    });
+  }
+
+  if (messages.length > 0) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Forbidden',
+      message: `You must be have pro plan and above to use the ${joinWords(messages)} features`,
+    });
+  }
+}
 
 export async function createNewLink(
   db: DrizzleDB,
@@ -45,9 +89,8 @@ export async function createNewLink(
   if (profile.plan.linksUsage >= profile.plan.linksLimit) {
     throw createLimitExceedError('URL');
   }
-  if (urlData.rules.length >= profile.plan.rulesLimit) {
-    throw createLimitExceedError('Link rule');
-  }
+
+  await validateLink(db, userId, urlData);
 
   const newLink = await db.transaction(async (tx) => {
     let result: LinkDetail;
@@ -197,6 +240,8 @@ export const findLinkByKey = defineCachedFunction(
         rules: linksTable.rules,
         userId: linksTable.userId,
         target: linksTable.target,
+        expUrl: linksTable.expUrl,
+        expDate: linksTable.expDate,
         utmOptions: linksTable.utmOptions,
         redirects: {
           id: userPlansTable.id,
@@ -234,6 +279,8 @@ export const findLinkByUserAndId = defineCachedFunction(
         rules: linksTable.rules,
         clicks: linksTable.clicks,
         target: linksTable.target,
+        expUrl: linksTable.expUrl,
+        expDate: linksTable.expDate,
         archived: linksTable.archived,
         qrOptions: linksTable.qrOptions,
         createdAt: linksTable.createdAt,
@@ -260,12 +307,7 @@ export async function updateLink(
 ) {
   if (Object.keys(data).length === 0) return;
 
-  if (data.rules) {
-    const profile = await getUserProfile(db, userId);
-    if (data.rules.length > profile.plan.rulesLimit) {
-      throw createLimitExceedError('Link rule');
-    }
-  }
+  await validateLink(db, userId, data);
 
   const result = await db
     .update(linksTable)
@@ -369,6 +411,20 @@ export async function redirectLink(
     });
   }
 
+  const sessionId = await getSessionId(event);
+  const sessionData = await getSessionData(event, sessionId);
+
+  if (link.expDate && new Date().getTime() > new Date(link.expDate).getTime()) {
+    if (!link.expUrl) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'This short link is expired',
+      });
+    }
+
+    return link.expUrl;
+  }
+
   const userAgent = event.headers.get('user-agent') ?? '';
   const uaParser = Bowser.getParser(userAgent, true);
 
@@ -376,13 +432,10 @@ export async function redirectLink(
     return link.target;
   }
 
-  const sessionId = await getSessionId(event);
-  const sessionData = await getSessionData(event, sessionId);
-
   const redirectURL =
     LinkRulesTester.findMatchRules({ event, rules: link.rules, sessionData })
       ?.target ?? link.target;
-  let redirectURLWithUtm: string | null = null;
+  let redirectURLUTM = '';
 
   if (link.utmOptions) {
     const redirectURLObj = new URL(redirectURL);
@@ -396,7 +449,7 @@ export async function redirectLink(
       }
     }
 
-    redirectURLWithUtm = redirectURLObj.href;
+    redirectURLUTM = redirectURLObj.href;
   }
 
   db.update(userPlansTable)
@@ -411,33 +464,5 @@ export async function redirectLink(
     { ...sessionData, targetURL: redirectURL },
   );
 
-  return linkVariableReplacer(
-    redirectURLWithUtm || redirectURL,
-    (varName, match) => {
-      switch (varName) {
-        case 'browser':
-          return sessionData.browser;
-        case 'country':
-          return sessionData.country ?? '(unknown)';
-        case 'date': {
-          const date = new Date();
-          return `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}`;
-        }
-        case 'date-time':
-          return new Date().toISOString();
-        case 'time': {
-          const date = new Date();
-          return `${date.getUTCHours()}:${date.getUTCMinutes()}`;
-        }
-        case 'device':
-          return sessionData.device;
-        case 'language':
-          return sessionData.language ?? '(unknown)';
-        case 'os':
-          return sessionData.os;
-        default:
-          return match;
-      }
-    },
-  );
+  return linkVariableReplacer(redirectURLUTM || redirectURL, sessionData);
 }

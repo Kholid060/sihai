@@ -331,6 +331,77 @@
             />
           </div>
         </UiTabsContent>
+        <UiTabsContent tabindex="-1" class="mt-0 grow" value="expiration">
+          <UiAlert
+            v-if="!linkTarget.valid"
+            class="mb-4 mt-2 items-center"
+            variant="destructive"
+          >
+            <UiAlertTitle> Enter a valid destination URL first </UiAlertTitle>
+          </UiAlert>
+          <div class="space-y-3">
+            <UiFormField
+              v-slot="{ value, handleChange, setValue }"
+              name="expDate"
+            >
+              <UiFormItem>
+                <div class="flex items-center justify-between">
+                  <UiFormLabel> Expiration Date </UiFormLabel>
+                  <button
+                    class="text-xs text-muted-foreground underline"
+                    type="button"
+                    @click="setValue(null)"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <UiFormControl>
+                  <UiInput
+                    :model-value="
+                      value ? dayjs(value).format('YYYY-MM-DDTHH:mm') : ''
+                    "
+                    class="!block w-full bg-card"
+                    type="datetime-local"
+                    placeholder="Select a date"
+                    :disabled="!linkTarget.valid"
+                    @update:model-value="
+                      handleChange(new Date($event).toISOString())
+                    "
+                  />
+                </UiFormControl>
+                <UiFormMessage />
+                <UiFormDescription />
+              </UiFormItem>
+            </UiFormField>
+            <UiFormField v-slot="{ componentField }" name="expUrl">
+              <UiFormItem class="group">
+                <UiFormLabel>
+                  Expiration URL (optional)
+                  <UiTooltip>
+                    <UiTooltipTrigger>
+                      <InfoIcon
+                        class="inline size-4 align-middle text-muted-foreground group-hover:visible lg:invisible"
+                      />
+                    </UiTooltipTrigger>
+                    <UiTooltipContent>
+                      URL to redirect the user when the link is expired
+                    </UiTooltipContent>
+                  </UiTooltip>
+                </UiFormLabel>
+                <UiFormControl>
+                  <UiInput
+                    v-bind="componentField"
+                    class="!block w-full bg-card"
+                    placeholder="https://example.com/expired"
+                    :disabled="!linkTarget.valid"
+                  />
+                </UiFormControl>
+                <UiFormMessage />
+                <UiFormDescription />
+              </UiFormItem>
+            </UiFormField>
+          </div>
+        </UiTabsContent>
         <div v-if="isDesktop" class="mt-10 flex items-center">
           <div class="grow"></div>
           <UiButton as-child variant="outline" class="bg-inherit">
@@ -377,6 +448,8 @@ import {
   QrCodeIcon,
   CopyIcon,
   LockIcon,
+  TimerIcon,
+  InfoIcon,
 } from 'lucide-vue-next';
 import {
   newLinkValidation,
@@ -394,6 +467,7 @@ import UiTooltipSimple from '~/components/ui/tooltip/TooltipSimple.vue';
 import QRCodeStyling, { type Options } from 'qr-code-styling';
 import logoPng from '~/assets/images/logo.png';
 import { APP_FREE_PLAN } from '~/server/const/app.const';
+import dayjs from 'dayjs';
 
 const props = withDefaults(
   defineProps<{
@@ -445,6 +519,10 @@ const TABS = {
     title: 'QR Code',
     icon: QrCodeIcon,
   },
+  expiration: {
+    icon: TimerIcon,
+    title: 'Expiration & Password',
+  },
 } as const;
 
 let targetObjUrl: URL | null = null;
@@ -461,10 +539,7 @@ const {
   isFieldDirty,
 } = useForm({
   validationSchema: toTypedSchema(newLinkValidation),
-  initialValues: props.defaultValue ?? {
-    utmOptions: {},
-    key: nanoid(6),
-  },
+  initialValues: getInitialValue(),
   keepValuesOnUnmount: true,
 });
 
@@ -502,7 +577,7 @@ const onSubmit = handleSubmit(async (values) => {
           updatePayload[key] = values[key];
         }
       }
-      if (isEmpty) return;
+      if (isEmpty) return emit('link-updated', {});
 
       await $fetch(`/api/links/${props.linkId}`, {
         method: 'PATCH',
@@ -537,6 +612,21 @@ const onSubmit = handleSubmit(async (values) => {
   }
 });
 
+function getInitialValue() {
+  if (!props.defaultValue) {
+    return {
+      utmOptions: {},
+      key: nanoid(6),
+    };
+  }
+
+  return {
+    ...props.defaultValue,
+    expDate: props.defaultValue.expDate
+      ? new Date(props.defaultValue.expDate).toISOString()
+      : undefined,
+  };
+}
 function unlockKey() {
   const confirm = window.confirm(
     'Editing the current short link will break the existing link. Continue?',
