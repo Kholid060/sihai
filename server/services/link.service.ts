@@ -404,16 +404,6 @@ export async function redirectLink(
   link: LinkWithRedirect,
   event: H3Event,
 ) {
-  if (link.redirects.usage >= link.redirects.limit) {
-    throw createError({
-      statusCode: 402,
-      statusMessage: 'The redirect limit has been exceeded',
-    });
-  }
-
-  const sessionId = await getSessionId(event);
-  const sessionData = await getSessionData(event, sessionId);
-
   if (link.expDate && new Date().getTime() > new Date(link.expDate).getTime()) {
     if (!link.expUrl) {
       throw createError({
@@ -428,9 +418,16 @@ export async function redirectLink(
   const userAgent = event.headers.get('user-agent') ?? '';
   const uaParser = Bowser.getParser(userAgent, true);
 
-  if (isbot(userAgent) || !uaParser.getBrowserName()) {
+  if (
+    isbot(userAgent) ||
+    !uaParser.getBrowserName() ||
+    link.redirects.usage >= link.redirects.limit
+  ) {
     return link.target;
   }
+
+  const sessionId = await getSessionId(event);
+  const sessionData = await getSessionData(event, sessionId);
 
   const redirectURL =
     LinkRulesTester.findMatchRules({ event, rules: link.rules, sessionData })
