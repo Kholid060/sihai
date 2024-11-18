@@ -306,6 +306,7 @@
                   <UiFormControl>
                     <UiInput
                       v-bind="componentField"
+                      autocomplete="off"
                       class="bg-card"
                       :placeholder="item.placeholder"
                       :disabled="!linkTarget.valid"
@@ -521,7 +522,7 @@ const TABS = {
   },
   expiration: {
     icon: TimerIcon,
-    title: 'Expiration & Password',
+    title: 'Expiration',
   },
 } as const;
 
@@ -695,8 +696,6 @@ watchDebounced(
       valid: isValid,
       url: value && isValid ? value : '',
     });
-
-    if (targetObjUrl) return;
 
     if (!isValid) {
       targetObjUrl = null;

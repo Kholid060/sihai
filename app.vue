@@ -1,9 +1,11 @@
 <template>
   <NuxtLoadingIndicator />
-  <NuxtLayout>
-    <UiToaster />
-    <NuxtPage />
-  </NuxtLayout>
+  <UiTooltipProvider>
+    <NuxtLayout>
+      <UiToaster />
+      <NuxtPage />
+    </NuxtLayout>
+  </UiTooltipProvider>
 </template>
 <script setup lang="ts">
 import { APP_NAME } from './server/const/app.const';
