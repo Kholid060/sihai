@@ -15,7 +15,11 @@
             class="mr-4 lg:mr-6"
             target="_blank"
           >
-            <img class="size-6" src="~/assets/images/github-mark-white.png" />
+            <img
+              class="size-6"
+              alt="GitHub logo"
+              src="~/assets/images/github-mark-white.png"
+            />
           </a>
         </UiTooltipSimple>
         <UiButton
@@ -33,7 +37,7 @@
           </NuxtLink>
         </UiButton>
         <UiDropdownMenu>
-          <UiDropdownMenuTrigger class="lg:hidden">
+          <UiDropdownMenuTrigger aria-label="Menu" class="lg:hidden">
             <MenuIcon />
           </UiDropdownMenuTrigger>
           <UiDropdownMenuContent align="end">
@@ -102,8 +106,9 @@
           <div
             class="group relative aspect-video rounded-xl bg-secondary p-2 lg:p-3"
           >
-            <img
+            <NuxtImg
               class="rounded-lg"
+              :alt="activeItem"
               :src="`/images/thumbnail/${activeItem}.png`"
             />
             <UiDialog>
