@@ -1,75 +1,21 @@
-# Nuxt 3 Minimal Starter
+<img src="./assets/images/logo.png" width="120px" />
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+# Sihai
 
-## Setup
+Create a smart short link.
 
-Make sure to install the dependencies:
+## Project Setup
 
 ```bash
-# npm
-npm install
-
-# pnpm
+# Install the dependencies
 pnpm install
 
-# yarn
-yarn install
+# Start the development server
+pnpm dev
 
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
+# Build the app for production
 pnpm run build
 
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
+# Locally preview production build
 pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
