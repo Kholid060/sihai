@@ -109,9 +109,9 @@ useSeoMeta({
 const usageTabs = [
   {
     id: 'redirects',
-    name: 'Redirects',
     icon: SignpostIcon,
     maxKey: 'redirectsLimit',
+    name: 'Tracked Redirects',
     usageKey: 'redirectsUsage',
   },
   {
