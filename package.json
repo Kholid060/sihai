@@ -13,6 +13,7 @@
     "postinstall": "nuxt prepare",
     "db:seed": "tsx ./db/seed.ts",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate-prod": "dotenvx run -f .env.production -- pnpm db:migrate",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
@@ -66,10 +67,10 @@
   },
   "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee",
   "devDependencies": {
+    "@dotenvx/dotenvx": "^1.24.2",
     "@nuxt/eslint-config": "^0.6.0",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@types/qrcode": "^1.5.5",
-    "dotenv": "^16.4.5",
     "drizzle-kit": "^0.25.0",
     "eslint": "^9.12.0",
     "eslint-config-prettier": "^9.1.0",

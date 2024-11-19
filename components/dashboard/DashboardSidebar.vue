@@ -70,7 +70,7 @@
           </div>
           <div class="mt-2.5 text-xs">
             <div class="flex justify-between">
-              <p>Redirects</p>
+              <p>Tracked redirects</p>
               <p>
                 {{ userStore.profile.plan.redirectsUsage }}/{{
                   userStore.profile.plan.redirectsLimit
