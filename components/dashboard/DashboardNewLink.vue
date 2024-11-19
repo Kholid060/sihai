@@ -71,6 +71,10 @@
       >
         <h3 v-if="isDesktop" class="mb-3 text-lg font-bold">
           {{ TABS[activeTab].title }}
+          <AppProBadge
+            v-if="TABS[activeTab].isPro"
+            class="ml-1 align-text-bottom font-sans"
+          />
         </h3>
         <h3 v-else class="mb-3 text-lg font-bold">
           {{ title }}
@@ -276,7 +280,10 @@
                   @update:checked="handleChange"
                 />
               </UiFormControl>
-              <UiFormLabel>Show logo</UiFormLabel>
+              <UiFormLabel>
+                Show logo
+                <AppProBadge class="ml-1" />
+              </UiFormLabel>
               <UiFormMessage />
               <UiFormDescription />
             </UiFormItem>
@@ -505,24 +512,29 @@ const utmForms: {
 
 const TABS = {
   detail: {
+    isPro: false,
     title: 'Detail',
     icon: FileTextIcon,
   },
   rules: {
+    isPro: false,
     title: 'Rules',
     icon: WorkflowIcon,
   },
   utm: {
+    isPro: false,
     icon: MilestoneIcon,
     title: 'UTM Builder',
   },
   qrcode: {
+    isPro: false,
     title: 'QR Code',
     icon: QrCodeIcon,
   },
   expiration: {
+    isPro: true,
     icon: TimerIcon,
-    title: 'Expiration',
+    title: 'Expiration Date',
   },
 } as const;
 

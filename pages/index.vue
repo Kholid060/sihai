@@ -56,10 +56,10 @@
     <div class="rounded-xl bg-gradient-to-b from-grass-3 from-70% to-grass-4">
       <div class="container flex flex-col items-center py-60 text-center">
         <h1 class="max-w-xl text-4xl font-bold leading-tight md:text-6xl">
-          More Control Over Your Short Links.
+          Create a Smart Short Link.
         </h1>
         <p class="mt-6 max-w-md text-lg text-muted-foreground">
-          Personalize your short link and control how it behaves using rules.
+          Personalize and control how your short link behaves.
         </p>
         <UiButton size="lg" class="mt-16 text-base" as-child>
           <NuxtLink :to="`https://app.${APP_DOMAIN}/auth/register`">

@@ -76,7 +76,7 @@ export const newLinkValidation = z.object({
   qrOptions: linkQROptionsValidation,
   utmOptions: linkUTMOptionsValidation,
   expDate: z.string().datetime({ offset: true }).optional(),
-  expUrl: z.string().url().optional().or(z.literal('')),
+  expUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
   target: z.string().url().max(1024),
   rules: linkRuleValidation.array().default([]),
   title: z.string().max(DB_LINK_TITLE_MAX_LEN).optional(),
