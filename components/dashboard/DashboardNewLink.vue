@@ -358,7 +358,7 @@
                   <button
                     class="text-xs text-muted-foreground underline"
                     type="button"
-                    @click="setValue(null)"
+                    @click="setValue('')"
                   >
                     Clear
                   </button>
@@ -371,7 +371,7 @@
                     class="!block w-full bg-card"
                     type="datetime-local"
                     placeholder="Select a date"
-                    :disabled="!linkTarget.valid"
+                    :disabled="userStore.isFreePlan"
                     @update:model-value="
                       handleChange(new Date($event).toISOString())
                     "
@@ -401,7 +401,7 @@
                     v-bind="componentField"
                     class="!block w-full bg-card"
                     placeholder="https://example.com/expired"
-                    :disabled="!linkTarget.valid"
+                    :disabled="userStore.isFreePlan"
                   />
                 </UiFormControl>
                 <UiFormMessage />

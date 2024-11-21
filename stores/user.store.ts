@@ -1,4 +1,5 @@
 import type { UserProfile } from '~/interface/user.interface';
+import { APP_FREE_PLAN } from '~/server/const/app.const';
 
 export const useUserStore = defineStore('user', () => {
   let isFetched = false;
@@ -20,6 +21,10 @@ export const useUserStore = defineStore('user', () => {
     },
   });
 
+  const isFreePlan = computed(
+    () => !profile.plan.name || profile.plan.name === APP_FREE_PLAN.id,
+  );
+
   async function fetch() {
     if (isFetched) return;
 
@@ -37,5 +42,5 @@ export const useUserStore = defineStore('user', () => {
     Object.assign(profile, data);
   }
 
-  return { profile, fetch, incrementUsage, updateProfile };
+  return { profile, fetch, incrementUsage, updateProfile, isFreePlan };
 });
