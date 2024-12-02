@@ -117,9 +117,12 @@ export async function createNewLink(
 
       throw error;
     }
-    await tx.update(userPlansTable).set({
-      linksUsage: incrementDBColumn(userPlansTable.linksUsage),
-    });
+    await tx
+      .update(userPlansTable)
+      .set({
+        linksUsage: incrementDBColumn(userPlansTable.linksUsage),
+      })
+      .where(eq(userPlansTable.userId, userId));
 
     return result as LinkDetail;
   });
