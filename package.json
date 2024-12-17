@@ -47,7 +47,7 @@
     "lucia": "^3.2.1",
     "lucide-vue-next": "^0.453.0",
     "maxmind": "^4.3.22",
-    "nanoid": "^5.0.7",
+    "nanoid": "^5.0.9",
     "nuxt": "^3.14.159",
     "nuxt-security": "^2.0.0",
     "ohash": "^1.1.4",
